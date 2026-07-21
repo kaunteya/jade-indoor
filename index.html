@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Contact form</title>
+	<style>
+		html {
+			font-size: 16px;
+		}
+		body {
+			font-family: system-ui, sans-serif;
+			max-width: 480px;
+			margin: 4rem auto;
+			padding: 0 1rem;
+		}
+		form {
+			display: flex;
+			flex-direction: column;
+			gap: 0.75rem;
+		}
+		label {
+			font-size: 0.875rem;
+			font-weight: 600;
+		}
+		input, textarea, select {
+			padding: 0.5rem;
+			font-size: 1rem;
+		}
+		button {
+			padding: 0.6rem;
+			font-size: 1rem;
+			background: #1a73e8;
+			color: white;
+			cursor: pointer;
+		}
+		button:disabled {
+			opacity: 0.6;
+			cursor: default;
+		}
+		#status {
+			font-size: 0.875rem;
+		}
+		#games {
+			border: none;
+			padding: 0;
+			margin: 0;
+		}
+		#games legend {
+			font-size: 0.875rem;
+			font-weight: 600;
+			padding: 0;
+			margin-bottom: 0.75rem;
+		}
+		#games label {
+			display: block;
+			font-weight: normal;
+			padding: 0.25rem 0;
+		}
+		#games input {
+			width: auto;
+		}
+	</style>
+</head>
+<body>
+	<form id="form">
+		<label for="name">Name</label>
+		<input id="name" name="name" required />
+
+		<label for="email">Email</label>
+		<input id="email" name="email" type="email" required />
+
+		<label for="tower">Tower</label>
+		<select id="tower" name="tower" required>
+			<option value="" disabled selected>Select…</option>
+			<option value="A">A</option>
+			<option value="B">B</option>
+			<option value="C">C</option>
+			<option value="D">D</option>
+			<option value="E">E</option>
+			<option value="F">F</option>
+			<option value="G">G</option>
+			<option value="H">H</option>
+		</select>
+
+		<label for="house_number">House number</label>
+		<input id="house_number" name="house_number" type="number" min="0" max="999" placeholder="Eg: 163" required />
+
+		<label for="whatsapp">WhatsApp number</label>
+		<input id="whatsapp" name="whatsapp" type="tel" required />
+
+		<label for="age">Age</label>
+		<input id="age" name="age" type="number" min="0" required />
+
+		<label for="gender">Gender</label>
+		<select id="gender" name="gender" required>
+			<option value="" disabled selected>Select…</option>
+			<option value="Female">Female</option>
+			<option value="Male">Male</option>
+		</select>
+
+		<fieldset id="games">
+			<legend>Games</legend>
+			<label><input type="checkbox" name="games" value="Table tennis" /> Table Tennis</label>
+			<label><input type="checkbox" name="games" value="Carrom" /> Carrom</label>
+			<label><input type="checkbox" name="games" value="8-ball pool" /> 8-ball pool</label>
+			<label><input type="checkbox" name="games" value="Badminton" /> Badminton</label>
+			<label><input type="checkbox" name="games" value="Chess" /> Chess</label>
+		</fieldset>
+
+		<button type="submit">Submit</button>
+		<p id="status"></p>
+	</form>
+
+	<script>
+		// Paste your Apps Script Web App /exec URL here after deploying apps-script/Code.gs
+		const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwXq4SDLwFQ47Ik5G7EnI6vkwpqQuEXF16f_b8WSx1AuEwhlltEo3UFMMGibIZ2WmdN5w/exec';
+
+		const form = document.getElementById('form');
+		const status = document.getElementById('status');
+
+		form.addEventListener('submit', async (event) => {
+			event.preventDefault();
+			const button = form.querySelector('button');
+			button.disabled = true;
+			status.textContent = 'Submitting…';
+
+			try {
+				// no-cors: Apps Script's redirect response doesn't carry CORS headers,
+				// which would otherwise make fetch throw even on a successful write.
+				await fetch(SCRIPT_URL, {
+					method: 'POST',
+					mode: 'no-cors',
+					body: new FormData(form),
+				});
+				status.textContent = 'Thanks! Your response was recorded.';
+				form.reset();
+			} catch (err) {
+				status.textContent = 'Something went wrong. Please try again.';
+			} finally {
+				button.disabled = false;
+			}
+		});
+	</script>
+</body>
+</html>
