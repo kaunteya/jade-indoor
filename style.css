@@ -61,6 +61,12 @@ button:disabled {
 #status {
 	font-size: 0.875rem;
 }
+#status.success {
+	color: #188038;
+}
+#status.error {
+	color: #d93025;
+}
 #game-sections {
 	display: flex;
 	flex-direction: column;

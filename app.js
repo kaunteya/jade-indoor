@@ -124,11 +124,13 @@ form.addEventListener('submit', async (event) => {
 			body: new FormData(form),
 		});
 		status.textContent = 'Thanks! Your response was recorded.';
+		status.className = 'success';
 		form.reset();
 		renderGamesTable();
 		updateTotalCost();
 	} catch (err) {
 		status.textContent = 'Something went wrong. Please try again.';
+		status.className = 'error';
 	} finally {
 		button.disabled = false;
 	}
