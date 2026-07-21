@@ -27,7 +27,6 @@ const GAMES = [
 	{ field: 'games', game: 'Chess', type: '', ageGroup: 'All ages', min: 0, max: Infinity, gender: 'any', price: 200 },
 
 	{ field: 'pool_category', game: '8-ball pool', type: 'Singles', ageGroup: '15 and above', min: 15, max: Infinity, gender: 'any', price: 200 },
-	{ field: 'pool_category', game: '8-ball pool', type: 'Doubles', ageGroup: '15 and above', min: 15, max: Infinity, gender: 'any', price: 200 },
 ];
 
 const MAX_FLOOR = 20;
@@ -67,12 +66,13 @@ function renderGamesTable() {
 		gamesTableBody.innerHTML = '';
 		return;
 	}
-	const eligible = GAMES.filter(row =>
-		age >= row.min && age <= row.max && (row.gender === 'any' || row.gender === gender)
-	);
-	gamesTableBody.innerHTML = eligible.map(row => `
-		<tr>
-			<td><input type="checkbox" name="${row.field}" value="${row.type ? `${row.type} (${row.ageGroup})` : row.game}" data-price="${row.price}" /></td>
+	const SHOW_DISABLED_GAMES = ['Carrom', '8-ball pool'];
+	gamesTableBody.innerHTML = GAMES
+		.map(row => ({ row, eligible: age >= row.min && age <= row.max && (row.gender === 'any' || row.gender === gender) }))
+		.filter(({ row, eligible }) => eligible || SHOW_DISABLED_GAMES.includes(row.game))
+		.map(({ row, eligible }) => `
+		<tr class="${eligible ? '' : 'ineligible'}">
+			<td>${eligible ? `<input type="checkbox" name="${row.field}" value="${row.type ? `${row.type} (${row.ageGroup})` : row.game}" data-price="${row.price}" />` : ''}</td>
 			<td>${row.game}</td>
 			<td>${row.type}</td>
 			<td>${row.ageGroup}</td>

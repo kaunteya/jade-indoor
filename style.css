@@ -70,6 +70,9 @@ button:disabled {
 	height: 1rem;
 	margin: 0;
 }
+.games-table tr.ineligible {
+	color: #aaa;
+}
 #total-cost {
 	font-weight: 600;
 	margin: 0;
