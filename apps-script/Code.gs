@@ -3,7 +3,7 @@
 
 const SHEET_NAME = 'Sheet1'; // change to match your sheet tab name
 const FIELDS = ['name', 'email', 'tower', 'house_number', 'whatsapp', 'age', 'gender']; // change to match your form field names, in column order
-const MULTI_FIELDS = ['games', 'tt_category', 'badminton_category']; // checkbox fields that can submit more than one value
+const MULTI_FIELDS = ['games', 'carrom_category', 'pool_category', 'tt_category', 'badminton_category']; // checkbox fields that can submit more than one value
 
 function doPost(e) {
 	const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);

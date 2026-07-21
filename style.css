@@ -31,32 +31,54 @@ button:disabled {
 	opacity: 0.6;
 	cursor: default;
 }
+.button-link {
+	display: inline-block;
+	padding: 0.6rem 1rem;
+	font-size: 1rem;
+	background: #1a73e8;
+	color: white;
+	text-decoration: none;
+	border-radius: 4px;
+}
+.rules-link {
+	align-self: flex-end;
+}
 #status {
 	font-size: 0.875rem;
+}
+#game-sections {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+#game-sections[hidden] {
+	display: none;
 }
 .checkbox-group {
 	border: none;
 	padding: 0;
 	margin: 0;
 }
-.checkbox-group legend {
-	font-size: 0.875rem;
-	font-weight: 600;
-	padding: 0;
-	margin-bottom: 0.75rem;
-}
 .checkbox-group label {
-	display: block;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 	font-weight: normal;
 	padding: 0.25rem 0;
 }
+.checkbox-group label[hidden] {
+	display: none;
+}
 .checkbox-group input {
-	width: auto;
+	width: 1rem;
+	height: 1rem;
+	margin: 0;
 }
 .hint {
 	font-size: 0.875rem;
 	color: #666;
 	margin: 0;
+	padding: 0.25rem 0 0.25rem calc(1rem + 0.5rem);
 }
 .row {
 	display: flex;
