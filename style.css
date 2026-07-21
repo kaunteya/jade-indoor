@@ -42,6 +42,16 @@ button:disabled {
 }
 .rules-link {
 	align-self: flex-end;
+	padding: 0;
+	background: none;
+	color: #1a73e8;
+	font-size: 0.875rem;
+	text-decoration: underline;
+}
+.required-note {
+	color: #d93025;
+	font-size: 0.875rem;
+	font-weight: 600;
 }
 #status {
 	font-size: 0.875rem;
