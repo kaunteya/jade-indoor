@@ -55,17 +55,19 @@
 
 		<div id="game-sections" hidden>
 			<label>Games</label>
-			<div class="checkbox-group">
-				<div id="badminton-options"></div>
-				<p class="hint" id="carrom-hint" hidden>Carrom (10 years and above only)</p>
-				<label><input type="checkbox" name="carrom_category" value="Singles" /> Carrom Singles</label>
-				<label><input type="checkbox" name="carrom_category" value="Doubles" /> Carrom Doubles</label>
-				<label><input type="checkbox" name="games" value="Chess" /> Chess</label>
-				<div id="tt-options"></div>
-				<p class="hint" id="pool-hint" hidden>8-ball pool (15 years and above only)</p>
-				<label><input type="checkbox" name="pool_category" value="Singles" /> 8-ball pool Singles</label>
-				<label><input type="checkbox" name="pool_category" value="Doubles" /> 8-ball pool Doubles</label>
-			</div>
+			<table class="games-table">
+				<thead>
+					<tr>
+						<th></th>
+						<th>Game</th>
+						<th>Category</th>
+						<th>Age group</th>
+						<th>Price</th>
+					</tr>
+				</thead>
+				<tbody id="games-table-body"></tbody>
+			</table>
+			<p id="total-cost">Total: ₹0</p>
 		</div>
 
 		<button type="submit">Submit</button>

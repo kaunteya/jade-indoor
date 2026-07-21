@@ -2,25 +2,32 @@
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwXq4SDLwFQ47Ik5G7EnI6vkwpqQuEXF16f_b8WSx1AuEwhlltEo3UFMMGibIZ2WmdN5w/exec';
 
 // gender: 'Male' | 'Female' | 'any' (open to both)
-const TT_CATEGORIES = [
-	{ label: 'Singles (Boys Under 14)', min: 0, max: 13, gender: 'Male' },
-	{ label: 'Singles (Girls Under 14)', min: 0, max: 13, gender: 'Female' },
-	{ label: 'Doubles (Under 14, flexible)', min: 0, max: 13, gender: 'any' },
-	{ label: 'Singles (Men 14-60)', min: 14, max: 60, gender: 'Male' },
-	{ label: 'Singles (Women 14-60)', min: 14, max: 60, gender: 'Female' },
-	{ label: 'Doubles (14-60, flexible)', min: 14, max: 60, gender: 'any' },
-	{ label: 'Singles (60+, flexible)', min: 61, max: Infinity, gender: 'any' },
-];
-const BADMINTON_CATEGORIES = [
-	{ label: 'Singles (Boys Under 14)', min: 0, max: 13, gender: 'Male' },
-	{ label: 'Singles (Girls Under 14)', min: 0, max: 13, gender: 'Female' },
-	{ label: 'Doubles (Boys Under 14)', min: 0, max: 13, gender: 'Male' },
-	{ label: 'Doubles (Girls Under 14)', min: 0, max: 13, gender: 'Female' },
-	{ label: 'Singles (Men 14-60)', min: 14, max: 60, gender: 'Male' },
-	{ label: 'Singles (Women 14-60)', min: 14, max: 60, gender: 'Female' },
-	{ label: 'Doubles (Men 14-60)', min: 14, max: 60, gender: 'Male' },
-	{ label: 'Doubles (Women 14-60)', min: 14, max: 60, gender: 'Female' },
-	{ label: 'Doubles (60+, flexible)', min: 61, max: Infinity, gender: 'any' },
+const GAMES = [
+	{ field: 'badminton_category', game: 'Badminton', type: 'Singles', ageGroup: 'Under 14', min: 0, max: 13, gender: 'Male', price: 400 },
+	{ field: 'badminton_category', game: 'Badminton', type: 'Singles', ageGroup: 'Under 14', min: 0, max: 13, gender: 'Female', price: 400 },
+	{ field: 'badminton_category', game: 'Badminton', type: 'Doubles', ageGroup: 'Under 14', min: 0, max: 13, gender: 'Male', price: 600 },
+	{ field: 'badminton_category', game: 'Badminton', type: 'Doubles', ageGroup: 'Under 14', min: 0, max: 13, gender: 'Female', price: 600 },
+	{ field: 'badminton_category', game: 'Badminton', type: 'Singles', ageGroup: '14-60', min: 14, max: 60, gender: 'Male', price: 400 },
+	{ field: 'badminton_category', game: 'Badminton', type: 'Singles', ageGroup: '14-60', min: 14, max: 60, gender: 'Female', price: 400 },
+	{ field: 'badminton_category', game: 'Badminton', type: 'Doubles', ageGroup: '14-60', min: 14, max: 60, gender: 'Male', price: 600 },
+	{ field: 'badminton_category', game: 'Badminton', type: 'Doubles', ageGroup: '14-60', min: 14, max: 60, gender: 'Female', price: 600 },
+	{ field: 'badminton_category', game: 'Badminton', type: 'Doubles', ageGroup: '60+ (flexible)', min: 61, max: Infinity, gender: 'any', price: 600 },
+
+	{ field: 'tt_category', game: 'Table Tennis', type: 'Singles', ageGroup: 'Under 14', min: 0, max: 13, gender: 'Male', price: 200 },
+	{ field: 'tt_category', game: 'Table Tennis', type: 'Singles', ageGroup: 'Under 14', min: 0, max: 13, gender: 'Female', price: 200 },
+	{ field: 'tt_category', game: 'Table Tennis', type: 'Doubles', ageGroup: 'Under 14 (flexible)', min: 0, max: 13, gender: 'any', price: 300 },
+	{ field: 'tt_category', game: 'Table Tennis', type: 'Singles', ageGroup: '14-60', min: 14, max: 60, gender: 'Male', price: 200 },
+	{ field: 'tt_category', game: 'Table Tennis', type: 'Singles', ageGroup: '14-60', min: 14, max: 60, gender: 'Female', price: 200 },
+	{ field: 'tt_category', game: 'Table Tennis', type: 'Doubles', ageGroup: '14-60 (flexible)', min: 14, max: 60, gender: 'any', price: 300 },
+	{ field: 'tt_category', game: 'Table Tennis', type: 'Singles', ageGroup: '60+ (flexible)', min: 61, max: Infinity, gender: 'any', price: 200 },
+
+	{ field: 'carrom_category', game: 'Carrom', type: 'Singles', ageGroup: '10 and above', min: 10, max: Infinity, gender: 'any', price: 200 },
+	{ field: 'carrom_category', game: 'Carrom', type: 'Doubles', ageGroup: '10 and above', min: 10, max: Infinity, gender: 'any', price: 300 },
+
+	{ field: 'games', game: 'Chess', type: '', ageGroup: 'All ages', min: 0, max: Infinity, gender: 'any', price: 200 },
+
+	{ field: 'pool_category', game: '8-ball pool', type: 'Singles', ageGroup: '15 and above', min: 15, max: Infinity, gender: 'any', price: 200 },
+	{ field: 'pool_category', game: '8-ball pool', type: 'Doubles', ageGroup: '15 and above', min: 15, max: Infinity, gender: 'any', price: 200 },
 ];
 
 const MAX_FLOOR = 20;
@@ -51,48 +58,32 @@ renderHouseNumbers();
 
 const ageInput = document.getElementById('age');
 const genderSelect = document.getElementById('gender');
-const MIN_AGE_GAMES = [
-	{ checkboxes: [...document.querySelectorAll('input[name="pool_category"]')], hint: document.getElementById('pool-hint'), minAge: 15 },
-	{ checkboxes: [...document.querySelectorAll('input[name="carrom_category"]')], hint: document.getElementById('carrom-hint'), minAge: 10 },
-];
+const gamesTableBody = document.getElementById('games-table-body');
 
-function updateMinAgeGames() {
-	const age = parseInt(ageInput.value, 10);
-	for (const { checkboxes, hint, minAge } of MIN_AGE_GAMES) {
-		const tooYoung = age < minAge;
-		hint.hidden = !tooYoung;
-		for (const checkbox of checkboxes) {
-			checkbox.disabled = tooYoung;
-			if (tooYoung) checkbox.checked = false;
-			checkbox.closest('label').hidden = tooYoung;
-		}
-	}
-}
-
-function renderCategories(container, fieldName, categories, age, gender, prefix) {
-	if (!age || !gender) {
-		container.innerHTML = '';
-		return;
-	}
-	const eligible = categories.filter(cat =>
-		age >= cat.min && age <= cat.max && (cat.gender === 'any' || cat.gender === gender)
-	);
-	container.innerHTML = eligible.map(cat =>
-		`<label><input type="checkbox" name="${fieldName}" value="${cat.label}" /> ${prefix} ${cat.label}</label>`
-	).join('');
-}
-
-function updateCategories() {
+function renderGamesTable() {
 	const age = parseInt(ageInput.value, 10);
 	const gender = genderSelect.value;
-	renderCategories(document.getElementById('tt-options'), 'tt_category', TT_CATEGORIES, age, gender, 'Table Tennis');
-	renderCategories(document.getElementById('badminton-options'), 'badminton_category', BADMINTON_CATEGORIES, age, gender, 'Badminton');
-	updateMinAgeGames();
+	if (!age || !gender) {
+		gamesTableBody.innerHTML = '';
+		return;
+	}
+	const eligible = GAMES.filter(row =>
+		age >= row.min && age <= row.max && (row.gender === 'any' || row.gender === gender)
+	);
+	gamesTableBody.innerHTML = eligible.map(row => `
+		<tr>
+			<td><input type="checkbox" name="${row.field}" value="${row.type ? `${row.type} (${row.ageGroup})` : row.game}" data-price="${row.price}" /></td>
+			<td>${row.game}</td>
+			<td>${row.type}</td>
+			<td>${row.ageGroup}</td>
+			<td>${row.price}</td>
+		</tr>
+	`).join('');
 }
 
-ageInput.addEventListener('input', updateCategories);
-genderSelect.addEventListener('change', updateCategories);
-updateCategories();
+ageInput.addEventListener('input', renderGamesTable);
+genderSelect.addEventListener('change', renderGamesTable);
+renderGamesTable();
 
 const gameSections = document.getElementById('game-sections');
 const preGameFields = ['name', 'email', 'tower', 'house_number', 'whatsapp', 'age', 'gender']
@@ -104,10 +95,19 @@ function updateGameSectionsVisibility() {
 
 const form = document.getElementById('form');
 const status = document.getElementById('status');
+const totalCost = document.getElementById('total-cost');
+
+function updateTotalCost() {
+	const total = [...form.querySelectorAll('input[type="checkbox"]:checked')]
+		.reduce((sum, checkbox) => sum + Number(checkbox.dataset.price || 0), 0);
+	totalCost.textContent = `Total: ₹${total}`;
+}
 
 form.addEventListener('input', updateGameSectionsVisibility);
 form.addEventListener('change', updateGameSectionsVisibility);
+form.addEventListener('change', updateTotalCost);
 updateGameSectionsVisibility();
+updateTotalCost();
 
 form.addEventListener('submit', async (event) => {
 	event.preventDefault();
@@ -125,7 +125,8 @@ form.addEventListener('submit', async (event) => {
 		});
 		status.textContent = 'Thanks! Your response was recorded.';
 		form.reset();
-		updateCategories();
+		renderGamesTable();
+		updateTotalCost();
 	} catch (err) {
 		status.textContent = 'Something went wrong. Please try again.';
 	} finally {
