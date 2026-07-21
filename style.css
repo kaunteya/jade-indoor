@@ -53,6 +53,11 @@ button:disabled {
 	font-size: 0.875rem;
 	font-weight: 600;
 }
+.field-note {
+	margin: -0.5rem 0 0;
+	font-size: 0.8125rem;
+	color: #666;
+}
 #status {
 	font-size: 0.875rem;
 }
