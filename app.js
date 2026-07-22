@@ -3,19 +3,19 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwXq4SDLwFQ47Ik5G7En
 
 // gender: 'Male' | 'Female' | 'any' (open to both)
 const GAMES = [
-	{ id: 'badminton_singles_u14_male', game: 'Badminton', type: 'Singles', ageGroup: 'Under 14', min: 0, max: 13, gender: 'Male', price: 400 },
-	{ id: 'badminton_singles_u14_female', game: 'Badminton', type: 'Singles', ageGroup: 'Under 14', min: 0, max: 13, gender: 'Female', price: 400 },
-	{ id: 'badminton_doubles_u14_male', game: 'Badminton', type: 'Doubles', ageGroup: 'Under 14', min: 0, max: 13, gender: 'Male', price: 600 },
-	{ id: 'badminton_doubles_u14_female', game: 'Badminton', type: 'Doubles', ageGroup: 'Under 14', min: 0, max: 13, gender: 'Female', price: 600 },
+	{ id: 'badminton_singles_u14_male', game: 'Badminton', type: 'Singles', ageGroup: '8-13', min: 8, max: 13, gender: 'Male', price: 400 },
+	{ id: 'badminton_singles_u14_female', game: 'Badminton', type: 'Singles', ageGroup: '8-13', min: 8, max: 13, gender: 'Female', price: 400 },
+	{ id: 'badminton_doubles_u14_male', game: 'Badminton', type: 'Doubles', ageGroup: '8-13', min: 8, max: 13, gender: 'Male', price: 600 },
+	{ id: 'badminton_doubles_u14_female', game: 'Badminton', type: 'Doubles', ageGroup: '8-13', min: 8, max: 13, gender: 'Female', price: 600 },
 	{ id: 'badminton_singles_14_60_male', game: 'Badminton', type: 'Singles', ageGroup: '14-60', min: 14, max: 60, gender: 'Male', price: 400 },
 	{ id: 'badminton_singles_14_60_female', game: 'Badminton', type: 'Singles', ageGroup: '14-60', min: 14, max: 60, gender: 'Female', price: 400 },
 	{ id: 'badminton_doubles_14_60_male', game: 'Badminton', type: 'Doubles', ageGroup: '14-60', min: 14, max: 60, gender: 'Male', price: 600 },
 	{ id: 'badminton_doubles_14_60_female', game: 'Badminton', type: 'Doubles', ageGroup: '14-60', min: 14, max: 60, gender: 'Female', price: 600 },
 	{ id: 'badminton_doubles_60plus', game: 'Badminton', type: 'Doubles', ageGroup: '60+ (flexible)', min: 61, max: Infinity, gender: 'any', price: 600 },
 
-	{ id: 'tt_singles_u14_male', game: 'Table Tennis', type: 'Singles', ageGroup: 'Under 14', min: 0, max: 13, gender: 'Male', price: 200 },
-	{ id: 'tt_singles_u14_female', game: 'Table Tennis', type: 'Singles', ageGroup: 'Under 14', min: 0, max: 13, gender: 'Female', price: 200 },
-	{ id: 'tt_doubles_u14', game: 'Table Tennis', type: 'Doubles', ageGroup: 'Under 14 (flexible)', min: 0, max: 13, gender: 'any', price: 300 },
+	{ id: 'tt_singles_u14_male', game: 'Table Tennis', type: 'Singles', ageGroup: '8-13', min: 8, max: 13, gender: 'Male', price: 200 },
+	{ id: 'tt_singles_u14_female', game: 'Table Tennis', type: 'Singles', ageGroup: '8-13', min: 8, max: 13, gender: 'Female', price: 200 },
+	{ id: 'tt_doubles_u14', game: 'Table Tennis', type: 'Doubles', ageGroup: '8-13 (flexible)', min: 8, max: 13, gender: 'any', price: 300 },
 	{ id: 'tt_singles_14_60_male', game: 'Table Tennis', type: 'Singles', ageGroup: '14-60', min: 14, max: 60, gender: 'Male', price: 200 },
 	{ id: 'tt_singles_14_60_female', game: 'Table Tennis', type: 'Singles', ageGroup: '14-60', min: 14, max: 60, gender: 'Female', price: 200 },
 	{ id: 'tt_doubles_14_60', game: 'Table Tennis', type: 'Doubles', ageGroup: '14-60 (flexible)', min: 14, max: 60, gender: 'any', price: 300 },
@@ -24,7 +24,7 @@ const GAMES = [
 	{ id: 'carrom_singles', game: 'Carrom', type: 'Singles', ageGroup: '10 and above', min: 10, max: Infinity, gender: 'any', price: 200 },
 	{ id: 'carrom_doubles', game: 'Carrom', type: 'Doubles', ageGroup: '10 and above', min: 10, max: Infinity, gender: 'any', price: 300 },
 
-	{ id: 'chess', game: 'Chess', type: '', ageGroup: 'All ages', min: 0, max: Infinity, gender: 'any', price: 200 },
+	{ id: 'chess', game: 'Chess', type: '', ageGroup: '8 and above', min: 8, max: Infinity, gender: 'any', price: 200 },
 
 	{ id: 'pool_singles', game: '8-ball pool', type: 'Singles', ageGroup: '15 and above', min: 15, max: Infinity, gender: 'any', price: 200 },
 ];
@@ -55,12 +55,26 @@ function renderHouseNumbers() {
 towerSelect.addEventListener('change', renderHouseNumbers);
 renderHouseNumbers();
 
-const ageInput = document.getElementById('age');
+const dobInput = document.getElementById('dob');
 const genderSelect = document.getElementById('gender');
 const gamesTableBody = document.getElementById('games-table-body');
 
+function calculateAge(dobValue, asOf = new Date()) {
+	const dob = new Date(dobValue);
+	if (isNaN(dob)) return null;
+	let age = asOf.getFullYear() - dob.getFullYear();
+	const hadBirthdayByAsOf = asOf.getMonth() > dob.getMonth() || (asOf.getMonth() === dob.getMonth() && asOf.getDate() >= dob.getDate());
+	if (!hadBirthdayByAsOf) age--;
+	return age;
+}
+
+// Age-group eligibility is conventionally reckoned as on 31 July of the event year.
+function ageAsOfJuly31st(dobValue) {
+	return calculateAge(dobValue, new Date(new Date().getFullYear(), 6, 31));
+}
+
 function renderGamesTable() {
-	const age = parseInt(ageInput.value, 10);
+	const age = calculateAge(dobInput.value);
 	const gender = genderSelect.value;
 	if (!age || !gender) {
 		gamesTableBody.innerHTML = '';
@@ -81,38 +95,78 @@ function renderGamesTable() {
 	`).join('');
 }
 
-ageInput.addEventListener('input', renderGamesTable);
+dobInput.addEventListener('input', renderGamesTable);
 genderSelect.addEventListener('change', renderGamesTable);
 renderGamesTable();
 
 const gameSections = document.getElementById('game-sections');
-const preGameFields = ['name', 'tower', 'house_number', 'whatsapp', 'age', 'gender']
+const preGameFields = ['name', 'tower', 'house_number', 'whatsapp', 'dob', 'gender']
 	.map(id => document.getElementById(id));
 
-function updateGameSectionsVisibility() {
-	gameSections.hidden = !preGameFields.every(field => field.checkValidity() && field.value.trim() !== '');
+const userInfoFields = document.getElementById('user-info-fields');
+const userInfoSummary = document.getElementById('user-info-summary');
+const userInfoSummaryText = document.getElementById('user-info-summary-text');
+const nextButton = document.getElementById('next-button');
+const editButton = document.getElementById('edit-button');
+
+function fieldLabel(field) {
+	return document.querySelector(`label[for="${field.id}"]`).textContent;
 }
+
+function fieldSummary(field) {
+	const value = field.id === 'dob'
+		? `${new Date(field.value).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} (${ageAsOfJuly31st(field.value)}yrs old)`
+		: field.value;
+	return `<strong>${fieldLabel(field)}:</strong> ${value}`;
+}
+
+function showUserInfoSummary() {
+	const [nameField, towerField, houseField, whatsappField, dobField, genderField] = preGameFields;
+	userInfoSummaryText.innerHTML = [
+		fieldSummary(nameField),
+		`<strong>House:</strong> ${towerField.value}-${houseField.value}`,
+		fieldSummary(whatsappField),
+		fieldSummary(dobField),
+		fieldSummary(genderField),
+	].join('<br>');
+	userInfoFields.hidden = true;
+	userInfoSummary.hidden = false;
+	gameSections.hidden = false;
+}
+
+nextButton.addEventListener('click', () => {
+	const invalidField = preGameFields.find(field => !field.checkValidity());
+	if (invalidField) {
+		invalidField.reportValidity();
+		return;
+	}
+	showUserInfoSummary();
+});
+
+editButton.addEventListener('click', () => {
+	userInfoSummary.hidden = true;
+	userInfoFields.hidden = false;
+	gameSections.hidden = true;
+});
 
 const form = document.getElementById('form');
 const status = document.getElementById('status');
 const totalCost = document.getElementById('total-cost');
+const submitButton = form.querySelector('button[type="submit"]');
 
 function updateTotalCost() {
-	const total = [...form.querySelectorAll('input[type="checkbox"]:checked')]
-		.reduce((sum, checkbox) => sum + Number(checkbox.dataset.price || 0), 0);
+	const checked = [...form.querySelectorAll('input[type="checkbox"]:checked')];
+	const total = checked.reduce((sum, checkbox) => sum + Number(checkbox.dataset.price || 0), 0);
 	totalCost.textContent = `Total: ₹${total}`;
+	submitButton.hidden = checked.length === 0;
 }
 
-form.addEventListener('input', updateGameSectionsVisibility);
-form.addEventListener('change', updateGameSectionsVisibility);
 form.addEventListener('change', updateTotalCost);
-updateGameSectionsVisibility();
 updateTotalCost();
 
 form.addEventListener('submit', async (event) => {
 	event.preventDefault();
-	const button = form.querySelector('button');
-	button.disabled = true;
+	submitButton.disabled = true;
 	status.textContent = 'Submitting…';
 
 	try {
@@ -128,10 +182,11 @@ form.addEventListener('submit', async (event) => {
 		form.reset();
 		renderGamesTable();
 		updateTotalCost();
+		editButton.click();
 	} catch (err) {
 		status.textContent = 'Something went wrong. Please try again.';
 		status.className = 'error';
 	} finally {
-		button.disabled = false;
+		submitButton.disabled = false;
 	}
 });

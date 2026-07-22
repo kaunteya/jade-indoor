@@ -9,56 +9,64 @@
 <body>
 	<form id="form">
 		<h1>Jade Indoor Sports Festival 2026</h1>
-		<p class="required-note">* Every participant needs a separate registration.</p>
 		<a class="button-link rules-link" href="https://docs.google.com/document/d/1-d0sZMoPBo2bWRyA608_WgxZSuDXSBSce2HRxitFllM/edit?usp=sharing" target="_blank" rel="noopener">Rules</a>
 
-		<label for="name">Name</label>
-		<input id="name" name="name" required />
+		<div id="user-info-fields">
+			<label for="name">Name</label>
+			<input id="name" name="name" required />
 
-		<div class="row">
-			<div>
-				<label for="age">Age</label>
-				<input id="age" name="age" type="number" min="0" required />
+			<div class="row">
+				<div>
+					<label for="dob">Date of birth</label>
+					<input id="dob" name="dob" type="date" max="2002-08-01" required />
+				</div>
+				<div>
+					<label for="gender">Gender</label>
+					<select id="gender" name="gender" required>
+						<option value="" disabled selected>Select…</option>
+						<option value="Male">Male</option>
+						<option value="Female">Female</option>
+					</select>
+				</div>
 			</div>
-			<div>
-				<label for="gender">Gender</label>
-				<select id="gender" name="gender" required>
-					<option value="" disabled selected>Select…</option>
-					<option value="Female">Female</option>
-					<option value="Male">Male</option>
-				</select>
+
+			<label for="whatsapp">WhatsApp number</label>
+			<input id="whatsapp" name="whatsapp" type="tel" required />
+			<p class="field-note">Parents can enter their own number when submitting for their children.</p>
+
+			<div class="row">
+				<div>
+					<label for="tower">Tower</label>
+					<select id="tower" name="tower" required>
+						<option value="" disabled selected>Select…</option>
+						<option value="A">A</option>
+						<option value="B">B</option>
+						<option value="C">C</option>
+						<option value="D">D</option>
+						<option value="E">E</option>
+						<option value="F">F</option>
+						<option value="G">G</option>
+						<option value="H">H</option>
+					</select>
+				</div>
+				<div>
+					<label for="house_number">House number</label>
+					<select id="house_number" name="house_number" required>
+						<option value="" disabled selected>Select…</option>
+					</select>
+				</div>
 			</div>
+
+			<button type="button" id="next-button">Next</button>
 		</div>
 
-		<label for="whatsapp">WhatsApp number</label>
-		<input id="whatsapp" name="whatsapp" type="tel" required />
-		<p class="field-note">Parents can enter their own number when submitting for their children.</p>
-
-		<div class="row">
-			<div>
-				<label for="tower">Tower</label>
-				<select id="tower" name="tower" required>
-					<option value="" disabled selected>Select…</option>
-					<option value="A">A</option>
-					<option value="B">B</option>
-					<option value="C">C</option>
-					<option value="D">D</option>
-					<option value="E">E</option>
-					<option value="F">F</option>
-					<option value="G">G</option>
-					<option value="H">H</option>
-				</select>
-			</div>
-			<div>
-				<label for="house_number">House number</label>
-				<select id="house_number" name="house_number" required>
-					<option value="" disabled selected>Select…</option>
-				</select>
-			</div>
+		<div id="user-info-summary" hidden>
+			<p id="user-info-summary-text"></p>
+			<button type="button" id="edit-button">Edit</button>
 		</div>
 
 		<div id="game-sections" hidden>
-			<label>Games</label>
+			<label class="games-section-label">Games you're eligible to play</label>
 			<table class="games-table">
 				<thead>
 					<tr>

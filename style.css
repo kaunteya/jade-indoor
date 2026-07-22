@@ -16,6 +16,10 @@ label {
 	font-size: 0.875rem;
 	font-weight: 600;
 }
+.games-section-label {
+	font-size: 1.125rem;
+	font-weight: 700;
+}
 input, textarea, select {
 	padding: 0.5rem;
 	font-size: 1rem;
@@ -48,11 +52,6 @@ button:disabled {
 	font-size: 0.875rem;
 	text-decoration: underline;
 }
-.required-note {
-	color: #d93025;
-	font-size: 0.875rem;
-	font-weight: 600;
-}
 .field-note {
 	margin: -0.5rem 0 0;
 	font-size: 0.8125rem;
@@ -67,13 +66,38 @@ button:disabled {
 #status.error {
 	color: #d93025;
 }
+#user-info-fields,
 #game-sections {
 	display: flex;
 	flex-direction: column;
 	gap: 0.75rem;
 }
+#user-info-fields[hidden],
+#user-info-summary[hidden],
 #game-sections[hidden] {
 	display: none;
+}
+#user-info-summary {
+	position: relative;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 1rem;
+}
+#user-info-summary-text {
+	margin: 0;
+	padding-right: 3rem;
+	font-size: 0.9375rem;
+	line-height: 1.6;
+}
+#edit-button {
+	position: absolute;
+	top: 0.75rem;
+	right: 1rem;
+	padding: 0;
+	background: none;
+	color: #1a73e8;
+	font-size: 0.875rem;
+	text-decoration: underline;
 }
 .games-table {
 	width: 100%;
