@@ -21,7 +21,12 @@ const GAME_FIELDS = [
 function doPost(e) {
 	const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
 	const row = FIELDS.map(field => e.parameter[field] || '');
-	GAME_FIELDS.forEach(field => row.push(!!e.parameter[field])); // real boolean -> Sheets renders TRUE/FALSE
+	// Singles columns hold a real boolean (Sheets renders TRUE/FALSE). Doubles columns hold the
+	// partner's name instead — a non-empty name IS the "selected" signal, '' means not picked.
+	// Doubles are detected by 'doubles' in the id rather than a second hand-synced list.
+	GAME_FIELDS.forEach(field => row.push(
+		field.indexOf('doubles') !== -1 ? (e.parameter[field] && e.parameter[field + '_partner'] || '') : !!e.parameter[field]
+	));
 	row.push(new Date());
 	sheet.appendRow(row);
 

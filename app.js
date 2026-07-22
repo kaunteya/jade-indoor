@@ -106,7 +106,25 @@ function renderGamesTable() {
 			<td>${row.ageGroup}</td>
 			<td>${row.price}</td>
 		</tr>
+		${eligible && row.type === 'Doubles' ? `
+		<tr class="partner-row" hidden>
+			<td></td>
+			<td colspan="4"><input name="${row.id}_partner" placeholder="Partner's name" /></td>
+		</tr>
+		` : ''}
 	`).join('');
+}
+
+// Doubles entries need a partner; the input rides in a row under its checkbox and
+// is only required while that checkbox is checked (a required hidden input blocks submit).
+function updatePartnerRows() {
+	gamesTableBody.querySelectorAll('tr.partner-row').forEach(partnerRow => {
+		const checked = partnerRow.previousElementSibling.querySelector('input[type="checkbox"]').checked;
+		const partnerInput = partnerRow.querySelector('input');
+		partnerRow.hidden = !checked;
+		partnerInput.required = checked;
+		if (!checked) partnerInput.value = ''; // else an unchecked game still submits a stale name
+	});
 }
 
 dobInput.addEventListener('input', renderGamesTable);
@@ -208,6 +226,7 @@ function updateTotalCost() {
 }
 
 form.addEventListener('change', updateTotalCost);
+form.addEventListener('change', updatePartnerRows);
 utrInput.addEventListener('input', updateTotalCost);
 updateTotalCost();
 
@@ -220,11 +239,14 @@ const submitAnotherButton = document.getElementById('submit-another-button');
 function showPostSubmissionSummary() {
 	postSubmissionInfo.innerHTML = personInfoLines().map(line => `<p>${line}</p>`).join('');
 	postSubmissionGamesBody.innerHTML = [...form.querySelectorAll('input[type="checkbox"]:checked')].map(checkbox => {
-		const cells = checkbox.closest('tr').querySelectorAll('td');
+		const gameRow = checkbox.closest('tr');
+		const cells = gameRow.querySelectorAll('td');
+		const nextRow = gameRow.nextElementSibling;
+		const partner = nextRow?.classList.contains('partner-row') ? nextRow.querySelector('input').value : '';
 		return `
 		<tr>
 			<td>${cells[1].textContent}</td>
-			<td>${cells[2].textContent}</td>
+			<td>${cells[2].textContent}${partner ? ` (with ${partner})` : ''}</td>
 			<td>${cells[4].textContent}</td>
 		</tr>
 	`;
