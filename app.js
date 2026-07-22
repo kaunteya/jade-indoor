@@ -100,7 +100,7 @@ function renderGamesTable() {
 		.filter(({ row, eligible }) => eligible || SHOW_DISABLED_GAMES.includes(row.game))
 		.map(({ row, eligible }) => `
 		<tr class="${eligible ? '' : 'ineligible'}">
-			<td>${eligible ? `<input type="checkbox" name="${row.id}" data-price="${row.price}" />` : ''}</td>
+			<td>${eligible ? `<input type="checkbox" name="${row.id}" data-price="${row.price}" data-sport="${row.game}" />` : ''}</td>
 			<td>${row.game}</td>
 			<td>${row.type}</td>
 			<td>${row.ageGroup}</td>
@@ -109,7 +109,7 @@ function renderGamesTable() {
 		${eligible && row.type === 'Doubles' ? `
 		<tr class="partner-row" hidden>
 			<td></td>
-			<td colspan="4"><input name="${row.id}_partner" placeholder="Partner's name" /></td>
+			<td colspan="4"><input name="${row.id}_partner" placeholder="Partner's name (required)" /></td>
 		</tr>
 		` : ''}
 	`).join('');
@@ -125,6 +125,35 @@ function updatePartnerRows() {
 		partnerInput.required = checked;
 		if (!checked) partnerInput.value = ''; // else an unchecked game still submits a stale name
 	});
+}
+
+// Self-rated level, asked once per sport even when several entries of that sport are checked.
+// The number rides on the checkbox's own value, so a checked game submits '2' rather than 'on'
+// and lands in that game's sheet column; the selects carry no name and never reach FormData.
+const LEVELS = { 1: 'Beginner', 2: 'Intermediate', 3: 'Expert' };
+const skillLevelsBlock = document.getElementById('skill-levels');
+const skillLevelsList = document.getElementById('skill-levels-list');
+const skillLevels = {}; // sport -> level, kept across re-renders so unchecking a game doesn't lose the answer
+
+function updateSkillLevels() {
+	const rendered = [...skillLevelsList.querySelectorAll('select')];
+	rendered.forEach(select => { skillLevels[select.dataset.sport] = select.value; });
+	const checked = [...gamesTableBody.querySelectorAll('input[type="checkbox"]:checked')];
+	const sports = [...new Set(checked.map(checkbox => checkbox.dataset.sport))];
+	skillLevelsBlock.hidden = sports.length === 0;
+	// Rebuild only when the sport list actually changes. Rewriting it on every input would detach
+	// the <select> the user just touched, and the 'change' that follows its 'input' would then
+	// never reach the form — leaving the total, submit button and payment section stale.
+	if (sports.join() !== rendered.map(select => select.dataset.sport).join()) skillLevelsList.innerHTML = sports.map(sport => `
+		<label class="level-row">
+			<span>${sport}</span>
+			<select data-sport="${sport}" required>
+				<option value="" disabled ${skillLevels[sport] ? '' : 'selected'}>Select…</option>
+				${Object.entries(LEVELS).map(([value, label]) => `<option value="${value}" ${skillLevels[sport] === value ? 'selected' : ''}>${label}</option>`).join('')}
+			</select>
+		</label>
+	`).join('');
+	checked.forEach(checkbox => { checkbox.value = skillLevels[checkbox.dataset.sport] || ''; });
 }
 
 dobInput.addEventListener('input', renderGamesTable);
@@ -225,9 +254,14 @@ function updateTotalCost() {
 	submitButton.hidden = checked.length === 0 || !utrInput.checkValidity();
 }
 
-form.addEventListener('change', updateTotalCost);
-form.addEventListener('change', updatePartnerRows);
-utrInput.addEventListener('input', updateTotalCost);
+// Both events, one handler: 'change' alone missed edits that only fire 'input' (typing a date of
+// birth, some browsers' checkbox behaviour), and running everything together keeps the partner
+// rows, level selects and total from ever disagreeing about what's currently ticked.
+['input', 'change'].forEach(type => form.addEventListener(type, () => {
+	updatePartnerRows();
+	updateSkillLevels();
+	updateTotalCost();
+}));
 updateTotalCost();
 
 const postSubmissionSection = document.getElementById('section-post-submission');
@@ -243,10 +277,11 @@ function showPostSubmissionSummary() {
 		const cells = gameRow.querySelectorAll('td');
 		const nextRow = gameRow.nextElementSibling;
 		const partner = nextRow?.classList.contains('partner-row') ? nextRow.querySelector('input').value : '';
+		const category = `${cells[2].textContent}${partner ? ` (with ${partner})` : ''}`;
 		return `
 		<tr>
 			<td>${cells[1].textContent}</td>
-			<td>${cells[2].textContent}${partner ? ` (with ${partner})` : ''}</td>
+			<td>${[category, LEVELS[checkbox.value]].filter(Boolean).join(' · ')}</td>
 			<td>${cells[4].textContent}</td>
 		</tr>
 	`;
@@ -260,7 +295,9 @@ function showPostSubmissionSummary() {
 
 submitAnotherButton.addEventListener('click', () => {
 	form.reset();
+	Object.keys(skillLevels).forEach(sport => delete skillLevels[sport]);
 	renderGamesTable();
+	updateSkillLevels();
 	updateTotalCost();
 	updateUtrError();
 	whatsappCheck.hidden = true;

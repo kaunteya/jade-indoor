@@ -178,6 +178,25 @@ button:disabled {
 	padding: 0.35rem 0.5rem;
 	font-size: 0.875rem;
 }
+#skill-levels h3 {
+	font-size: 1rem;
+	margin: 0 0 0.5rem;
+}
+#skill-levels-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+.level-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+}
+.level-row select {
+	flex: 1;
+	max-width: 12rem;
+}
 .games-table tr.ineligible {
 	color: #aaa;
 }
