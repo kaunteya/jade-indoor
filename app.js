@@ -29,7 +29,7 @@ const GAMES = [
 	{ id: 'pool_singles', game: '8-ball pool', type: 'Singles', ageGroup: '15 and above', min: 15, max: Infinity, gender: 'any', price: 200 },
 ];
 
-const MAX_FLOOR = 20;
+const TALL_TOWERS = ['A', 'B', 'G', 'H']; // 21 floors; other towers have 20
 const TWO_HOUSE_TOWERS = ['D', 'E'];
 const towerSelect = document.getElementById('tower');
 const houseNumberSelect = document.getElementById('house_number');
@@ -37,8 +37,9 @@ const houseNumberSelect = document.getElementById('house_number');
 function renderHouseNumbers() {
 	const previousValue = houseNumberSelect.value;
 	const unitsPerFloor = TWO_HOUSE_TOWERS.includes(towerSelect.value) ? 2 : 4;
+	const maxFloor = TALL_TOWERS.includes(towerSelect.value) ? 21 : 20;
 	houseNumberSelect.innerHTML = '<option value="" disabled selected>Select…</option>';
-	for (let floor = 0; floor <= MAX_FLOOR; floor++) {
+	for (let floor = 0; floor <= maxFloor; floor++) {
 		const group = document.createElement('optgroup');
 		group.label = floor === 0 ? 'Podium floor' : `Floor ${floor}`;
 		for (let unit = 1; unit <= unitsPerFloor; unit++) {
@@ -54,6 +55,19 @@ function renderHouseNumbers() {
 }
 towerSelect.addEventListener('change', renderHouseNumbers);
 renderHouseNumbers();
+
+const whatsappInput = document.getElementById('whatsapp');
+const whatsappCheck = document.getElementById('whatsapp-check');
+
+// Loose E.164-style check: optional leading +, 7-15 digits, not starting with 0 — permissive enough for international numbers.
+function isValidPhone(value) {
+	const digits = value.replace(/[\s\-()]/g, '');
+	return /^\+?[1-9]\d{6,14}$/.test(digits);
+}
+
+whatsappInput.addEventListener('input', () => {
+	whatsappCheck.hidden = !isValidPhone(whatsappInput.value);
+});
 
 const dobInput = document.getElementById('dob');
 const genderSelect = document.getElementById('gender');
@@ -99,7 +113,9 @@ dobInput.addEventListener('input', renderGamesTable);
 genderSelect.addEventListener('change', renderGamesTable);
 renderGamesTable();
 
-const gameSections = document.getElementById('game-sections');
+const personInfoSection = document.getElementById('section-person-info');
+const gamesSection = document.getElementById('section-games');
+const paymentSection = document.getElementById('section-payment');
 const preGameFields = ['name', 'tower', 'house_number', 'whatsapp', 'dob', 'gender']
 	.map(id => document.getElementById(id));
 
@@ -120,18 +136,23 @@ function fieldSummary(field) {
 	return `<strong>${fieldLabel(field)}:</strong> ${value}`;
 }
 
-function showUserInfoSummary() {
+function personInfoLines() {
 	const [nameField, towerField, houseField, whatsappField, dobField, genderField] = preGameFields;
-	userInfoSummaryText.innerHTML = [
+	return [
 		fieldSummary(nameField),
 		`<strong>House:</strong> ${towerField.value}-${houseField.value}`,
 		fieldSummary(whatsappField),
 		fieldSummary(dobField),
 		fieldSummary(genderField),
-	].join('<br>');
+	];
+}
+
+function showUserInfoSummary() {
+	userInfoSummaryText.innerHTML = personInfoLines().join('<br>');
 	userInfoFields.hidden = true;
 	userInfoSummary.hidden = false;
-	gameSections.hidden = false;
+	gamesSection.hidden = false;
+	updateTotalCost();
 }
 
 nextButton.addEventListener('click', () => {
@@ -146,23 +167,85 @@ nextButton.addEventListener('click', () => {
 editButton.addEventListener('click', () => {
 	userInfoSummary.hidden = true;
 	userInfoFields.hidden = false;
-	gameSections.hidden = true;
+	gamesSection.hidden = true;
+	paymentSection.hidden = true;
 });
 
 const form = document.getElementById('form');
 const status = document.getElementById('status');
-const totalCost = document.getElementById('total-cost');
+const totalAmount = document.getElementById('total-amount');
+const upiId = 'vypar.172254121089@hdfcbank';
+const upiLinkOther = document.getElementById('upi-link-other');
+const utrInput = document.getElementById('utr_id');
+const utrError = document.getElementById('utr-error');
 const submitButton = form.querySelector('button[type="submit"]');
+
+function updateUtrError() {
+	utrError.hidden = utrInput.value.length === 0 || utrInput.value.length === 12;
+}
+
+utrInput.addEventListener('input', () => {
+	utrInput.value = utrInput.value.replace(/\D/g, '').slice(0, 12);
+	updateUtrError();
+});
+
+function formatINR(amount) {
+	return amount.toLocaleString('en-IN');
+}
 
 function updateTotalCost() {
 	const checked = [...form.querySelectorAll('input[type="checkbox"]:checked')];
 	const total = checked.reduce((sum, checkbox) => sum + Number(checkbox.dataset.price || 0), 0);
-	totalCost.textContent = `Total: ₹${total}`;
-	submitButton.hidden = checked.length === 0;
+	totalAmount.textContent = `₹${formatINR(total)}`;
+	const upiParams = `pa=${upiId}&pn=Jade%20Indoor%20Sports%20Festival&am=${total}&cu=INR`;
+	upiLinkOther.href = `upi://pay?${upiParams}`;
+	paymentSection.hidden = total === 0;
+	submitButton.hidden = checked.length === 0 || !utrInput.checkValidity();
 }
 
 form.addEventListener('change', updateTotalCost);
+utrInput.addEventListener('input', updateTotalCost);
 updateTotalCost();
+
+const postSubmissionSection = document.getElementById('section-post-submission');
+const postSubmissionInfo = document.getElementById('post-submission-info');
+const postSubmissionGamesBody = document.getElementById('post-submission-games-body');
+const postSubmissionTotal = document.getElementById('post-submission-total');
+const submitAnotherButton = document.getElementById('submit-another-button');
+
+function showPostSubmissionSummary() {
+	postSubmissionInfo.innerHTML = personInfoLines().map(line => `<p>${line}</p>`).join('');
+	postSubmissionGamesBody.innerHTML = [...form.querySelectorAll('input[type="checkbox"]:checked')].map(checkbox => {
+		const cells = checkbox.closest('tr').querySelectorAll('td');
+		return `
+		<tr>
+			<td>${cells[1].textContent}</td>
+			<td>${cells[2].textContent}</td>
+			<td>${cells[4].textContent}</td>
+		</tr>
+	`;
+	}).join('');
+	postSubmissionTotal.innerHTML = `Total paid: <span class="amount-pill">${totalAmount.textContent}</span>`;
+	personInfoSection.hidden = true;
+	gamesSection.hidden = true;
+	paymentSection.hidden = true;
+	postSubmissionSection.hidden = false;
+}
+
+submitAnotherButton.addEventListener('click', () => {
+	form.reset();
+	renderGamesTable();
+	updateTotalCost();
+	updateUtrError();
+	whatsappCheck.hidden = true;
+	status.textContent = '';
+	status.className = '';
+	postSubmissionSection.hidden = true;
+	personInfoSection.hidden = false;
+	userInfoFields.hidden = false;
+	userInfoSummary.hidden = true;
+	gamesSection.hidden = true;
+});
 
 form.addEventListener('submit', async (event) => {
 	event.preventDefault();
@@ -177,12 +260,9 @@ form.addEventListener('submit', async (event) => {
 			mode: 'no-cors',
 			body: new FormData(form),
 		});
-		status.textContent = 'Thanks! Your response was recorded.';
-		status.className = 'success';
-		form.reset();
-		renderGamesTable();
-		updateTotalCost();
-		editButton.click();
+		status.textContent = '';
+		status.className = '';
+		showPostSubmissionSummary();
 	} catch (err) {
 		status.textContent = 'Something went wrong. Please try again.';
 		status.className = 'error';

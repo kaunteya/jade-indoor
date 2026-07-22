@@ -14,6 +14,13 @@ To test the submit path end-to-end, `apps-script/Code.gs` must be pasted into a 
 
 ## Architecture
 
+The form is a single `<form>` broken into four `<section class="form-section">` blocks in `index.html`, each with its own heading and each toggled by JS via the `hidden` attribute (`.form-section` CSS just gives them consistent flex/gap layout and `display: none` when hidden):
+
+1. **`#section-person-info`** ("Personal info") — name/DOB/gender/WhatsApp/tower/house fields. Has two sub-states inside it, `#user-info-fields` and `#user-info-summary`, toggled by the Next/Edit buttons (`showUserInfoSummary()` / the `editButton` handler in `app.js`) — the section itself stays visible throughout, only its inner content swaps.
+2. **`#section-games`** ("Select the games") — the eligible-games table, rendered by `renderGamesTable()`; revealed once the person-info fields validate and Next is clicked.
+3. **`#section-payment`** ("Payment") — UPI link, QR code, UTR ID input, and the Submit button. Revealed by `updateTotalCost()` once the running total is above zero; the Submit button inside it stays hidden until the UTR field passes its `pattern` validation.
+4. **`#section-post-submission`** ("Submission successful") — shown only after a successful POST, via `showPostSubmissionSummary()`, which reuses `#user-info-summary-text`'s already-rendered HTML plus the checked game rows and total to build a read-only recap (meant to be screenshotted). The "Submit another form" button (`submitAnotherButton`) resets the form and swaps back to section 1.
+
 The frontend and the Apps Script backend are two separate files with no shared module or build step connecting them — `apps-script/Code.gs` is deployed by pasting its contents into script.google.com, not by any script in this repo. Because of that, several things must be kept in sync by hand:
 
 - **`FIELDS`** in `Code.gs` must match the plain form field `name`/`id` attributes in `index.html`, in the order columns should appear in the sheet.
@@ -21,7 +28,7 @@ The frontend and the Apps Script backend are two separate files with no shared m
 
 `app.js`'s `GAMES` array is the single source of truth for game eligibility: each entry has `min`/`max` age and `gender` ('Male' | 'Female' | 'any'). `renderGamesTable()` filters/greys rows based on the entered age and gender (`SHOW_DISABLED_GAMES` keeps a few sports visible-but-disabled even when the entrant isn't eligible, e.g. to show they exist). Checked boxes' `data-price` attributes are summed client-side for the running total in `#total-cost`; the same prices live in `GAMES` and are not otherwise validated server-side.
 
-`renderHouseNumbers()` derives selectable house numbers from the chosen tower: towers in `TWO_HOUSE_TOWERS` get 2 units/floor, others get 4, across `MAX_FLOOR` floors — this is config data specific to the building, not a general pattern.
+`renderHouseNumbers()` derives selectable house numbers from the chosen tower: towers in `TWO_HOUSE_TOWERS` get 2 units/floor, others get 4; towers in `TALL_TOWERS` have 21 floors, others have 20 — this is config data specific to the building, not a general pattern.
 
 Form submission uses `mode: 'no-cors'` because Apps Script's redirect-based response doesn't carry CORS headers; this means `fetch` can't actually inspect success/failure and the code just assumes success once the request completes.
 

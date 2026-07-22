@@ -5,7 +5,7 @@
 // which mode: 'no-cors' in app.js hides from the user (see app.js submit handler).
 
 const SHEET_NAME = 'Sheet1'; // change to match your sheet tab name
-const FIELDS = ['name', 'tower', 'house_number', 'whatsapp', 'dob', 'gender']; // change to match your form field names, in column order
+const FIELDS = ['name', 'tower', 'house_number', 'whatsapp', 'dob', 'gender', 'utr_id']; // change to match your form field names, in column order
 // one checkbox field per game/category entry in app.js's GAMES array, in column order
 const GAME_FIELDS = [
 	'badminton_singles_u14_male', 'badminton_singles_u14_female', 'badminton_doubles_u14_male', 'badminton_doubles_u14_female',

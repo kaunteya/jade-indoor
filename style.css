@@ -1,3 +1,6 @@
+*, *::before, *::after {
+	box-sizing: border-box;
+}
 html {
 	font-size: 16px;
 }
@@ -16,13 +19,28 @@ label {
 	font-size: 0.875rem;
 	font-weight: 600;
 }
-.games-section-label {
+.form-section h2 {
 	font-size: 1.125rem;
-	font-weight: 700;
+	margin: 0;
 }
 input, textarea, select {
 	padding: 0.5rem;
 	font-size: 1rem;
+}
+.input-with-check {
+	position: relative;
+}
+.input-with-check input {
+	width: 100%;
+	padding-right: 2rem;
+}
+.input-check {
+	position: absolute;
+	top: 50%;
+	right: 0.6rem;
+	transform: translateY(-50%);
+	color: #188038;
+	font-weight: 700;
 }
 button {
 	padding: 0.6rem;
@@ -57,6 +75,11 @@ button:disabled {
 	font-size: 0.8125rem;
 	color: #666;
 }
+.field-error {
+	margin: -0.5rem 0 0;
+	font-size: 0.8125rem;
+	color: #d93025;
+}
 #status {
 	font-size: 0.875rem;
 }
@@ -67,21 +90,31 @@ button:disabled {
 	color: #d93025;
 }
 #user-info-fields,
-#game-sections {
+.form-section {
 	display: flex;
 	flex-direction: column;
 	gap: 0.75rem;
 }
 #user-info-fields[hidden],
 #user-info-summary[hidden],
-#game-sections[hidden] {
+.form-section[hidden] {
 	display: none;
 }
-#user-info-summary {
-	position: relative;
+.summary-card {
 	border: 1px solid #ddd;
 	border-radius: 4px;
 	padding: 1rem;
+}
+.summary-card p {
+	margin: 0 0 0.5rem;
+	font-size: 0.9375rem;
+	line-height: 1.4;
+}
+.summary-card p:last-child {
+	margin-bottom: 0;
+}
+#user-info-summary {
+	position: relative;
 }
 #user-info-summary-text {
 	margin: 0;
@@ -118,9 +151,40 @@ button:disabled {
 .games-table tr.ineligible {
 	color: #aaa;
 }
-#total-cost {
+.total-line {
 	font-weight: 600;
 	margin: 0;
+	text-align: right;
+}
+.amount-pill {
+	background: #f1f3f4;
+	border-radius: 4px;
+	padding: 0.1rem 0.4rem;
+}
+.upi-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+.upi-links .button-link {
+	background: white;
+	color: #1a73e8;
+	border: 2px solid #1a73e8;
+}
+#qr-code {
+	display: none;
+	max-width: 100%;
+	height: auto;
+	align-self: center;
+}
+@media (min-width: 768px) {
+	.upi-links {
+		display: none;
+	}
+	#qr-code {
+		display: block;
+		max-width: 50%;
+	}
 }
 .row {
 	display: flex;
