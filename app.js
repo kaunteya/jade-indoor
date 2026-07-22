@@ -174,8 +174,14 @@ editButton.addEventListener('click', () => {
 const form = document.getElementById('form');
 const status = document.getElementById('status');
 const totalAmount = document.getElementById('total-amount');
-const upiId = 'vypar.172254121089@hdfcbank';
-const upiLinkOther = document.getElementById('upi-link-other');
+const upiId = document.getElementById('upi-id-text').textContent;
+const copyUpiIdButton = document.getElementById('copy-upi-id');
+
+copyUpiIdButton.addEventListener('click', async () => {
+	await navigator.clipboard.writeText(upiId);
+	copyUpiIdButton.textContent = 'Copied';
+	setTimeout(() => { copyUpiIdButton.textContent = 'Copy'; }, 1500);
+});
 const utrInput = document.getElementById('utr_id');
 const utrError = document.getElementById('utr-error');
 const submitButton = form.querySelector('button[type="submit"]');
@@ -196,9 +202,7 @@ function formatINR(amount) {
 function updateTotalCost() {
 	const checked = [...form.querySelectorAll('input[type="checkbox"]:checked')];
 	const total = checked.reduce((sum, checkbox) => sum + Number(checkbox.dataset.price || 0), 0);
-	totalAmount.textContent = `₹${formatINR(total)}`;
-	const upiParams = `pa=${upiId}&pn=Jade%20Indoor%20Sports%20Festival&am=${total}&cu=INR`;
-	upiLinkOther.href = `upi://pay?${upiParams}`;
+	totalAmount.textContent = formatINR(total);
 	paymentSection.hidden = total === 0;
 	submitButton.hidden = checked.length === 0 || !utrInput.checkValidity();
 }
@@ -225,7 +229,7 @@ function showPostSubmissionSummary() {
 		</tr>
 	`;
 	}).join('');
-	postSubmissionTotal.innerHTML = `Total paid: <span class="amount-pill">${totalAmount.textContent}</span>`;
+	postSubmissionTotal.textContent = totalAmount.textContent;
 	personInfoSection.hidden = true;
 	gamesSection.hidden = true;
 	paymentSection.hidden = true;

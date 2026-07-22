@@ -72,8 +72,7 @@
 		</section>
 
 		<section id="section-games" class="form-section" hidden>
-			<h2>Select the games</h2>
-			<p>Games you're eligible to play</p>
+			<h2>Games you're eligible to play</h2>
 			<table class="games-table">
 				<thead>
 					<tr>
@@ -85,18 +84,24 @@
 					</tr>
 				</thead>
 				<tbody id="games-table-body"></tbody>
+				<tfoot>
+					<tr id="total-cost" class="total-line">
+						<td colspan="3"></td>
+						<td>Total</td>
+						<td id="total-amount">0</td>
+					</tr>
+				</tfoot>
 			</table>
-			<p id="total-cost" class="total-line">Total: <span id="total-amount" class="amount-pill">₹0</span></p>
 		</section>
 
 		<section id="section-payment" class="form-section" hidden>
 			<h2>Payment</h2>
-			<p>Pay using any UPI app, or scan the QR code.</p>
-			<div class="upi-links">
-				<a id="upi-link-other" class="button-link" href="#">Pay via UPI</a>
-			</div>
+			<p class="upi-id-row">
+				UPI ID: <code id="upi-id-text">vypar.172254121089@hdfcbank</code>
+				<button type="button" id="copy-upi-id">Copy</button>
+			</p>
 			<img id="qr-code" src="qr.jpeg" alt="Payment QR code" />
-
+			<p>Enter the 12-digit UTR ID after making the payment.</p>
 			<label for="utr_id">UTR ID</label>
 			<input id="utr_id" name="utr_id" inputmode="numeric" pattern="[0-9]{12}" title="Enter the 12-digit UTR number" required />
 			<p id="utr-error" class="field-error" hidden>Enter all 12 digits of the UTR number.</p>
@@ -106,7 +111,7 @@
 		</section>
 
 		<section id="section-post-submission" class="form-section" hidden>
-			<h2>Submission successful</h2>
+			<h2 class="success-heading">✓ Submission successful</h2>
 			<div id="post-submission-info" class="summary-card"></div>
 			<table class="games-table">
 				<thead>
@@ -117,8 +122,14 @@
 					</tr>
 				</thead>
 				<tbody id="post-submission-games-body"></tbody>
+				<tfoot>
+					<tr class="total-line">
+						<td></td>
+						<td>Total paid</td>
+						<td id="post-submission-total"></td>
+					</tr>
+				</tfoot>
 			</table>
-			<p id="post-submission-total" class="total-line"></p>
 			<button type="button" id="submit-another-button">Submit another form</button>
 		</section>
 	</form>
