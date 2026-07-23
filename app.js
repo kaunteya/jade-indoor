@@ -261,7 +261,7 @@ function updateTotalCost() {
 	totalAmount.textContent = formatINR(total);
 	paymentSection.hidden = total === 0;
 	const hasProof = proofMethod() === 'screenshot' ? !!screenshotInput.value : !!utrInput.value.trim();
-	submitButton.hidden = checked.length === 0 || !hasProof;
+	submitButton.disabled = checked.length === 0 || !hasProof;
 }
 
 // Downscale a picked image to a small base64 JPEG so a multi-MB phone screenshot
