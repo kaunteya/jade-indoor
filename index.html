@@ -3,12 +3,13 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Contact form</title>
+	<title>Pavilion Sports League</title>
 	<link rel="stylesheet" href="style.css" />
 </head>
 <body>
 	<form id="form">
-		<h1>Jade Indoor Sports Festival 2026</h1>
+		<img class="logo" src="logo.jpeg" alt="Pavilion Sports League" />
+		<h1>Pavilion Sports League 2026</h1>
 		<a class="button-link rules-link" href="https://docs.google.com/document/d/1-d0sZMoPBo2bWRyA608_WgxZSuDXSBSce2HRxitFllM/edit?usp=sharing" target="_blank" rel="noopener">Rules</a>
 
 		<section id="section-person-info" class="form-section">
@@ -92,10 +93,11 @@
 					</tr>
 				</tfoot>
 			</table>
-			<div id="skill-levels" hidden>
-				<h3>Set your expertise</h3>
-				<div id="skill-levels-list"></div>
-			</div>
+		</section>
+
+		<section id="skill-levels" class="form-section" hidden>
+			<h2>Set your expertise</h2>
+			<div id="skill-levels-list"></div>
 		</section>
 
 		<section id="section-payment" class="form-section" hidden>
@@ -149,7 +151,10 @@
 					</tr>
 				</tfoot>
 			</table>
-			<button type="button" id="submit-another-button">Submit another form</button>
+			<div class="post-submission-buttons">
+				<button type="button" id="download-pdf-button">⬇️ Download PDF</button>
+				<button type="button" id="submit-another-button">Submit another form</button>
+			</div>
 		</section>
 	</form>
 

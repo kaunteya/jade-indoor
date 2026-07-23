@@ -215,6 +215,7 @@ editButton.addEventListener('click', () => {
 	userInfoSummary.hidden = true;
 	userInfoFields.hidden = false;
 	gamesSection.hidden = true;
+	skillLevelsBlock.hidden = true;
 	paymentSection.hidden = true;
 });
 
@@ -326,9 +327,12 @@ function showPostSubmissionSummary() {
 	postSubmissionTotal.textContent = totalAmount.textContent;
 	personInfoSection.hidden = true;
 	gamesSection.hidden = true;
+	skillLevelsBlock.hidden = true;
 	paymentSection.hidden = true;
 	postSubmissionSection.hidden = false;
 }
+
+document.getElementById('download-pdf-button').addEventListener('click', () => window.print());
 
 submitAnotherButton.addEventListener('click', () => {
 	form.reset();
