@@ -256,18 +256,6 @@ button:disabled {
 	color: #1a73e8;
 	width: fit-content;
 }
-@media (min-width: 768px) {
-	.upi-id-row {
-		display: none;
-	}
-	#qr-toggle summary {
-		display: none;
-	}
-	#qr-code {
-		display: block;
-		max-width: 50%;
-	}
-}
 .post-submission-buttons {
 	display: flex;
 	flex-direction: column;
