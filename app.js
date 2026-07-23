@@ -109,7 +109,7 @@ function renderGamesTable() {
 		${eligible && row.type === 'Doubles' ? `
 		<tr class="partner-row" hidden>
 			<td></td>
-			<td colspan="4"><input name="${row.id}_partner" placeholder="Partner's name (required)" /></td>
+			<td colspan="4"><input name="${row.id.split('_')[0]}_partner" placeholder="Partner's name (required)" /></td>
 		</tr>
 		` : ''}
 	`).join('');
@@ -130,7 +130,7 @@ function updatePartnerRows() {
 // Self-rated level, asked once per sport even when several entries of that sport are checked.
 // The number rides on the checkbox's own value, so a checked game submits '2' rather than 'on'
 // and lands in that game's sheet column; the selects carry no name and never reach FormData.
-const LEVELS = { 1: 'Beginner', 2: 'Intermediate', 3: 'Expert' };
+const LEVELS = { 1: 'Beginner', 2: 'Intermediate', 3: 'Advanced' };
 const skillLevelsBlock = document.getElementById('skill-levels');
 const skillLevelsList = document.getElementById('skill-levels-list');
 const skillLevels = {}; // sport -> level, kept across re-renders so unchecking a game doesn't lose the answer
@@ -229,18 +229,26 @@ copyUpiIdButton.addEventListener('click', async () => {
 	copyUpiIdButton.textContent = 'Copied';
 	setTimeout(() => { copyUpiIdButton.textContent = 'Copy'; }, 1500);
 });
+const screenshotInput = document.getElementById('payment_screenshot');
+const screenshotField = document.getElementById('screenshot-field');
 const utrInput = document.getElementById('utr_id');
-const utrError = document.getElementById('utr-error');
+const utrField = document.getElementById('utr-field');
 const submitButton = form.querySelector('button[type="submit"]');
 
-function updateUtrError() {
-	utrError.hidden = utrInput.value.length === 0 || utrInput.value.length === 12;
+function proofMethod() {
+	return form.querySelector('input[name="proof_method"]:checked').value;
 }
 
-utrInput.addEventListener('input', () => {
-	utrInput.value = utrInput.value.replace(/\D/g, '').slice(0, 12);
-	updateUtrError();
-});
+// Show the input for the chosen proof method and clear the other, so only the
+// selected proof is submitted. utr_id keeps its name and always rides in FormData —
+// cleared here it sends '' when a screenshot is used, keeping the sheet column aligned.
+function updateProofMethod() {
+	const useScreenshot = proofMethod() === 'screenshot';
+	screenshotField.hidden = !useScreenshot;
+	utrField.hidden = useScreenshot;
+	if (useScreenshot) utrInput.value = '';
+	else screenshotInput.value = '';
+}
 
 function formatINR(amount) {
 	return amount.toLocaleString('en-IN');
@@ -251,7 +259,33 @@ function updateTotalCost() {
 	const total = checked.reduce((sum, checkbox) => sum + Number(checkbox.dataset.price || 0), 0);
 	totalAmount.textContent = formatINR(total);
 	paymentSection.hidden = total === 0;
-	submitButton.hidden = checked.length === 0 || !utrInput.checkValidity();
+	const hasProof = proofMethod() === 'screenshot' ? !!screenshotInput.value : !!utrInput.value.trim();
+	submitButton.hidden = checked.length === 0 || !hasProof;
+}
+
+// Downscale a picked image to a small base64 JPEG so a multi-MB phone screenshot
+// POSTs reliably over mobile and doesn't bloat Drive/the sheet. Returns the data
+// URL plus the drawn dimensions so the server can size the row thumbnail without
+// distortion. ponytail: 1080px / quality 0.7 is the ceiling — lift if proofs look too soft.
+function resizeToDataUrl(file) {
+	return new Promise((resolve, reject) => {
+		const img = new Image();
+		img.onload = () => {
+			// Cap width at 1080 and total pixels under Apps Script's 1M-pixel insertImage limit
+			// (a tall portrait screenshot at 1080 wide blows past it), whichever is smaller.
+			const scale = Math.min(1, 1080 / img.width, Math.sqrt(950000 / (img.width * img.height)));
+			const w = Math.round(img.width * scale);
+			const h = Math.round(img.height * scale);
+			const canvas = document.createElement('canvas');
+			canvas.width = w;
+			canvas.height = h;
+			canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+			URL.revokeObjectURL(img.src);
+			resolve({ dataUrl: canvas.toDataURL('image/jpeg', 0.7), w, h });
+		};
+		img.onerror = reject;
+		img.src = URL.createObjectURL(file);
+	});
 }
 
 // Both events, one handler: 'change' alone missed edits that only fire 'input' (typing a date of
@@ -260,8 +294,10 @@ function updateTotalCost() {
 ['input', 'change'].forEach(type => form.addEventListener(type, () => {
 	updatePartnerRows();
 	updateSkillLevels();
+	updateProofMethod();
 	updateTotalCost();
 }));
+updateProofMethod();
 updateTotalCost();
 
 const postSubmissionSection = document.getElementById('section-post-submission');
@@ -277,11 +313,12 @@ function showPostSubmissionSummary() {
 		const cells = gameRow.querySelectorAll('td');
 		const nextRow = gameRow.nextElementSibling;
 		const partner = nextRow?.classList.contains('partner-row') ? nextRow.querySelector('input').value : '';
-		const category = `${cells[2].textContent}${partner ? ` (with ${partner})` : ''}`;
 		return `
 		<tr>
 			<td>${cells[1].textContent}</td>
-			<td>${[category, LEVELS[checkbox.value]].filter(Boolean).join(' · ')}</td>
+			<td>${cells[2].textContent}</td>
+			<td>${partner || '—'}</td>
+			<td>${LEVELS[checkbox.value] || '—'}</td>
 			<td>${cells[4].textContent}</td>
 		</tr>
 	`;
@@ -298,8 +335,8 @@ submitAnotherButton.addEventListener('click', () => {
 	Object.keys(skillLevels).forEach(sport => delete skillLevels[sport]);
 	renderGamesTable();
 	updateSkillLevels();
+	updateProofMethod();
 	updateTotalCost();
-	updateUtrError();
 	whatsappCheck.hidden = true;
 	status.textContent = '';
 	status.className = '';
@@ -316,12 +353,19 @@ form.addEventListener('submit', async (event) => {
 	status.textContent = 'Submitting…';
 
 	try {
+		const body = new FormData(form);
+		if (proofMethod() === 'screenshot' && screenshotInput.files[0]) {
+			const { dataUrl, w, h } = await resizeToDataUrl(screenshotInput.files[0]);
+			body.append('payment_screenshot', dataUrl);
+			body.append('screenshot_w', w);
+			body.append('screenshot_h', h);
+		}
 		// no-cors: Apps Script's redirect response doesn't carry CORS headers,
 		// which would otherwise make fetch throw even on a successful write.
 		await fetch(SCRIPT_URL, {
 			method: 'POST',
 			mode: 'no-cors',
-			body: new FormData(form),
+			body,
 		});
 		status.textContent = '';
 		status.className = '';

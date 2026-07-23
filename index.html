@@ -93,22 +93,36 @@
 				</tfoot>
 			</table>
 			<div id="skill-levels" hidden>
-				<h3>Your level</h3>
+				<h3>Set your expertise</h3>
 				<div id="skill-levels-list"></div>
 			</div>
 		</section>
 
 		<section id="section-payment" class="form-section" hidden>
 			<h2>Payment</h2>
+			<p class="callout">Upload payment screenshot or UTR ID.</p>
 			<p class="upi-id-row">
 				UPI ID: <code id="upi-id-text">vypar.172254121089@hdfcbank</code>
 				<button type="button" id="copy-upi-id">Copy</button>
 			</p>
-			<img id="qr-code" src="qr.jpeg" alt="Payment QR code" />
-			<p class="callout">Enter the 12-digit UTR ID after making the payment.</p>
-			<label for="utr_id">UTR ID</label>
-			<input id="utr_id" name="utr_id" inputmode="numeric" pattern="[0-9]{12}" title="Enter the 12-digit UTR number" required />
-			<p id="utr-error" class="field-error" hidden>Enter all 12 digits of the UTR number.</p>
+			<details id="qr-toggle">
+				<summary>Show QR</summary>
+				<img id="qr-code" src="qr.jpeg" alt="Payment QR code" />
+			</details>
+			<div class="proof-choice">
+				<label class="proof-option"><input type="radio" name="proof_method" value="screenshot" checked /> Upload screenshot</label>
+				<label class="proof-option"><input type="radio" name="proof_method" value="utr" /> Enter UTR ID</label>
+			</div>
+
+			<div id="screenshot-field">
+				<label for="payment_screenshot">Payment screenshot</label>
+				<input id="payment_screenshot" type="file" accept="image/*" />
+			</div>
+
+			<div id="utr-field" hidden>
+				<label for="utr_id">UTR/Transaction ID</label>
+				<input id="utr_id" name="utr_id" />
+			</div>
 
 			<button type="submit">Submit</button>
 			<p id="status"></p>
@@ -122,14 +136,15 @@
 					<tr>
 						<th>Game</th>
 						<th>Category</th>
+						<th>Partner</th>
+						<th>Level</th>
 						<th>Price</th>
 					</tr>
 				</thead>
 				<tbody id="post-submission-games-body"></tbody>
 				<tfoot>
 					<tr class="total-line">
-						<td></td>
-						<td>Total paid</td>
+						<td colspan="4">Total paid</td>
 						<td id="post-submission-total"></td>
 					</tr>
 				</tfoot>
