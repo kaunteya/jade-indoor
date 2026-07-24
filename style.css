@@ -484,11 +484,102 @@ button:disabled {
 	html {
 		background: none;
 	}
+	/* the printed page is one thing only: the receipt, styled as a ticket. The form is
+	   the ticket body — everything else on it is hidden by the time this step is reached.
+	   print-color-adjust keeps the bands filled when "Background graphics" is off. */
+	/* a bit wider than the 480px phone layout so the five game columns stop wrapping */
+	body {
+		max-width: 560px;
+	}
+	form {
+		gap: 0;
+		border: 2px solid #0b2c47;
+		border-radius: 16px;
+		/* clips the perforation notches to half-circles against the ticket edges */
+		overflow: hidden;
+		print-color-adjust: exact;
+		-webkit-print-color-adjust: exact;
+	}
 	/* the full-bleed band's -1.75rem top margin cancelled the form gap on screen;
 	   in print the sponsor bar above it is gone, so it just crops the title off the page */
 	.past-first-view h1 {
-		background: none;
+		background: #0b2c47;
 		margin: 0;
+		padding: 1.25rem 1rem 0.5rem;
+	}
+	/* the icons belong in the same dark band as the title: full width for the band,
+	   object-fit keeps the artwork itself centred at its own aspect ratio */
+	.psl-subtitle {
+		background: #0b2c47;
+		max-width: 100%;
+		width: 100%;
+		height: 6.5rem;
+		object-fit: contain;
+		padding-bottom: 1rem;
+	}
+	#section-post-submission {
+		gap: 0;
+	}
+	/* the ticket is wider than the phone layout the fixed columns were sized for:
+	   let the five columns take their intrinsic widths so "Intermediate" stops breaking */
+	.summary-card .games-table {
+		table-layout: auto;
+	}
+	.summary-card {
+		border: none;
+		border-radius: 0;
+		padding: 1.25rem;
+	}
+	/* the tear line between stub and body, notched at both edges */
+	#post-submission-info + .summary-card {
+		position: relative;
+		border-top: 2px dashed #b6c2cc;
+	}
+	#post-submission-info + .summary-card::before,
+	#post-submission-info + .summary-card::after {
+		content: '';
+		position: absolute;
+		top: -12px;
+		width: 22px;
+		height: 22px;
+		border: 2px solid #0b2c47;
+		border-radius: 50%;
+		background: white;
+	}
+	#post-submission-info + .summary-card::before {
+		left: -13px;
+	}
+	#post-submission-info + .summary-card::after {
+		right: -13px;
+	}
+	.games-table th {
+		font-size: 0.6875rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: #5a7183;
+	}
+	.games-table td {
+		border-bottom: 1px dashed #dde3e8;
+	}
+	.total-line {
+		background: none;
+		color: #0b2c47;
+		font-size: 1rem;
+	}
+	.total-line td {
+		border-top: 2px solid #0b2c47;
+		border-bottom: none;
+	}
+	/* the ticket's bottom stub */
+	#section-post-submission::after {
+		content: 'Pavilion Sports League · Registration confirmed';
+		background: #0b2c47;
+		color: white;
+		padding: 0.6rem 1rem;
+		text-align: center;
+		font-size: 0.75rem;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
 	}
 }
 .row {
