@@ -37,6 +37,7 @@ const GAME_FIELDS = [
 function doPost(e) {
 	const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
 	const row = FIELDS.map(field => field === 'age' ? ageFromDob(e.parameter.dob) : (e.parameter[field] || ''));
+	row.push(new Date()); // date of registration, right after gender
 	// Every game gets one numeric column: 0 = not entered, 1 = beginner, 2 = intermediate, 3 = expert.
 	// The level arrives as the checkbox's own value (see app.js updateSkillLevels), so an unchecked
 	// game sends no parameter at all. Each sport also has one '<sport>_partner' text column for the
@@ -45,7 +46,6 @@ function doPost(e) {
 	GAME_FIELDS.forEach(field => {
 		row.push(field.endsWith('_partner') ? (e.parameter[field] || '') : Number(e.parameter[field] || 0));
 	});
-	row.push(new Date());
 	const col = row.length + 1; // 1-based; the next pushed cell is the screenshot link column
 	row.push(''); // screenshot link column
 	row.push(e.parameter.utr_id || ''); // UPI/UTR id — last column (blank if not entered)
