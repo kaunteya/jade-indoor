@@ -88,7 +88,7 @@ function ageAsOfJuly31st(dobValue) {
 }
 
 function renderGamesTable() {
-	const age = calculateAge(dobInput.value);
+	const age = ageAsOfJuly31st(dobInput.value);
 	const gender = genderSelect.value;
 	if (!age || !gender) {
 		gamesTableBody.innerHTML = '';
@@ -156,7 +156,15 @@ function updateSkillLevels() {
 	checked.forEach(checkbox => { checkbox.value = skillLevels[checkbox.dataset.sport] || ''; });
 }
 
-dobInput.addEventListener('input', renderGamesTable);
+const dobAgeNote = document.getElementById('dob-age');
+
+function showAge() {
+	const age = ageAsOfJuly31st(dobInput.value);
+	dobAgeNote.textContent = age === null ? '' : `${age} years old`;
+	dobAgeNote.hidden = age === null;
+}
+
+dobInput.addEventListener('input', () => { showAge(); renderGamesTable(); });
 genderSelect.addEventListener('change', renderGamesTable);
 renderGamesTable();
 
@@ -178,7 +186,7 @@ function fieldLabel(field) {
 
 function fieldSummary(field) {
 	const value = field.id === 'dob'
-		? `${new Date(field.value).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} (${ageAsOfJuly31st(field.value)}yrs old)`
+		? `${new Date(field.value).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} (${ageAsOfJuly31st(field.value)} years old)`
 		: field.value;
 	return `<strong>${fieldLabel(field)}:</strong> ${value}`;
 }
@@ -338,6 +346,7 @@ submitAnotherButton.addEventListener('click', () => {
 	form.reset();
 	Object.keys(skillLevels).forEach(sport => delete skillLevels[sport]);
 	renderGamesTable();
+	showAge();
 	updateSkillLevels();
 	updateProofMethod();
 	updateTotalCost();

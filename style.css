@@ -15,6 +15,10 @@ form {
 	flex-direction: column;
 	gap: 0.75rem;
 }
+h1 {
+	text-align: center;
+	text-wrap: balance;
+}
 .logo {
 	display: block;
 	max-width: 160px;
