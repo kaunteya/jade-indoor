@@ -102,14 +102,13 @@ function renderGamesTable() {
 		<tr class="${eligible ? '' : 'ineligible'}">
 			<td>${eligible ? `<input type="checkbox" name="${row.id}" data-price="${row.price}" data-sport="${row.game}" />` : ''}</td>
 			<td>${row.game}</td>
-			<td>${row.type}</td>
-			<td>${row.ageGroup}</td>
-			<td>${row.price}</td>
+			<td>${row.type} <span class="age-group">${row.ageGroup}</span></td>
+			<td>${formatINR(row.price)}</td>
 		</tr>
 		${eligible && row.type === 'Doubles' ? `
 		<tr class="partner-row" hidden>
 			<td></td>
-			<td colspan="4"><input name="${row.id.split('_')[0]}_partner" placeholder="Partner's name (required)" /></td>
+			<td colspan="3"><input name="${row.id.split('_')[0]}_partner" placeholder="Partner's name (required)" /></td>
 		</tr>
 		` : ''}
 	`).join('');
@@ -240,6 +239,7 @@ copyUpiIdButton.addEventListener('click', async () => {
 });
 const screenshotInput = document.getElementById('payment_screenshot');
 const screenshotField = document.getElementById('screenshot-field');
+const screenshotName = document.getElementById('screenshot-name');
 const utrInput = document.getElementById('utr_id');
 const utrField = document.getElementById('utr-field');
 const submitButton = form.querySelector('button[type="submit"]');
@@ -257,10 +257,12 @@ function updateProofMethod() {
 	utrField.hidden = useScreenshot;
 	if (useScreenshot) utrInput.value = '';
 	else screenshotInput.value = '';
+	// the input's own text is hidden in CSS (it reads "No file chosen" until picked)
+	screenshotName.textContent = screenshotInput.files[0]?.name || '';
 }
 
 function formatINR(amount) {
-	return amount.toLocaleString('en-IN');
+	return `₹${amount.toLocaleString('en-IN')}`;
 }
 
 function updateTotalCost() {
@@ -325,10 +327,10 @@ function showPostSubmissionSummary() {
 		return `
 		<tr>
 			<td>${cells[1].textContent}</td>
-			<td>${cells[2].textContent}</td>
+			<td>${cells[2].textContent.trim()}</td>
 			<td>${partner || '—'}</td>
 			<td>${LEVELS[checkbox.value] || '—'}</td>
-			<td>${cells[4].textContent}</td>
+			<td>${cells[3].textContent}</td>
 		</tr>
 	`;
 	}).join('');
