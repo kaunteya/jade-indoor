@@ -14,6 +14,8 @@ html {
 }
 body {
 	font-family: system-ui, sans-serif;
+	/* the sponsor bar's 50vw full-bleed overshoots by the scrollbar width */
+	overflow-x: clip;
 	max-width: 480px;
 	margin: 4rem auto;
 	padding: 0 1rem;
@@ -27,12 +29,28 @@ h1 {
 	text-align: center;
 	text-wrap: balance;
 }
-.logo {
+.sponsor-bar {
+	background: #084F85;
+	/* full-bleed out of the 480px body: pull each edge back to the viewport */
+	margin: -1rem calc(50% - 50vw) 0;
+	padding: 0.75rem 1rem;
+}
+.sponsor-bar a {
 	display: block;
-	max-width: 96px;
-	/* negative top/bottom claw back the form's 1.75rem flex gap on either side */
-	margin: -1rem auto -0.75rem;
+}
+.sponsor-bar img {
+	display: block;
+	max-width: min(60%, 288px);
+	margin: 0 auto;
 	height: auto;
+}
+.presents {
+	/* negative bottom margin claws back the form's 1.75rem flex gap under it */
+	margin: 0 0 -1.25rem;
+	text-align: center;
+	font-size: 0.875rem;
+	letter-spacing: 0.08em;
+	color: #5f6368;
 }
 label {
 	font-size: 0.875rem;
