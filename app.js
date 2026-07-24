@@ -132,6 +132,7 @@ function updatePartnerRows() {
 const LEVELS = { 1: 'Beginner', 2: 'Intermediate', 3: 'Advanced' };
 const skillLevelsBlock = document.getElementById('skill-levels');
 const skillLevelsList = document.getElementById('skill-levels-list');
+const skillLevelsNextButton = document.getElementById('skill-levels-next-button');
 const skillLevels = {}; // sport -> level, kept across re-renders so unchecking a game doesn't lose the answer
 
 function updateSkillLevels() {
@@ -152,6 +153,8 @@ function updateSkillLevels() {
 		</label>
 	`).join('');
 	checked.forEach(checkbox => { checkbox.value = skillLevels[checkbox.dataset.sport] || ''; });
+	// Re-query rather than reuse `rendered`: it's stale whenever the list was just rebuilt above.
+	skillLevelsNextButton.disabled = [...skillLevelsList.querySelectorAll('select')].some(select => !select.value);
 }
 
 const dobAgeNote = document.getElementById('dob-age');
@@ -200,9 +203,26 @@ const totalAmount = document.getElementById('total-amount');
 const upiId = document.getElementById('upi-id-text').textContent;
 const copyUpiIdButton = document.getElementById('copy-upi-id');
 
+// navigator.clipboard only exists in a secure context; the form is served over plain
+// http on the LAN for phone testing, so fall back to the old execCommand path there.
+function copyText(text) {
+	if (navigator.clipboard) return navigator.clipboard.writeText(text);
+	const el = document.createElement('textarea');
+	el.value = text;
+	document.body.appendChild(el);
+	el.select();
+	const ok = document.execCommand('copy');
+	el.remove();
+	return ok ? Promise.resolve() : Promise.reject();
+}
+
 copyUpiIdButton.addEventListener('click', async () => {
-	await navigator.clipboard.writeText(upiId);
-	copyUpiIdButton.textContent = 'Copied';
+	try {
+		await copyText(upiId);
+		copyUpiIdButton.textContent = 'Copied';
+	} catch {
+		copyUpiIdButton.textContent = 'Copy failed';
+	}
 	setTimeout(() => { copyUpiIdButton.textContent = 'Copy'; }, 1500);
 });
 const screenshotInput = document.getElementById('payment_screenshot');
@@ -289,49 +309,41 @@ const postSubmissionInfo = document.getElementById('post-submission-info');
 const postSubmissionGamesBody = document.getElementById('post-submission-games-body');
 const postSubmissionTotal = document.getElementById('post-submission-total');
 const submitAnotherButton = document.getElementById('submit-another-button');
-const paymentPreview = document.getElementById('payment-preview');
+const paymentPreviewInfo = document.getElementById('payment-preview-info');
+const paymentPreviewGames = document.getElementById('payment-preview-games');
+const paymentPreviewTotal = document.getElementById('payment-preview-total');
 
-// The ticked games, read back off their own table rows so the wording always matches
-// what the user saw when picking. Feeds both the payment preview and the final receipt.
-function chosenGames() {
+// One row per ticked game, read back off the game's own table row so the wording always
+// matches what the user saw when picking. Same markup for the payment preview and the
+// final receipt — both tables carry the identical Game/Category/Partner/Level/Price columns.
+function gameRowsHtml() {
 	return [...gamesTableBody.querySelectorAll('input[type="checkbox"]:checked')].map(checkbox => {
 		const gameRow = checkbox.closest('tr');
 		const cells = gameRow.querySelectorAll('td');
 		const nextRow = gameRow.nextElementSibling;
-		return {
-			game: cells[1].textContent,
-			category: cells[2].textContent.trim(),
-			partner: nextRow?.classList.contains('partner-row') ? nextRow.querySelector('input').value : '',
-			level: LEVELS[checkbox.value] || '—',
-			price: cells[3].textContent,
-		};
-	});
+		const partner = nextRow?.classList.contains('partner-row') ? nextRow.querySelector('input').value : '';
+		return `
+		<tr>
+			<td>${cells[1].textContent}</td>
+			<td>${cells[2].textContent.trim()}</td>
+			<td>${partner || '—'}</td>
+			<td>${LEVELS[checkbox.value] || '—'}</td>
+			<td>${cells[3].textContent}</td>
+		</tr>
+	`;
+	}).join('');
 }
 
-// Compressed recap on the payment step: what you're about to pay for, before you pay.
+// Recap on the payment step: what you're about to pay for, before you pay.
 function renderPaymentPreview() {
-	paymentPreview.innerHTML = `
-		<p>${personInfoLines().join('<br>')}</p>
-		${chosenGames().map(entry => `
-		<p class="preview-line">
-			<span>${entry.game} · ${entry.category} · ${entry.level}${entry.partner ? ` · with ${entry.partner}` : ''}</span>
-			<span>${entry.price}</span>
-		</p>`).join('')}
-		<p class="preview-line preview-total"><strong>Total</strong><strong>${totalAmount.textContent}</strong></p>
-	`;
+	paymentPreviewInfo.innerHTML = personInfoLines().join('<br>');
+	paymentPreviewGames.innerHTML = gameRowsHtml();
+	paymentPreviewTotal.textContent = totalAmount.textContent;
 }
 
 function showPostSubmissionSummary() {
 	postSubmissionInfo.innerHTML = personInfoLines().map(line => `<p>${line}</p>`).join('');
-	postSubmissionGamesBody.innerHTML = chosenGames().map(entry => `
-		<tr>
-			<td>${entry.game}</td>
-			<td>${entry.category}</td>
-			<td>${entry.partner || '—'}</td>
-			<td>${entry.level}</td>
-			<td>${entry.price}</td>
-		</tr>
-	`).join('');
+	postSubmissionGamesBody.innerHTML = gameRowsHtml();
 	postSubmissionTotal.textContent = totalAmount.textContent;
 	showStep(STEPS.length - 1);
 }
@@ -344,6 +356,8 @@ let step = 0;
 function showStep(index) {
 	step = index;
 	STEPS.forEach((section, i) => { section.hidden = i !== index; });
+	// Branding is the landing screen's job; later steps get the vertical space instead.
+	document.querySelectorAll('.first-view-only').forEach(element => { element.hidden = index !== 0; });
 	if (STEPS[index] === paymentSection) renderPaymentPreview();
 	window.scrollTo(0, 0);
 }

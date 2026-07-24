@@ -1,6 +1,11 @@
 *, *::before, *::after {
 	box-sizing: border-box;
 }
+/* the UA's [hidden] rule loses to any id/class that sets display, and this form toggles
+   everything through the hidden attribute — so it wins here, once, for all of them */
+[hidden] {
+	display: none !important;
+}
 html {
 	font-size: 16px;
 	/* fixed so it fills the viewport whatever the step's height is, instead of
@@ -24,8 +29,9 @@ h1 {
 }
 .logo {
 	display: block;
-	max-width: 160px;
-	margin: 0 auto;
+	max-width: 96px;
+	/* negative top/bottom claw back the form's 1.75rem flex gap on either side */
+	margin: -1rem auto -0.75rem;
 	height: auto;
 }
 label {
@@ -55,17 +61,27 @@ label {
 	border-radius: 6px;
 	padding: 0.6rem 0.75rem;
 }
-.callout {
-	background: #fef7e0;
-	border-left: 3px solid #f9ab00;
-	border-radius: 4px;
-	margin: 0;
-	padding: 0.6rem 0.75rem;
-	font-size: 0.9375rem;
-}
 input, textarea, select {
 	padding: 0.65rem 0.6rem;
 	font-size: 1rem;
+}
+/* The UA paints <select> as a native pop-up button (grey fill, its own chevron) while <input> is a
+   plain white box. Flatten both to one shell; the chevron is drawn back in below. Checkboxes,
+   radios and the file button keep their native rendering. */
+input:not([type="checkbox"], [type="radio"], [type="file"]), textarea, select {
+	appearance: none;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	color: inherit;
+	font-family: inherit;
+}
+select {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%23555' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.7rem center;
+	background-size: 0.7rem;
+	padding-right: 2rem;
 }
 #screenshot-field,
 #utr-field {
@@ -99,11 +115,14 @@ input, textarea, select {
 	color: #188038;
 	font-weight: 700;
 }
+/* one size for every primary button — Next, Submit, Download PDF */
 button {
-	padding: 0.75rem;
-	font-size: 1rem;
+	padding: 0.6rem 1.5rem;
+	font-size: 0.9375rem;
 	background: #1a73e8;
 	color: white;
+	border: none;
+	border-radius: 4px;
 	cursor: pointer;
 }
 button:disabled {
@@ -119,13 +138,20 @@ button:disabled {
 	text-decoration: none;
 	border-radius: 4px;
 }
-.rules-link {
-	align-self: flex-end;
+/* every secondary action is a plain text link, never a second competing button */
+.rules-link,
+.back-step,
+#submit-another-button {
 	padding: 0;
 	background: none;
+	border: none;
 	color: #1a73e8;
 	font-size: 0.875rem;
+	font-weight: normal;
 	text-decoration: underline;
+}
+.rules-link {
+	align-self: flex-end;
 }
 .field-note {
 	margin: -0.9rem 0 0;
@@ -161,13 +187,6 @@ button:disabled {
 #submit-another-button {
 	margin-top: 1.5rem;
 	align-self: flex-start;
-	padding: 0;
-	background: none;
-	color: #1a73e8;
-	text-decoration: underline;
-}
-.form-section[hidden] {
-	display: none;
 }
 .step-nav {
 	display: flex;
@@ -175,29 +194,15 @@ button:disabled {
 	justify-content: flex-end;
 	gap: 1rem;
 	margin-top: 0.5rem;
+	padding-bottom: 1.5rem;
 }
-.step-nav button[type="submit"],
-.step-nav .next-step {
-	padding: 0.75rem 2rem;
-}
-/* back is a way out, not an action to invite: same text-link treatment as the other secondary
-   links, and pinned left so the primary action keeps the right edge on every step */
+/* back is a way out, not an action to invite: pinned left so the primary
+   action keeps the right edge on every step */
 .back-step {
 	margin-right: auto;
-	padding: 0;
-	background: none;
-	color: #1a73e8;
-	font-size: 0.875rem;
-	text-decoration: underline;
 }
-.preview-line {
-	display: flex;
-	justify-content: space-between;
-	gap: 1rem;
-}
-.preview-total {
-	border-top: 1px solid #ddd;
-	padding-top: 0.5rem;
+#payment-preview-info {
+	line-height: 1.6;
 }
 .summary-card {
 	background: white;
@@ -257,7 +262,7 @@ button:disabled {
 	font-size: 0.875rem;
 }
 #skill-levels {
-	padding: 1rem 0;
+	padding: 1.5rem 0;
 }
 #skill-levels h3 {
 	font-size: 1rem;
@@ -266,18 +271,19 @@ button:disabled {
 #skill-levels-list {
 	display: flex;
 	flex-direction: column;
-	gap: 0.9rem;
+	gap: 1.5rem;
 }
 .level-row {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 0.5rem;
+	gap: 1rem;
+	padding: 0.5rem 0;
 }
+/* no padding override: the select matches every other one on the form */
 .level-row select {
 	flex: 1;
 	max-width: 12rem;
-	padding: 0.35rem 0.5rem;
 }
 .games-table tr.ineligible {
 	color: #aaa;
@@ -330,9 +336,12 @@ button:disabled {
 	color: #1a73e8;
 	width: fit-content;
 }
+/* flex-end keeps Download PDF the same compact size as Next/Submit instead of
+   stretching it across the column; Submit another sets its own align-self */
 .post-submission-buttons {
 	display: flex;
 	flex-direction: column;
+	align-items: flex-end;
 	gap: 0.75rem;
 }
 @media print {

@@ -10,12 +10,11 @@
 	<!-- novalidate: each step is validated on its own Next (currentStepIsValid); without this a
 	     required control in an already-completed, now-hidden step blocks submit unfocusably. -->
 	<form id="form" novalidate>
-		<img class="logo" src="logo.png" alt="Pavilion Sports League" />
-		<h1>Pavilion Sports League 2026</h1>
-		<a class="button-link rules-link" href="https://docs.google.com/document/d/1-d0sZMoPBo2bWRyA608_WgxZSuDXSBSce2HRxitFllM/edit?usp=sharing" target="_blank" rel="noopener">Rules</a>
+		<img class="logo first-view-only" src="logo.png" alt="Pavilion Sports League" />
+		<h1 class="first-view-only">Pavilion Sports League 2026</h1>
 
 		<section id="section-person-info" class="form-section">
-			<h2>Personal info</h2>
+			<h2>Personal Info</h2>
 			<label for="name">Name</label>
 			<input id="name" name="name" required />
 
@@ -72,6 +71,7 @@
 
 		<section id="section-games" class="form-section" hidden>
 			<h2>Games you're eligible to play</h2>
+			<a class="button-link rules-link" href="https://docs.google.com/document/d/1-d0sZMoPBo2bWRyA608_WgxZSuDXSBSce2HRxitFllM/edit?usp=sharing" target="_blank" rel="noopener">Rules</a>
 			<table class="games-table">
 				<thead>
 					<tr>
@@ -100,14 +100,33 @@
 			<div id="skill-levels-list"></div>
 			<div class="step-nav">
 				<button type="button" class="back-step">Back</button>
-				<button type="button" class="next-step">Next</button>
+				<button type="button" class="next-step" id="skill-levels-next-button">Next</button>
 			</div>
 		</section>
 
 		<section id="section-payment" class="form-section" hidden>
 			<h2>Payment</h2>
-			<div id="payment-preview" class="summary-card"></div>
-			<p class="callout">Upload payment screenshot or UTR ID.</p>
+			<div id="payment-preview" class="summary-card">
+				<p id="payment-preview-info"></p>
+				<table class="games-table">
+					<thead>
+						<tr>
+							<th>Game</th>
+							<th>Category</th>
+							<th>Partner</th>
+							<th>Level</th>
+							<th>Price</th>
+						</tr>
+					</thead>
+					<tbody id="payment-preview-games"></tbody>
+					<tfoot>
+						<tr class="total-line">
+							<td colspan="4">Total</td>
+							<td id="payment-preview-total"></td>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
 			<p class="upi-id-row">
 				UPI ID: <code id="upi-id-text">vypar.172254121089@hdfcbank</code>
 				<button type="button" id="copy-upi-id">Copy</button>
@@ -142,24 +161,26 @@
 		<section id="section-post-submission" class="form-section" hidden>
 			<h2 class="success-heading">✓ Submission successful</h2>
 			<div id="post-submission-info" class="summary-card"></div>
-			<table class="games-table">
-				<thead>
-					<tr>
-						<th>Game</th>
-						<th>Category</th>
-						<th>Partner</th>
-						<th>Level</th>
-						<th>Price</th>
-					</tr>
-				</thead>
-				<tbody id="post-submission-games-body"></tbody>
-				<tfoot>
-					<tr class="total-line">
-						<td colspan="4">Total paid</td>
-						<td id="post-submission-total"></td>
-					</tr>
-				</tfoot>
-			</table>
+			<div class="summary-card">
+				<table class="games-table">
+					<thead>
+						<tr>
+							<th>Game</th>
+							<th>Category</th>
+							<th>Partner</th>
+							<th>Level</th>
+							<th>Price</th>
+						</tr>
+					</thead>
+					<tbody id="post-submission-games-body"></tbody>
+					<tfoot>
+						<tr class="total-line">
+							<td colspan="4">Total paid</td>
+							<td id="post-submission-total"></td>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
 			<div class="post-submission-buttons">
 				<button type="button" id="download-pdf-button">⬇️ Download PDF</button>
 				<button type="button" id="submit-another-button">Submit another form</button>
