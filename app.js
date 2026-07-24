@@ -312,6 +312,7 @@ const submitAnotherButton = document.getElementById('submit-another-button');
 const paymentPreviewInfo = document.getElementById('payment-preview-info');
 const paymentPreviewGames = document.getElementById('payment-preview-games');
 const paymentPreviewTotal = document.getElementById('payment-preview-total');
+const payCalloutAmount = document.getElementById('pay-callout-amount');
 
 // One row per ticked game, read back off the game's own table row so the wording always
 // matches what the user saw when picking. Same markup for the payment preview and the
@@ -339,6 +340,7 @@ function renderPaymentPreview() {
 	paymentPreviewInfo.innerHTML = personInfoLines().join('<br>');
 	paymentPreviewGames.innerHTML = gameRowsHtml();
 	paymentPreviewTotal.textContent = totalAmount.textContent;
+	payCalloutAmount.textContent = totalAmount.textContent;
 }
 
 function showPostSubmissionSummary() {

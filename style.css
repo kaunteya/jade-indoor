@@ -300,6 +300,17 @@ button:disabled {
 	border-top: 2px solid #ddd;
 	padding-top: 0.6rem;
 }
+/* reuses the success heading's green so the "money" callout reads as the same family */
+.pay-callout {
+	margin: 0;
+	padding: 0.75rem 1rem;
+	background: #e6f4ea;
+	color: #137333;
+	border-radius: 6px;
+	font-size: 1.0625rem;
+	font-weight: 600;
+	text-align: center;
+}
 .upi-id-row {
 	display: flex;
 	align-items: center;
