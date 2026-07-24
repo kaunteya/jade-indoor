@@ -169,6 +169,7 @@ dobInput.addEventListener('input', () => { showAge(); renderGamesTable(); });
 genderSelect.addEventListener('change', renderGamesTable);
 renderGamesTable();
 
+const startSection = document.getElementById('section-start');
 const personInfoSection = document.getElementById('section-person-info');
 const gamesSection = document.getElementById('section-games');
 const paymentSection = document.getElementById('section-payment');
@@ -352,7 +353,7 @@ function showPostSubmissionSummary() {
 
 // One view at a time. Every section's visibility runs through showStep() — nothing else
 // touches .hidden on a section, so the wizard can't end up showing two steps at once.
-const STEPS = [personInfoSection, gamesSection, skillLevelsBlock, paymentSection, postSubmissionSection];
+const STEPS = [startSection, personInfoSection, gamesSection, skillLevelsBlock, paymentSection, postSubmissionSection];
 let step = 0;
 
 function showStep(index) {
@@ -360,6 +361,7 @@ function showStep(index) {
 	STEPS.forEach((section, i) => { section.hidden = i !== index; });
 	// Branding is the landing screen's job; later steps get the vertical space instead.
 	document.querySelectorAll('.first-view-only').forEach(element => { element.hidden = index !== 0; });
+	document.body.classList.toggle('past-first-view', index !== 0);
 	if (STEPS[index] === paymentSection) renderPaymentPreview();
 	window.scrollTo(0, 0);
 }
