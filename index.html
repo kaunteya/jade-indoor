@@ -7,69 +7,66 @@
 	<link rel="stylesheet" href="style.css" />
 </head>
 <body>
-	<form id="form">
-		<img class="logo" src="logo.jpeg" alt="Pavilion Sports League" />
+	<!-- novalidate: each step is validated on its own Next (currentStepIsValid); without this a
+	     required control in an already-completed, now-hidden step blocks submit unfocusably. -->
+	<form id="form" novalidate>
+		<img class="logo" src="logo.png" alt="Pavilion Sports League" />
 		<h1>Pavilion Sports League 2026</h1>
 		<a class="button-link rules-link" href="https://docs.google.com/document/d/1-d0sZMoPBo2bWRyA608_WgxZSuDXSBSce2HRxitFllM/edit?usp=sharing" target="_blank" rel="noopener">Rules</a>
 
 		<section id="section-person-info" class="form-section">
 			<h2>Personal info</h2>
-			<div id="user-info-fields">
-				<label for="name">Name</label>
-				<input id="name" name="name" required />
+			<label for="name">Name</label>
+			<input id="name" name="name" required />
 
-				<div class="row">
-					<div>
-						<label for="dob">Date of Birth</label>
-						<input id="dob" name="dob" type="date" max="2018-07-31" required />
-							<p id="dob-age" class="field-note" hidden></p>
-					</div>
-					<div>
-						<label for="gender">Gender</label>
-						<select id="gender" name="gender" required>
-							<option value="" disabled selected>Select…</option>
-							<option value="Male">Male</option>
-							<option value="Female">Female</option>
-						</select>
-					</div>
+			<div class="row">
+				<div>
+					<label for="dob">Date of Birth</label>
+					<input id="dob" name="dob" type="date" max="2018-07-31" required />
+					<p id="dob-age" class="field-note" hidden></p>
 				</div>
-
-				<label for="whatsapp">WhatsApp Number</label>
-				<div class="input-with-check">
-					<input id="whatsapp" name="whatsapp" type="tel" required />
-					<span id="whatsapp-check" class="input-check" hidden>✓</span>
+				<div>
+					<label for="gender">Gender</label>
+					<select id="gender" name="gender" required>
+						<option value="" disabled selected>Select…</option>
+						<option value="Male">Male</option>
+						<option value="Female">Female</option>
+					</select>
 				</div>
-				<p class="field-note">Parents can enter their own number when submitting for their children.</p>
-
-				<div class="row">
-					<div>
-						<label for="tower">Tower</label>
-						<select id="tower" name="tower" required>
-							<option value="" disabled selected>Select…</option>
-							<option value="A">A</option>
-							<option value="B">B</option>
-							<option value="C">C</option>
-							<option value="D">D</option>
-							<option value="E">E</option>
-							<option value="F">F</option>
-							<option value="G">G</option>
-							<option value="H">H</option>
-						</select>
-					</div>
-					<div>
-						<label for="house_number">House Number</label>
-						<select id="house_number" name="house_number" required>
-							<option value="" disabled selected>Select…</option>
-						</select>
-					</div>
-				</div>
-
-				<button type="button" id="next-button">Next</button>
 			</div>
 
-			<div id="user-info-summary" class="summary-card" hidden>
-				<p id="user-info-summary-text"></p>
-				<button type="button" id="edit-button">Edit</button>
+			<label for="whatsapp">WhatsApp Number</label>
+			<div class="input-with-check">
+				<input id="whatsapp" name="whatsapp" type="tel" required />
+				<span id="whatsapp-check" class="input-check" hidden>✓</span>
+			</div>
+			<p class="field-note">Parents can enter their own number when submitting for their children.</p>
+
+			<div class="row">
+				<div>
+					<label for="tower">Tower</label>
+					<select id="tower" name="tower" required>
+						<option value="" disabled selected>Select…</option>
+						<option value="A">A</option>
+						<option value="B">B</option>
+						<option value="C">C</option>
+						<option value="D">D</option>
+						<option value="E">E</option>
+						<option value="F">F</option>
+						<option value="G">G</option>
+						<option value="H">H</option>
+					</select>
+				</div>
+				<div>
+					<label for="house_number">House Number</label>
+					<select id="house_number" name="house_number" required>
+						<option value="" disabled selected>Select…</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="step-nav">
+				<button type="button" class="next-step">Next</button>
 			</div>
 		</section>
 
@@ -92,15 +89,24 @@
 					</tr>
 				</tfoot>
 			</table>
+			<div class="step-nav">
+				<button type="button" class="back-step">Back</button>
+				<button type="button" class="next-step" id="games-next-button">Next</button>
+			</div>
 		</section>
 
 		<section id="skill-levels" class="form-section" hidden>
 			<h2>Set your expertise</h2>
 			<div id="skill-levels-list"></div>
+			<div class="step-nav">
+				<button type="button" class="back-step">Back</button>
+				<button type="button" class="next-step">Next</button>
+			</div>
 		</section>
 
 		<section id="section-payment" class="form-section" hidden>
 			<h2>Payment</h2>
+			<div id="payment-preview" class="summary-card"></div>
 			<p class="callout">Upload payment screenshot or UTR ID.</p>
 			<p class="upi-id-row">
 				UPI ID: <code id="upi-id-text">vypar.172254121089@hdfcbank</code>
@@ -126,7 +132,10 @@
 				<input id="utr_id" name="utr_id" />
 			</div>
 
-			<button type="submit">Submit</button>
+			<div class="step-nav">
+				<button type="button" class="back-step">Back</button>
+				<button type="submit">Submit</button>
+			</div>
 			<p id="status"></p>
 		</section>
 

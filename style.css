@@ -3,6 +3,9 @@
 }
 html {
 	font-size: 16px;
+	/* fixed so it fills the viewport whatever the step's height is, instead of
+	   repeating or banding as sections swap */
+	background: linear-gradient(160deg, #fdf7fb, #f2eef8) fixed;
 }
 body {
 	font-family: system-ui, sans-serif;
@@ -30,8 +33,21 @@ label {
 	font-weight: 600;
 }
 .form-section h2 {
-	font-size: 1.125rem;
 	margin: 0;
+	text-align: center;
+	text-wrap: balance;
+	font-size: 1.125rem;
+	color: #202124;
+}
+/* short accent rule under each step heading; the success heading has its own filled treatment */
+.form-section h2:not(.success-heading)::after {
+	content: '';
+	display: block;
+	width: 2.5rem;
+	height: 2px;
+	margin: 0.6rem auto 0;
+	background: #1a73e8;
+	border-radius: 1px;
 }
 .form-section h2.success-heading {
 	background: #e6f4ea;
@@ -130,15 +146,13 @@ button:disabled {
 #status.error {
 	color: #d93025;
 }
-#user-info-fields,
 .form-section {
 	display: flex;
 	flex-direction: column;
 	gap: 1.25rem;
 }
 /* label belongs to the control under it: pull it back out of the section gap */
-#user-info-fields label,
-.row label,
+#section-person-info label,
 #screenshot-field label,
 #utr-field label {
 	display: block;
@@ -152,12 +166,41 @@ button:disabled {
 	color: #1a73e8;
 	text-decoration: underline;
 }
-#user-info-fields[hidden],
-#user-info-summary[hidden],
 .form-section[hidden] {
 	display: none;
 }
+.step-nav {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 1rem;
+	margin-top: 0.5rem;
+}
+.step-nav button[type="submit"],
+.step-nav .next-step {
+	padding: 0.75rem 2rem;
+}
+/* back is a way out, not an action to invite: same text-link treatment as the other secondary
+   links, and pinned left so the primary action keeps the right edge on every step */
+.back-step {
+	margin-right: auto;
+	padding: 0;
+	background: none;
+	color: #1a73e8;
+	font-size: 0.875rem;
+	text-decoration: underline;
+}
+.preview-line {
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
+}
+.preview-total {
+	border-top: 1px solid #ddd;
+	padding-top: 0.5rem;
+}
 .summary-card {
+	background: white;
 	border: 1px solid #ddd;
 	border-radius: 4px;
 	padding: 1rem;
@@ -169,25 +212,6 @@ button:disabled {
 }
 .summary-card p:last-child {
 	margin-bottom: 0;
-}
-#user-info-summary {
-	position: relative;
-}
-#user-info-summary-text {
-	margin: 0;
-	padding-right: 3rem;
-	font-size: 0.9375rem;
-	line-height: 1.6;
-}
-#edit-button {
-	position: absolute;
-	top: 0.75rem;
-	right: 1rem;
-	padding: 0;
-	background: none;
-	color: #1a73e8;
-	font-size: 0.875rem;
-	text-decoration: underline;
 }
 .games-table {
 	width: 100%;

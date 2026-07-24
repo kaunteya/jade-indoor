@@ -139,7 +139,6 @@ function updateSkillLevels() {
 	rendered.forEach(select => { skillLevels[select.dataset.sport] = select.value; });
 	const checked = [...gamesTableBody.querySelectorAll('input[type="checkbox"]:checked')];
 	const sports = [...new Set(checked.map(checkbox => checkbox.dataset.sport))];
-	skillLevelsBlock.hidden = sports.length === 0;
 	// Rebuild only when the sport list actually changes. Rewriting it on every input would detach
 	// the <select> the user just touched, and the 'change' that follows its 'input' would then
 	// never reach the form — leaving the total, submit button and payment section stale.
@@ -173,12 +172,6 @@ const paymentSection = document.getElementById('section-payment');
 const preGameFields = ['name', 'tower', 'house_number', 'whatsapp', 'dob', 'gender']
 	.map(id => document.getElementById(id));
 
-const userInfoFields = document.getElementById('user-info-fields');
-const userInfoSummary = document.getElementById('user-info-summary');
-const userInfoSummaryText = document.getElementById('user-info-summary-text');
-const nextButton = document.getElementById('next-button');
-const editButton = document.getElementById('edit-button');
-
 function fieldLabel(field) {
 	return document.querySelector(`label[for="${field.id}"]`).textContent;
 }
@@ -201,31 +194,6 @@ function personInfoLines() {
 	];
 }
 
-function showUserInfoSummary() {
-	userInfoSummaryText.innerHTML = personInfoLines().join('<br>');
-	userInfoFields.hidden = true;
-	userInfoSummary.hidden = false;
-	gamesSection.hidden = false;
-	updateTotalCost();
-}
-
-nextButton.addEventListener('click', () => {
-	const invalidField = preGameFields.find(field => !field.checkValidity());
-	if (invalidField) {
-		invalidField.reportValidity();
-		return;
-	}
-	showUserInfoSummary();
-});
-
-editButton.addEventListener('click', () => {
-	userInfoSummary.hidden = true;
-	userInfoFields.hidden = false;
-	gamesSection.hidden = true;
-	skillLevelsBlock.hidden = true;
-	paymentSection.hidden = true;
-});
-
 const form = document.getElementById('form');
 const status = document.getElementById('status');
 const totalAmount = document.getElementById('total-amount');
@@ -243,6 +211,7 @@ const screenshotName = document.getElementById('screenshot-name');
 const utrInput = document.getElementById('utr_id');
 const utrField = document.getElementById('utr-field');
 const submitButton = form.querySelector('button[type="submit"]');
+const gamesNextButton = document.getElementById('games-next-button');
 
 function proofMethod() {
 	return form.querySelector('input[name="proof_method"]:checked').value;
@@ -269,9 +238,13 @@ function updateTotalCost() {
 	const checked = [...form.querySelectorAll('input[type="checkbox"]:checked')];
 	const total = checked.reduce((sum, checkbox) => sum + Number(checkbox.dataset.price || 0), 0);
 	totalAmount.textContent = formatINR(total);
-	paymentSection.hidden = total === 0;
+	// Nothing picked, nothing to rate or pay for; a ticked doubles entry without its partner
+	// named is incomplete too (updatePartnerRows keeps `required` in sync and runs first).
+	const partnersNamed = [...gamesTableBody.querySelectorAll('.partner-row input')]
+		.every(input => !input.required || input.value.trim());
+	gamesNextButton.disabled = checked.length === 0 || !partnersNamed;
 	const hasProof = proofMethod() === 'screenshot' ? !!screenshotInput.value : !!utrInput.value.trim();
-	submitButton.disabled = checked.length === 0 || !hasProof;
+	submitButton.disabled = !hasProof;
 }
 
 // Downscale a picked image to a small base64 JPEG so a multi-MB phone screenshot
@@ -316,31 +289,78 @@ const postSubmissionInfo = document.getElementById('post-submission-info');
 const postSubmissionGamesBody = document.getElementById('post-submission-games-body');
 const postSubmissionTotal = document.getElementById('post-submission-total');
 const submitAnotherButton = document.getElementById('submit-another-button');
+const paymentPreview = document.getElementById('payment-preview');
 
-function showPostSubmissionSummary() {
-	postSubmissionInfo.innerHTML = personInfoLines().map(line => `<p>${line}</p>`).join('');
-	postSubmissionGamesBody.innerHTML = [...form.querySelectorAll('input[type="checkbox"]:checked')].map(checkbox => {
+// The ticked games, read back off their own table rows so the wording always matches
+// what the user saw when picking. Feeds both the payment preview and the final receipt.
+function chosenGames() {
+	return [...gamesTableBody.querySelectorAll('input[type="checkbox"]:checked')].map(checkbox => {
 		const gameRow = checkbox.closest('tr');
 		const cells = gameRow.querySelectorAll('td');
 		const nextRow = gameRow.nextElementSibling;
-		const partner = nextRow?.classList.contains('partner-row') ? nextRow.querySelector('input').value : '';
-		return `
-		<tr>
-			<td>${cells[1].textContent}</td>
-			<td>${cells[2].textContent.trim()}</td>
-			<td>${partner || '—'}</td>
-			<td>${LEVELS[checkbox.value] || '—'}</td>
-			<td>${cells[3].textContent}</td>
-		</tr>
-	`;
-	}).join('');
-	postSubmissionTotal.textContent = totalAmount.textContent;
-	personInfoSection.hidden = true;
-	gamesSection.hidden = true;
-	skillLevelsBlock.hidden = true;
-	paymentSection.hidden = true;
-	postSubmissionSection.hidden = false;
+		return {
+			game: cells[1].textContent,
+			category: cells[2].textContent.trim(),
+			partner: nextRow?.classList.contains('partner-row') ? nextRow.querySelector('input').value : '',
+			level: LEVELS[checkbox.value] || '—',
+			price: cells[3].textContent,
+		};
+	});
 }
+
+// Compressed recap on the payment step: what you're about to pay for, before you pay.
+function renderPaymentPreview() {
+	paymentPreview.innerHTML = `
+		<p>${personInfoLines().join('<br>')}</p>
+		${chosenGames().map(entry => `
+		<p class="preview-line">
+			<span>${entry.game} · ${entry.category} · ${entry.level}${entry.partner ? ` · with ${entry.partner}` : ''}</span>
+			<span>${entry.price}</span>
+		</p>`).join('')}
+		<p class="preview-line preview-total"><strong>Total</strong><strong>${totalAmount.textContent}</strong></p>
+	`;
+}
+
+function showPostSubmissionSummary() {
+	postSubmissionInfo.innerHTML = personInfoLines().map(line => `<p>${line}</p>`).join('');
+	postSubmissionGamesBody.innerHTML = chosenGames().map(entry => `
+		<tr>
+			<td>${entry.game}</td>
+			<td>${entry.category}</td>
+			<td>${entry.partner || '—'}</td>
+			<td>${entry.level}</td>
+			<td>${entry.price}</td>
+		</tr>
+	`).join('');
+	postSubmissionTotal.textContent = totalAmount.textContent;
+	showStep(STEPS.length - 1);
+}
+
+// One view at a time. Every section's visibility runs through showStep() — nothing else
+// touches .hidden on a section, so the wizard can't end up showing two steps at once.
+const STEPS = [personInfoSection, gamesSection, skillLevelsBlock, paymentSection, postSubmissionSection];
+let step = 0;
+
+function showStep(index) {
+	step = index;
+	STEPS.forEach((section, i) => { section.hidden = i !== index; });
+	if (STEPS[index] === paymentSection) renderPaymentPreview();
+	window.scrollTo(0, 0);
+}
+
+// Browser constraint validation is the whole check: everything that must be answered is
+// marked required in the markup, and partner names become required only while their game
+// is ticked (see updatePartnerRows), so a hidden partner row never blocks Next.
+function currentStepIsValid() {
+	const invalidField = [...STEPS[step].querySelectorAll('input, select')].find(field => !field.checkValidity());
+	if (invalidField) invalidField.reportValidity();
+	return !invalidField;
+}
+
+document.querySelectorAll('.next-step').forEach(button =>
+	button.addEventListener('click', () => { if (currentStepIsValid()) showStep(step + 1); }));
+document.querySelectorAll('.back-step').forEach(button =>
+	button.addEventListener('click', () => showStep(step - 1)));
 
 document.getElementById('download-pdf-button').addEventListener('click', () => window.print());
 
@@ -355,15 +375,12 @@ submitAnotherButton.addEventListener('click', () => {
 	whatsappCheck.hidden = true;
 	status.textContent = '';
 	status.className = '';
-	postSubmissionSection.hidden = true;
-	personInfoSection.hidden = false;
-	userInfoFields.hidden = false;
-	userInfoSummary.hidden = true;
-	gamesSection.hidden = true;
+	showStep(0);
 });
 
 form.addEventListener('submit', async (event) => {
 	event.preventDefault();
+	if (STEPS[step] !== paymentSection) return; // Enter in a text field implicitly submits; ignore it mid-wizard
 	submitButton.disabled = true;
 	status.textContent = 'Submitting…';
 
