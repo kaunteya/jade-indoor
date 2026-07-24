@@ -56,6 +56,36 @@ h1 img, .psl-subtitle {
 .psl-subtitle {
 	max-width: 36%;
 }
+/* landing screen only: fill the first screen so the venue logo sits at its bottom
+   (4rem = body's bottom margin, so filling doesn't add a scrollbar) */
+body:not(.past-first-view) form {
+	min-height: calc(100dvh - 4rem);
+}
+#section-start {
+	flex: 1;
+}
+.venue {
+	margin: auto 0 0;
+}
+.venue figcaption {
+	text-align: center;
+	font-size: 0.8rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: #023428;
+}
+/* the PNG is a white glow on transparency: mask it and let the background colour
+   paint only the non-transparent pixels */
+.kj-residences {
+	width: min(50%, 160px);
+	aspect-ratio: 1;
+	/* the PNG is square with ~20% transparent padding top and bottom; negative
+	   margins crop that dead space so the caption sits against the logo */
+	margin: -2.25rem auto -1.5rem;
+	background: #023428;
+	-webkit-mask: url(images/kj-residences.png) center / contain no-repeat;
+	mask: url(images/kj-residences.png) center / contain no-repeat;
+}
 .sponsor-bar {
 	background: #084F85;
 	/* full-bleed out of the 480px body: pull each edge back to the viewport */
@@ -138,8 +168,7 @@ select {
 	background-size: 0.7rem;
 	padding-right: 2rem;
 }
-#screenshot-field,
-#utr-field {
+#screenshot-field {
 	display: flex;
 	flex-direction: column;
 	gap: 1.25rem;
@@ -234,8 +263,7 @@ button:disabled {
 }
 /* label belongs to the control under it: pull it back out of the section gap */
 #section-person-info label,
-#screenshot-field label,
-#utr-field label {
+#screenshot-field label {
 	display: block;
 	margin-bottom: -0.75rem;
 }
@@ -371,14 +399,6 @@ button:disabled {
 	font-weight: 600;
 	text-align: center;
 }
-/* yellow highlighter so the instruction stands out from the green money callout above it */
-.highlight-note {
-	margin: 0;
-	padding: 0.6rem 0.75rem;
-	background: #fff8c4;
-	border-radius: 6px;
-	font-size: 0.9375rem;
-}
 .upi-id-row {
 	display: flex;
 	align-items: center;
@@ -409,14 +429,12 @@ button:disabled {
 	cursor: pointer;
 }
 #qr-code {
-	max-width: 100%;
+	max-width: 50%;
 	height: auto;
 	margin-top: 0.75rem;
-}
-#qr-toggle summary {
-	cursor: pointer;
-	color: #1a73e8;
-	width: fit-content;
+	align-self: center;
+	border-radius: 12px;
+	overflow: hidden;
 }
 /* Download PDF spans the full column; Submit another sets its own align-self */
 .post-submission-buttons {

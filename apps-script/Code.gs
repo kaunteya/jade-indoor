@@ -5,7 +5,7 @@
 // which mode: 'no-cors' in app.js hides from the user (see app.js submit handler).
 
 const SHEET_NAME = 'Sheet1'; // change to match your sheet tab name
-const FIELDS = ['name', 'tower', 'house_number', 'whatsapp', 'dob', 'age', 'gender']; // change to match your form field names, in column order ('age' is derived from dob, not a form field; utr_id is appended as the last column)
+const FIELDS = ['name', 'tower', 'house_number', 'whatsapp', 'dob', 'age', 'gender']; // change to match your form field names, in column order ('age' is derived from dob, not a form field)
 
 // Age in whole years from a yyyy-mm-dd dob string, as of today. '' if dob is blank/invalid.
 function ageFromDob(dobValue) {
@@ -47,13 +47,12 @@ function doPost(e) {
 		row.push(field.endsWith('_partner') ? (e.parameter[field] || '') : Number(e.parameter[field] || 0));
 	});
 	const col = row.length + 1; // 1-based; the next pushed cell is the screenshot link column
-	row.push(''); // screenshot link column
-	row.push(e.parameter.utr_id || ''); // UPI/UTR id — last column (blank if not entered)
+	row.push(''); // screenshot link column — last column
 	sheet.appendRow(row);
 
 	// Payment screenshot arrives as a downscaled base64 JPEG (app.js resizeToDataUrl).
 	// Store the file privately in Drive and surface it on the row as a clickable link
-	// plus a floating thumbnail anchored past the UTR column so it doesn't cover the id.
+	// plus a floating thumbnail anchored a column further right so it doesn't cover the link.
 	const ss = e.parameter.payment_screenshot;
 	const lastRow = sheet.getLastRow();
 	if (ss) {
@@ -65,7 +64,7 @@ function doPost(e) {
 			const file = screenshotFolder().createFile(blob); // private, owned by the deploying account
 			sheet.getRange(lastRow, col).setFormula('=HYPERLINK("' + file.getUrl() + '","open")');
 			const h = 60, scale = h / Number(e.parameter.screenshot_h || h);
-			sheet.insertImage(blob, col + 2, lastRow)
+			sheet.insertImage(blob, col + 1, lastRow)
 				.setHeight(h).setWidth(Math.round(Number(e.parameter.screenshot_w || h) * scale));
 			sheet.setRowHeight(lastRow, 64);
 		} catch (err) {

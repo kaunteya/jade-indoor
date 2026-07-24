@@ -228,7 +228,6 @@ copyUpiIdButton.addEventListener('click', async () => {
 });
 const screenshotInput = document.getElementById('payment_screenshot');
 const screenshotName = document.getElementById('screenshot-name');
-const utrInput = document.getElementById('utr_id');
 const submitButton = form.querySelector('button[type="submit"]');
 const gamesNextButton = document.getElementById('games-next-button');
 
@@ -245,10 +244,10 @@ function updateTotalCost() {
 	const partnersNamed = [...gamesTableBody.querySelectorAll('.partner-row input')]
 		.every(input => !input.required || input.value.trim());
 	gamesNextButton.disabled = checked.length === 0 || !partnersNamed;
-	// both proofs are required; the file input's own text is hidden in CSS
+	// the screenshot is required; the file input's own text is hidden in CSS
 	// (it reads "No file chosen" until picked), so echo the name ourselves
 	screenshotName.textContent = screenshotInput.files[0]?.name || '';
-	submitButton.disabled = !screenshotInput.value || !utrInput.value.trim();
+	submitButton.disabled = !screenshotInput.value;
 }
 
 // Downscale a picked image to a small base64 JPEG so a multi-MB phone screenshot

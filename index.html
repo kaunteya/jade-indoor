@@ -25,6 +25,10 @@
 			<div class="step-nav">
 				<button type="button" class="next-step">Start registration</button>
 			</div>
+			<figure class="venue">
+				<figcaption>Venue</figcaption>
+				<div class="kj-residences" role="img" aria-label="Kalpataru Jade Residences, Baner"></div>
+			</figure>
 		</section>
 
 		<section id="section-person-info" class="form-section" hidden>
@@ -141,21 +145,12 @@
 					</tfoot>
 				</table>
 			</div>
-			<p class="pay-callout">Pay <span id="pay-callout-amount"></span> using UPI</p>
+			<p class="pay-callout">Pay <span id="pay-callout-amount"></span> using UPI and upload the screenshot</p>
 			<p class="upi-id-row">
 				UPI ID: <code id="upi-id-text">Vyapar.172254121089@hdfcbank</code>
 				<button type="button" id="copy-upi-id">Copy</button>
 			</p>
-			<details id="qr-toggle">
-				<summary>Show QR</summary>
-				<img id="qr-code" src="images/payment-upi-qr.jpeg" alt="Payment QR code" />
-			</details>
-			<p class="highlight-note">Enter the 12-digit UTR Number and upload the payment screenshot</p>
-
-			<div id="utr-field">
-				<label for="utr_id">UTR/Transaction ID</label>
-				<input id="utr_id" name="utr_id" required />
-			</div>
+			<img id="qr-code" src="images/payment-upi-qr.jpeg" alt="Payment QR code" />
 
 			<div id="screenshot-field">
 				<label for="payment_screenshot">Payment screenshot</label>
