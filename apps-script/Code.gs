@@ -5,7 +5,7 @@
 // which mode: 'no-cors' in app.js hides from the user (see app.js submit handler).
 
 const SHEET_NAME = 'Sheet1'; // change to match your sheet tab name
-const FIELDS = ['name', 'tower', 'house_number', 'whatsapp', 'dob', 'age', 'gender']; // change to match your form field names, in column order ('age' is derived from dob, not a form field)
+const FIELDS = ['first_name', 'last_name', 'tower', 'house_number', 'whatsapp', 'dob', 'age', 'gender']; // change to match your form field names, in column order ('age' is derived from dob, not a form field)
 
 // Age in whole years from a yyyy-mm-dd dob string, as of today. '' if dob is blank/invalid.
 function ageFromDob(dobValue) {

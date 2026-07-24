@@ -7,19 +7,19 @@ const GAMES = [
 	{ id: 'badminton_singles_u14_female', game: 'Badminton', type: 'Singles', ageGroup: '8-13', min: 8, max: 13, gender: 'Female', price: 400 },
 	{ id: 'badminton_doubles_u14_male', game: 'Badminton', type: 'Doubles', ageGroup: '8-13', min: 8, max: 13, gender: 'Male', price: 600 },
 	{ id: 'badminton_doubles_u14_female', game: 'Badminton', type: 'Doubles', ageGroup: '8-13', min: 8, max: 13, gender: 'Female', price: 600 },
-	{ id: 'badminton_singles_14_60_male', game: 'Badminton', type: 'Singles', ageGroup: '14-60', min: 14, max: 60, gender: 'Male', price: 400 },
-	{ id: 'badminton_singles_14_60_female', game: 'Badminton', type: 'Singles', ageGroup: '14-60', min: 14, max: 60, gender: 'Female', price: 400 },
-	{ id: 'badminton_doubles_14_60_male', game: 'Badminton', type: 'Doubles', ageGroup: '14-60', min: 14, max: 60, gender: 'Male', price: 600 },
-	{ id: 'badminton_doubles_14_60_female', game: 'Badminton', type: 'Doubles', ageGroup: '14-60', min: 14, max: 60, gender: 'Female', price: 600 },
-	{ id: 'badminton_doubles_60plus', game: 'Badminton', type: 'Doubles', ageGroup: '60+ (flexible)', min: 61, max: Infinity, gender: 'any', price: 600 },
+	{ id: 'badminton_singles_14_60_male', game: 'Badminton', type: 'Singles', ageGroup: '14-59', min: 14, max: 59, gender: 'Male', price: 400 },
+	{ id: 'badminton_singles_14_60_female', game: 'Badminton', type: 'Singles', ageGroup: '14-59', min: 14, max: 59, gender: 'Female', price: 400 },
+	{ id: 'badminton_doubles_14_60_male', game: 'Badminton', type: 'Doubles', ageGroup: '14-59', min: 14, max: 59, gender: 'Male', price: 600 },
+	{ id: 'badminton_doubles_14_60_female', game: 'Badminton', type: 'Doubles', ageGroup: '14-59', min: 14, max: 59, gender: 'Female', price: 600 },
+	{ id: 'badminton_doubles_60plus', game: 'Badminton', type: 'Doubles', ageGroup: '60+ (flexible)', min: 60, max: Infinity, gender: 'any', price: 600 },
 
 	{ id: 'tt_singles_u14_male', game: 'Table Tennis', type: 'Singles', ageGroup: '8-13', min: 8, max: 13, gender: 'Male', price: 200 },
 	{ id: 'tt_singles_u14_female', game: 'Table Tennis', type: 'Singles', ageGroup: '8-13', min: 8, max: 13, gender: 'Female', price: 200 },
 	{ id: 'tt_doubles_u14', game: 'Table Tennis', type: 'Doubles', ageGroup: '8-13 (flexible)', min: 8, max: 13, gender: 'any', price: 300 },
-	{ id: 'tt_singles_14_60_male', game: 'Table Tennis', type: 'Singles', ageGroup: '14-60', min: 14, max: 60, gender: 'Male', price: 200 },
-	{ id: 'tt_singles_14_60_female', game: 'Table Tennis', type: 'Singles', ageGroup: '14-60', min: 14, max: 60, gender: 'Female', price: 200 },
-	{ id: 'tt_doubles_14_60', game: 'Table Tennis', type: 'Doubles', ageGroup: '14-60 (flexible)', min: 14, max: 60, gender: 'any', price: 300 },
-	{ id: 'tt_singles_60plus', game: 'Table Tennis', type: 'Singles', ageGroup: '60+ (flexible)', min: 61, max: Infinity, gender: 'any', price: 200 },
+	{ id: 'tt_singles_14_60_male', game: 'Table Tennis', type: 'Singles', ageGroup: '14-59', min: 14, max: 59, gender: 'Male', price: 200 },
+	{ id: 'tt_singles_14_60_female', game: 'Table Tennis', type: 'Singles', ageGroup: '14-59', min: 14, max: 59, gender: 'Female', price: 200 },
+	{ id: 'tt_doubles_14_60', game: 'Table Tennis', type: 'Doubles', ageGroup: '14-59 (flexible)', min: 14, max: 59, gender: 'any', price: 300 },
+	{ id: 'tt_singles_60plus', game: 'Table Tennis', type: 'Singles', ageGroup: '60+ (flexible)', min: 60, max: Infinity, gender: 'any', price: 200 },
 
 	{ id: 'carrom_singles', game: 'Carrom', type: 'Singles', ageGroup: '10 and above', min: 10, max: Infinity, gender: 'any', price: 200 },
 	{ id: 'carrom_doubles', game: 'Carrom', type: 'Doubles', ageGroup: '10 and above', min: 10, max: Infinity, gender: 'any', price: 300 },
@@ -124,6 +124,7 @@ function updatePartnerRows() {
 		partnerInput.required = checked;
 		if (!checked) partnerInput.value = ''; // else an unchecked game still submits a stale name
 	});
+	document.getElementById('partner-note').hidden = !gamesTableBody.querySelector('tr.partner-row:not([hidden])');
 }
 
 // Self-rated level, asked once per sport even when several entries of that sport are checked.
@@ -173,7 +174,7 @@ const startSection = document.getElementById('section-start');
 const personInfoSection = document.getElementById('section-person-info');
 const gamesSection = document.getElementById('section-games');
 const paymentSection = document.getElementById('section-payment');
-const preGameFields = ['name', 'tower', 'house_number', 'whatsapp', 'dob', 'gender']
+const preGameFields = ['first_name', 'last_name', 'tower', 'house_number', 'whatsapp', 'dob', 'gender']
 	.map(id => document.getElementById(id));
 
 function fieldLabel(field) {
@@ -188,9 +189,9 @@ function fieldSummary(field) {
 }
 
 function personInfoLines() {
-	const [nameField, towerField, houseField, whatsappField, dobField, genderField] = preGameFields;
+	const [firstNameField, lastNameField, towerField, houseField, whatsappField, dobField, genderField] = preGameFields;
 	return [
-		fieldSummary(nameField),
+		`<strong>Name:</strong> ${firstNameField.value} ${lastNameField.value}`,
 		`<strong>House:</strong> ${towerField.value}-${houseField.value}`,
 		fieldSummary(whatsappField),
 		fieldSummary(dobField),

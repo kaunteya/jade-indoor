@@ -33,8 +33,16 @@
 
 		<section id="section-person-info" class="form-section" hidden>
 			<h2>Personal Info</h2>
-			<label for="name">Name</label>
-			<input id="name" name="name" required />
+			<div class="row">
+				<div>
+					<label for="first_name">First Name</label>
+					<input id="first_name" name="first_name" required />
+				</div>
+				<div>
+					<label for="last_name">Last Name</label>
+					<input id="last_name" name="last_name" required />
+				</div>
+			</div>
 
 			<div class="row">
 				<div>
@@ -107,6 +115,7 @@
 					</tr>
 				</tfoot>
 			</table>
+			<p id="partner-note" class="field-note" hidden>Partner should be approximately same age</p>
 			<div class="step-nav">
 				<button type="button" class="back-step">Back</button>
 				<button type="button" class="next-step" id="games-next-button">Next</button>
@@ -160,13 +169,13 @@
 
 			<div class="step-nav">
 				<button type="button" class="back-step">Back</button>
+				<p id="status"></p>
 				<button type="submit">Submit</button>
 			</div>
-			<p id="status"></p>
 		</section>
 
 		<section id="section-post-submission" class="form-section" hidden>
-			<h2 class="success-heading">✓ Submission successful</h2>
+			<h2 class="success-heading">✓ Registration Successful</h2>
 			<div id="post-submission-info" class="summary-card"></div>
 			<div class="summary-card">
 				<table class="games-table">

@@ -247,7 +247,12 @@ button:disabled {
 	font-size: 0.8125rem;
 	color: #d93025;
 }
+/* sits in the step-nav row: takes the slack between Back and Submit so a long
+   error message wraps in place instead of squeezing the buttons */
 #status {
+	margin: 0;
+	flex: 1;
+	text-align: right;
 	font-size: 0.875rem;
 }
 #status.success {
@@ -320,6 +325,16 @@ button:disabled {
 .games-table td:last-child {
 	text-align: right;
 	white-space: nowrap;
+}
+/* the summary tables carry five columns in a 480px page: without a fixed layout their
+   intrinsic widths add up past the card and the price column bleeds off the right edge */
+.summary-card .games-table {
+	table-layout: fixed;
+	overflow-wrap: break-word;
+}
+.summary-card .games-table th:last-child,
+.summary-card .games-table td:last-child {
+	width: 4.5rem;
 }
 .age-group {
 	display: block;
