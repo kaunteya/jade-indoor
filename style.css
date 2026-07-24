@@ -8,16 +8,24 @@
 }
 html {
 	font-size: 16px;
-	/* fixed so it fills the viewport whatever the step's height is, instead of
-	   repeating or banding as sections swap */
-	background: linear-gradient(160deg, #fdf7fb, #f2eef8) fixed;
+	background: #0b2c47;
+}
+/* a fixed layer instead of background-attachment: fixed — iOS Safari sizes a fixed
+   background against the document, not the viewport, so it never filled the screen */
+html::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	background: url('images/background.jpeg') center / cover no-repeat;
 }
 body {
 	font-family: system-ui, sans-serif;
 	/* the sponsor bar's 50vw full-bleed overshoots by the scrollbar width */
 	overflow-x: clip;
 	max-width: 480px;
-	margin: 4rem auto;
+	/* no top margin: the sponsor bar is the first child and must touch the top edge */
+	margin: 0 auto 4rem;
 	padding: 0 1rem;
 }
 form {
@@ -28,11 +36,21 @@ form {
 h1 {
 	text-align: center;
 	text-wrap: balance;
+	margin: 0;
+}
+h1 img, .psl-subtitle {
+	display: block;
+	max-width: 100%;
+	margin: 0 auto;
+	height: auto;
+}
+.psl-subtitle {
+	max-width: 36%;
 }
 .sponsor-bar {
 	background: #084F85;
 	/* full-bleed out of the 480px body: pull each edge back to the viewport */
-	margin: -1rem calc(50% - 50vw) 0;
+	margin: 0 calc(50% - 50vw);
 	padding: 0.75rem 1rem;
 }
 .sponsor-bar a {
@@ -40,15 +58,22 @@ h1 {
 }
 .sponsor-bar img {
 	display: block;
-	max-width: min(60%, 288px);
+	max-width: min(29%, 138px);
 	margin: 0 auto;
 	height: auto;
+}
+.sponsor-tagline {
+	margin: 0.4rem 0 0;
+	text-align: center;
+	font-size: 1rem;
+	letter-spacing: 0.04em;
+	color: #cfe3f2;
 }
 .presents {
 	/* negative bottom margin claws back the form's 1.75rem flex gap under it */
 	margin: 0 0 -1.25rem;
 	text-align: center;
-	font-size: 0.875rem;
+	font-size: 1.2rem;
 	letter-spacing: 0.08em;
 	color: #5f6368;
 }
@@ -311,7 +336,8 @@ button:disabled {
 }
 .total-line {
 	font-weight: 600;
-	background: #f1f3f4;
+	/* translucent so the page background tints through instead of reading as a grey slab */
+	background: rgb(0 0 0 / 0.06);
 }
 .total-line td {
 	border-bottom: none;
@@ -378,6 +404,16 @@ button:disabled {
 }
 @media print {
 	.post-submission-buttons {
+		display: none;
+	}
+	/* browsers drop background paint in print unless told otherwise — without this the
+	   sponsor bar prints as bare text on white */
+	.sponsor-bar {
+		print-color-adjust: exact;
+		-webkit-print-color-adjust: exact;
+	}
+	/* the fixed page-background layer would repeat full-bleed on every printed page */
+	html::before {
 		display: none;
 	}
 }
