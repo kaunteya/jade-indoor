@@ -13,7 +13,7 @@ body {
 form {
 	display: flex;
 	flex-direction: column;
-	gap: 0.75rem;
+	gap: 1.75rem;
 }
 h1 {
 	text-align: center;
@@ -48,7 +48,7 @@ label {
 	font-size: 0.9375rem;
 }
 input, textarea, select {
-	padding: 0.5rem;
+	padding: 0.65rem 0.6rem;
 	font-size: 1rem;
 }
 .input-with-check {
@@ -67,7 +67,7 @@ input, textarea, select {
 	font-weight: 700;
 }
 button {
-	padding: 0.6rem;
+	padding: 0.75rem;
 	font-size: 1rem;
 	background: #1a73e8;
 	color: white;
@@ -95,12 +95,12 @@ button:disabled {
 	text-decoration: underline;
 }
 .field-note {
-	margin: -0.5rem 0 0;
+	margin: -0.9rem 0 0;
 	font-size: 0.8125rem;
 	color: #666;
 }
 .field-error {
-	margin: -0.5rem 0 0;
+	margin: -0.9rem 0 0;
 	font-size: 0.8125rem;
 	color: #d93025;
 }
@@ -117,7 +117,15 @@ button:disabled {
 .form-section {
 	display: flex;
 	flex-direction: column;
-	gap: 0.75rem;
+	gap: 1.25rem;
+}
+/* label belongs to the control under it: pull it back out of the section gap */
+#user-info-fields label,
+.row label,
+#screenshot-field label,
+#utr-field label {
+	display: block;
+	margin-bottom: -0.75rem;
 }
 #submit-another-button {
 	margin-top: 1.5rem;
@@ -172,7 +180,7 @@ button:disabled {
 .games-table th,
 .games-table td {
 	text-align: left;
-	padding: 0.4rem 0.25rem;
+	padding: 0.65rem 0.3rem;
 	border-bottom: 1px solid #ddd;
 }
 .games-table input[type="checkbox"] {
@@ -203,7 +211,7 @@ button:disabled {
 #skill-levels-list {
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
+	gap: 0.9rem;
 }
 .level-row {
 	display: flex;
@@ -214,6 +222,7 @@ button:disabled {
 .level-row select {
 	flex: 1;
 	max-width: 12rem;
+	padding: 0.35rem 0.5rem;
 }
 .games-table tr.ineligible {
 	color: #aaa;
@@ -272,11 +281,11 @@ button:disabled {
 }
 .row {
 	display: flex;
-	gap: 0.75rem;
+	gap: 1rem;
 }
 .row > div {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-	gap: 0.75rem;
+	gap: 1.25rem;
 }
