@@ -480,6 +480,16 @@ button:disabled {
 	html::before {
 		display: none;
 	}
+	/* the dark page colour prints as a blue slab behind everything */
+	html {
+		background: none;
+	}
+	/* the full-bleed band's -1.75rem top margin cancelled the form gap on screen;
+	   in print the sponsor bar above it is gone, so it just crops the title off the page */
+	.past-first-view h1 {
+		background: none;
+		margin: 0;
+	}
 }
 .row {
 	display: flex;
