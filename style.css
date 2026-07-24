@@ -432,14 +432,16 @@ button:disabled {
 	color: #666;
 }
 @media print {
-	.post-submission-buttons {
+	.post-submission-buttons,
+	.credit,
+	.success-heading,
+	/* its 50vw full-bleed is sized against the print page, so it prints as a giant blue slab */
+	.sponsor-bar {
 		display: none;
 	}
-	/* browsers drop background paint in print unless told otherwise — without this the
-	   sponsor bar prints as bare text on white */
-	.sponsor-bar {
-		print-color-adjust: exact;
-		-webkit-print-color-adjust: exact;
+	/* beats the global [hidden] !important: showStep() hides it off the landing page */
+	.psl-subtitle[hidden] {
+		display: block !important;
 	}
 	/* the fixed page-background layer would repeat full-bleed on every printed page */
 	html::before {
