@@ -306,6 +306,10 @@ button:disabled {
 	height: 1rem;
 	margin: 0;
 }
+/* selected games read at a glance: bold the name in the second column */
+.games-table tr:has(input[type="checkbox"]:checked) td:nth-child(2) {
+	font-weight: 700;
+}
 /* the partner input reads as part of its game row: drop the rule between them */
 .games-table tr:has(+ .partner-row:not([hidden])) td {
 	border-bottom: none;
@@ -366,6 +370,14 @@ button:disabled {
 	font-size: 1.0625rem;
 	font-weight: 600;
 	text-align: center;
+}
+/* yellow highlighter so the instruction stands out from the green money callout above it */
+.highlight-note {
+	margin: 0;
+	padding: 0.6rem 0.75rem;
+	background: #fff8c4;
+	border-radius: 6px;
+	font-size: 0.9375rem;
 }
 .upi-id-row {
 	display: flex;

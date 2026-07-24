@@ -150,20 +150,17 @@
 				<summary>Show QR</summary>
 				<img id="qr-code" src="images/payment-upi-qr.jpeg" alt="Payment QR code" />
 			</details>
-			<div class="proof-choice">
-				<label class="proof-option"><input type="radio" name="proof_method" value="screenshot" checked /> Upload screenshot</label>
-				<label class="proof-option"><input type="radio" name="proof_method" value="utr" /> Enter UTR ID</label>
+			<p class="highlight-note">Enter the 12-digit UTR Number and upload the payment screenshot</p>
+
+			<div id="utr-field">
+				<label for="utr_id">UTR/Transaction ID</label>
+				<input id="utr_id" name="utr_id" required />
 			</div>
 
 			<div id="screenshot-field">
 				<label for="payment_screenshot">Payment screenshot</label>
-				<input id="payment_screenshot" type="file" accept="image/*" />
+				<input id="payment_screenshot" type="file" accept="image/*" required />
 				<p id="screenshot-name" class="field-note"></p>
-			</div>
-
-			<div id="utr-field" hidden>
-				<label for="utr_id">UTR/Transaction ID</label>
-				<input id="utr_id" name="utr_id" />
 			</div>
 
 			<div class="step-nav">

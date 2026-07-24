@@ -227,29 +227,10 @@ copyUpiIdButton.addEventListener('click', async () => {
 	setTimeout(() => { copyUpiIdButton.textContent = 'Copy'; }, 1500);
 });
 const screenshotInput = document.getElementById('payment_screenshot');
-const screenshotField = document.getElementById('screenshot-field');
 const screenshotName = document.getElementById('screenshot-name');
 const utrInput = document.getElementById('utr_id');
-const utrField = document.getElementById('utr-field');
 const submitButton = form.querySelector('button[type="submit"]');
 const gamesNextButton = document.getElementById('games-next-button');
-
-function proofMethod() {
-	return form.querySelector('input[name="proof_method"]:checked').value;
-}
-
-// Show the input for the chosen proof method and clear the other, so only the
-// selected proof is submitted. utr_id keeps its name and always rides in FormData —
-// cleared here it sends '' when a screenshot is used, keeping the sheet column aligned.
-function updateProofMethod() {
-	const useScreenshot = proofMethod() === 'screenshot';
-	screenshotField.hidden = !useScreenshot;
-	utrField.hidden = useScreenshot;
-	if (useScreenshot) utrInput.value = '';
-	else screenshotInput.value = '';
-	// the input's own text is hidden in CSS (it reads "No file chosen" until picked)
-	screenshotName.textContent = screenshotInput.files[0]?.name || '';
-}
 
 function formatINR(amount) {
 	return `₹${amount.toLocaleString('en-IN')}`;
@@ -264,8 +245,10 @@ function updateTotalCost() {
 	const partnersNamed = [...gamesTableBody.querySelectorAll('.partner-row input')]
 		.every(input => !input.required || input.value.trim());
 	gamesNextButton.disabled = checked.length === 0 || !partnersNamed;
-	const hasProof = proofMethod() === 'screenshot' ? !!screenshotInput.value : !!utrInput.value.trim();
-	submitButton.disabled = !hasProof;
+	// both proofs are required; the file input's own text is hidden in CSS
+	// (it reads "No file chosen" until picked), so echo the name ourselves
+	screenshotName.textContent = screenshotInput.files[0]?.name || '';
+	submitButton.disabled = !screenshotInput.value || !utrInput.value.trim();
 }
 
 // Downscale a picked image to a small base64 JPEG so a multi-MB phone screenshot
@@ -299,10 +282,8 @@ function resizeToDataUrl(file) {
 ['input', 'change'].forEach(type => form.addEventListener(type, () => {
 	updatePartnerRows();
 	updateSkillLevels();
-	updateProofMethod();
 	updateTotalCost();
 }));
-updateProofMethod();
 updateTotalCost();
 
 const postSubmissionSection = document.getElementById('section-post-submission');
@@ -388,7 +369,6 @@ submitAnotherButton.addEventListener('click', () => {
 	renderGamesTable();
 	showAge();
 	updateSkillLevels();
-	updateProofMethod();
 	updateTotalCost();
 	whatsappCheck.hidden = true;
 	status.textContent = '';
@@ -404,7 +384,7 @@ form.addEventListener('submit', async (event) => {
 
 	try {
 		const body = new FormData(form);
-		if (proofMethod() === 'screenshot' && screenshotInput.files[0]) {
+		if (screenshotInput.files[0]) {
 			const { dataUrl, w, h } = await resizeToDataUrl(screenshotInput.files[0]);
 			body.append('payment_screenshot', dataUrl);
 			body.append('screenshot_w', w);
