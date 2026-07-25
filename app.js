@@ -21,12 +21,12 @@ const GAMES = [
 	{ id: 'tt_doubles_14_60', game: 'Table Tennis', type: 'Doubles', ageGroup: '14-59 (flexible)', min: 14, max: 59, gender: 'any', price: 300 },
 	{ id: 'tt_singles_60plus', game: 'Table Tennis', type: 'Singles', ageGroup: '60+ (flexible)', min: 60, max: Infinity, gender: 'any', price: 200 },
 
-	{ id: 'carrom_singles', game: 'Carrom', type: 'Singles', ageGroup: '10 and above', min: 10, max: Infinity, gender: 'any', price: 200 },
-	{ id: 'carrom_doubles', game: 'Carrom', type: 'Doubles', ageGroup: '10 and above', min: 10, max: Infinity, gender: 'any', price: 300 },
+	{ id: 'carrom_singles', game: 'Carrom', type: 'Singles', ageGroup: '10+', min: 10, max: Infinity, gender: 'any', price: 200 },
+	{ id: 'carrom_doubles', game: 'Carrom', type: 'Doubles', ageGroup: '10+', min: 10, max: Infinity, gender: 'any', price: 300 },
 
-	{ id: 'chess', game: 'Chess', type: '', ageGroup: '8 and above', min: 8, max: Infinity, gender: 'any', price: 200 },
+	{ id: 'chess', game: 'Chess', type: '', ageGroup: '8+', min: 8, max: Infinity, gender: 'any', price: 200 },
 
-	{ id: 'pool_singles', game: '8-ball pool', type: 'Singles', ageGroup: '15 and above', min: 15, max: Infinity, gender: 'any', price: 200 },
+	{ id: 'pool_singles', game: '8-ball pool', type: 'Singles', ageGroup: '15+', min: 15, max: Infinity, gender: 'any', price: 200 },
 ];
 
 const TALL_TOWERS = ['A', 'B', 'G', 'H']; // 21 floors; other towers have 20
