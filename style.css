@@ -588,6 +588,9 @@ button:disabled {
 }
 .row > div {
 	flex: 1;
+	/* without this, min-width:auto keeps each field at the input's intrinsic width, so two
+	   side-by-side overflow a narrow phone instead of splitting the row evenly */
+	min-width: 0;
 	display: flex;
 	flex-direction: column;
 	gap: 1.25rem;
