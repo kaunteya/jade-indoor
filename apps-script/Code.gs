@@ -46,6 +46,7 @@ function doPost(e) {
 	GAME_FIELDS.forEach(field => {
 		row.push(field.endsWith('_partner') ? (e.parameter[field] || '') : Number(e.parameter[field] || 0));
 	});
+	row.push(Number(e.parameter.total_amount || 0)); // total ₹ paid, summed client-side (app.js)
 	const col = row.length + 1; // 1-based; the next pushed cell is the screenshot link column
 	row.push(''); // screenshot link column — last column
 	sheet.appendRow(row);

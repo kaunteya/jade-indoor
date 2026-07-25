@@ -384,6 +384,9 @@ form.addEventListener('submit', async (event) => {
 
 	try {
 		const body = new FormData(form);
+		const total = [...form.querySelectorAll('input[type="checkbox"]:checked')]
+			.reduce((sum, checkbox) => sum + Number(checkbox.dataset.price || 0), 0);
+		body.append('total_amount', total);
 		if (screenshotInput.files[0]) {
 			const { dataUrl, w, h } = await resizeToDataUrl(screenshotInput.files[0]);
 			body.append('payment_screenshot', dataUrl);
