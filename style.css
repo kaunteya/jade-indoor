@@ -458,6 +458,11 @@ button:disabled {
 #payment_screenshot {
 	display: none;
 }
+/* .field-note's -0.9rem top margin is meant to tuck under other fields; here it
+   pulls the filename up over the button. Cancel it and let the flex gap space them */
+#screenshot-name {
+	margin-top: 0.5rem;
+}
 #qr-code {
 	max-width: 50%;
 	height: auto;
