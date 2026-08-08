@@ -39,3 +39,46 @@ Form submission uses `mode: 'no-cors'` because Apps Script's redirect-based resp
 
 - Any HTML/CSS/JS added must work on mobile screens.
 - All prices must be displayed in INR formatting with comma grouping (e.g. ₹1,00,000).
+
+## Facility availability
+
+How many matches of each sport can run at once — the cap for any scheduling or slot
+allocation work:
+
+| Sport | Playing areas |
+| --- | --- |
+| Badminton | 2 courts |
+| Table Tennis | 1 table |
+| Carrom | 3 boards |
+| Chess | 4 boards |
+| 8-ball pool | 1 table |
+
+The festival runs over three days, and these are the only hours the facilities are open —
+25 playable hours in total:
+
+| Date | Slot |
+| --- | --- |
+| Fri 14 Aug 2026 | 7:00 pm – 10:00 pm (3h) |
+| Sat 15 Aug 2026 | 12:00 pm – 10:00 pm (10h) |
+| Sun 16 Aug 2026 | 9:00 am – 9:00 pm (12h) |
+
+## Scheduling rules
+
+Draws are written as CSVs in `schedule/`, one file per category, with the columns
+`Day,Start,End,Court,Category,Round,Match,Side A,Side B` — later rounds reference earlier
+ones as `Winner <Match>`, and pool qualifiers as `Winner Group A` / `Runner-up Group B`,
+rather than by name.
+
+- No more concurrent matches per sport than it has playing areas (see above), and no match
+  scheduled outside the day's open hours.
+- A player is never booked into two matches at once. This holds for everyone who could
+  still reach a match, not just confirmed entrants, so the draw stays valid whoever wins.
+  Doubles partner names are resolved back to registrants so cross-sport clashes are caught.
+- Slot lengths: badminton 25 min, carrom and chess 30 min, table tennis and 8-ball pool
+  10 min. The two single-table sports are the binding constraint — round-robin formats
+  there only fit at the shorter slot.
+- Categories are single-elimination unless run as round-robin pools: badminton doubles
+  8-13 (2×3), carrom doubles (2×4), TT doubles (2×5), TT singles 60+ (4+3) and 8-ball pool
+  (6/6/5/5). Pools feed a knockout through the top two of each, cross-paired so a pool's
+  winner and runner-up cannot meet again before the final.
+- Finals are placed first and as late as possible, so they land in a Sunday evening block.
