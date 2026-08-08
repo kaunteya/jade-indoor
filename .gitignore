@@ -1,1 +1,4 @@
 Automator.workflow/
+
+# sheet exports: registrant data, kept local only
+*.csv
