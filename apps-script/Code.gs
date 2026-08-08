@@ -77,3 +77,58 @@ function doPost(e) {
 		.createTextOutput(JSON.stringify({ result: 'success' }))
 		.setMimeType(ContentService.MimeType.JSON);
 }
+
+// GET on the same /exec URL feeds list/index.html: the entrants of every game category,
+// cut down to the fields that page shows. Set LIST_KEY to require ?key=<secret> on the
+// GET (the list page passes through its own ?key=), or leave it '' to keep the read open.
+const LIST_KEY = '';
+
+function doGet(e) {
+	const params = (e && e.parameter) || {};
+	const payload = (LIST_KEY && params.key !== LIST_KEY) ? { error: 'unauthorized' } : listEntrants();
+	const json = JSON.stringify(payload);
+	// A plain JSON response relies on the redirect Apps Script serves keeping its CORS
+	// headers; callback= gives the page a JSONP path for when it doesn't (see list/list.js).
+	return params.callback
+		? ContentService.createTextOutput(params.callback + '(' + json + ');').setMimeType(ContentService.MimeType.JAVASCRIPT)
+		: ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
+}
+
+// { games: { <game id>: [ { name, phone, age, level, partner } ] } }, keyed by the same
+// ids as GAME_FIELDS / app.js's GAMES array. Games nobody entered come back as [].
+function listEntrants() {
+	const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+	const values = sheet.getDataRange().getDisplayValues();
+	// doPost appends bare rows, so any header/summary rows above the data were added by
+	// hand and aren't a fixed count — find the header by its first cell instead.
+	let firstDataRow = 0;
+	for (let i = 0; i < Math.min(values.length, 10); i++) {
+		if (String(values[i][0]).trim().toLowerCase() === 'first name') { firstDataRow = i + 1; break; }
+	}
+	const at = {};
+	FIELDS.forEach((field, i) => { at[field] = i; });
+	const gamesStart = FIELDS.length + 1; // + 1 for the registration-date column doPost pushes
+
+	const games = {};
+	GAME_FIELDS.forEach(field => { if (!field.endsWith('_partner')) games[field] = []; });
+
+	for (let r = firstDataRow; r < values.length; r++) {
+		const row = values[r];
+		const name = (String(row[at.first_name]).trim() + ' ' + String(row[at.last_name]).trim()).trim();
+		if (!name) continue;
+		GAME_FIELDS.forEach((field, i) => {
+			const level = Number(row[gamesStart + i]);
+			if (field.endsWith('_partner') || !level) return;
+			// One partner column per sport (see the doPost note), keyed by the id's sport prefix.
+			const partnerAt = GAME_FIELDS.indexOf(field.split('_')[0] + '_partner');
+			games[field].push({
+				name: name,
+				phone: String(row[at.whatsapp]).trim(),
+				age: String(row[at.age]).trim(),
+				level: level,
+				partner: partnerAt === -1 ? '' : String(row[gamesStart + partnerAt]).trim(),
+			});
+		});
+	}
+	return { updated: new Date().toISOString(), games: games };
+}

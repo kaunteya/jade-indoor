@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Pavilion Sports League - Participants</title>
+	<link rel="icon" href="../images/logo.png" />
+	<link rel="stylesheet" href="list.css" />
+</head>
+<body>
+	<header>
+		<img class="title" src="../images/psl-title.png" alt="Pavilion Sports League" />
+		<h1>Participants</h1>
+	</header>
+
+	<div class="filters">
+		<div class="filter-group sport-group">
+			<span class="filter-label" id="sport-label">Sport</span>
+			<div id="sport-list" class="sport-list" role="group" aria-labelledby="sport-label"></div>
+		</div>
+		<label class="filter-group category-group">
+			Category
+			<select id="category" disabled>
+				<option value="" disabled selected>Select a sport first</option>
+			</select>
+		</label>
+	</div>
+
+	<p id="status" class="status">Loading participants…</p>
+
+	<div id="results" hidden>
+		<p class="count"><span id="count"></span> <span id="category-name"></span></p>
+		<!-- the column headings do the sorting on wider screens, but they're hidden in the
+		     phone card layout, so the same options appear here as buttons under 40rem -->
+		<div id="sort-bar" class="sort-bar">
+			<span class="sort-bar-label">Sort</span>
+			<button type="button" data-sort="">Entry</button>
+			<button type="button" data-sort="name">Name</button>
+			<button type="button" data-sort="age">Age</button>
+			<button type="button" data-sort="level">Level</button>
+		</div>
+		<table id="table">
+			<thead>
+				<tr>
+					<th class="num" data-sort="">#</th>
+					<th data-sort="name">Name</th>
+					<th>Phone</th>
+					<th class="num" data-sort="age">Age</th>
+					<th data-sort="level">Level</th>
+					<th class="partner-col">Partner</th>
+				</tr>
+			</thead>
+			<tbody id="table-body"></tbody>
+		</table>
+	</div>
+
+	<script src="../games.js"></script>
+	<script src="list.js"></script>
+</body>
+</html>

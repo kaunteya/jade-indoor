@@ -1,0 +1,275 @@
+*, *::before, *::after {
+	box-sizing: border-box;
+}
+[hidden] {
+	display: none !important;
+}
+html {
+	font-size: 16px;
+	background: #0b2c47;
+}
+/* fixed layer rather than background-attachment: fixed — iOS Safari sizes a fixed
+   background against the document, not the viewport (same as the form page) */
+html::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	background: url('../images/background.jpeg') center / cover no-repeat;
+}
+body {
+	font-family: system-ui, sans-serif;
+	max-width: 60rem;
+	margin: 0 auto 3rem;
+	padding: 0 1rem;
+	color: #10314c;
+}
+header {
+	text-align: center;
+	padding: 1rem 0 0.5rem;
+}
+.title {
+	display: block;
+	max-width: min(100%, 22rem);
+	height: auto;
+	margin: 0 auto;
+}
+/* the background art is pale, so page-level text sits dark rather than reversed out */
+h1 {
+	font-size: 1.25rem;
+	color: #10314c;
+	margin: 0.25rem 0 0;
+}
+
+.filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	background: #fff;
+	border-radius: 0.75rem;
+	padding: 1rem;
+}
+.filters {
+	flex-direction: column;
+}
+.filter-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+	font-weight: 600;
+	font-size: 0.9rem;
+}
+/* the sport row needs the full width to lay out; the category select doesn't */
+.category-group {
+	max-width: 26rem;
+}
+.filters select {
+	font: inherit;
+	font-weight: 400;
+	/* 16px keeps iOS Safari from zooming the page when the select is focused */
+	font-size: 1rem;
+	padding: 0.6rem 0.5rem;
+	border: 1px solid #b7c4d0;
+	border-radius: 0.5rem;
+	background: #fff;
+	width: 100%;
+}
+.filters select:disabled {
+	background: #f1f4f7;
+	color: #7b8a99;
+}
+
+.sport-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+.sport {
+	font: inherit;
+	font-weight: 500;
+	color: #10314c;
+	background: #f1f5f9;
+	border: 1px solid #cfdae4;
+	border-radius: 2rem;
+	/* 44px tall: comfortably tappable on a phone */
+	padding: 0.6rem 1rem;
+	cursor: pointer;
+	white-space: nowrap;
+}
+.sport b {
+	font-weight: 700;
+	color: #4a5c6d;
+	margin-left: 0.15rem;
+}
+.sport[aria-pressed="true"] {
+	background: #0b6bcb;
+	border-color: #0b6bcb;
+	color: #fff;
+}
+.sport[aria-pressed="true"] b {
+	color: #cfe3fa;
+}
+
+.status {
+	text-align: center;
+	margin: 1.5rem 0;
+}
+.status.error {
+	color: #a3202a;
+}
+
+.count {
+	font-weight: 600;
+	margin: 1.25rem 0 0.5rem;
+}
+.count #category-name {
+	font-weight: 400;
+	color: #4a5c6d;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	background: #fff;
+	border-radius: 0.75rem;
+	overflow: hidden;
+}
+th, td {
+	text-align: left;
+	padding: 0.6rem 0.75rem;
+	border-bottom: 1px solid #e3e9ef;
+}
+thead th {
+	background: #e8f0f7;
+	font-size: 0.8rem;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: #4a5c6d;
+}
+th[data-sort] {
+	cursor: pointer;
+	user-select: none;
+}
+th[data-sort]:hover {
+	color: #0b6bcb;
+}
+th[data-sort]::after {
+	content: attr(data-arrow);
+	margin-left: 0.3rem;
+	font-size: 0.7rem;
+}
+th[aria-sort]:not([aria-sort="none"]) {
+	color: #0b6bcb;
+}
+
+/* the column headings carry the sorting on wider screens; this bar takes over
+   below 40rem, where the cards leave no headings to click */
+.sort-bar {
+	display: none;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+	margin-bottom: 0.6rem;
+}
+.sort-bar-label {
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: #4a5c6d;
+}
+.sort-bar button {
+	font: inherit;
+	font-size: 0.85rem;
+	color: #10314c;
+	background: #fff;
+	border: 1px solid #cfdae4;
+	border-radius: 2rem;
+	padding: 0.4rem 0.75rem;
+	cursor: pointer;
+}
+.sort-bar button::after {
+	content: attr(data-arrow);
+	margin-left: 0.25rem;
+	font-size: 0.65rem;
+}
+.sort-bar button[aria-pressed="true"] {
+	background: #0b6bcb;
+	border-color: #0b6bcb;
+	color: #fff;
+}
+tbody tr:last-child td {
+	border-bottom: none;
+}
+td a {
+	color: #0b6bcb;
+	text-decoration: none;
+}
+.num {
+	text-align: right;
+	width: 3.5rem;
+}
+/* singles categories have no partner column to show */
+table.no-partner .partner-col {
+	display: none;
+}
+
+/* Phones: a 6-column table can't shrink far enough, so each row becomes its own card
+   with the column headings repeated from data-label. */
+@media (max-width: 40rem) {
+	.sort-bar {
+		display: flex;
+	}
+	table, thead, tbody, tr, td {
+		display: block;
+	}
+	thead {
+		display: none;
+	}
+	table {
+		background: none;
+	}
+	tbody tr {
+		background: #fff;
+		border-radius: 0.75rem;
+		margin-bottom: 0.75rem;
+		padding: 0.25rem 0.5rem;
+	}
+	td {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		text-align: right;
+		border-bottom: 1px solid #eef2f6;
+		padding: 0.45rem 0.5rem;
+	}
+	td::before {
+		content: attr(data-label);
+		font-size: 0.8rem;
+		font-weight: 600;
+		color: #4a5c6d;
+		text-align: left;
+	}
+	.num {
+		width: auto;
+	}
+	tbody tr td:last-child {
+		border-bottom: none;
+	}
+	/* the cards are already visually sequential, so the number rides on the name as the
+	   card's heading instead of costing a row of its own */
+	td[data-label="#"] {
+		display: none;
+	}
+	td[data-label="Name"] {
+		display: block;
+		text-align: left;
+		font-size: 1.05rem;
+		font-weight: 700;
+		padding-top: 0.6rem;
+	}
+	td[data-label="Name"]::before {
+		content: attr(data-num) '.';
+		margin-right: 0.4rem;
+		font-size: inherit;
+		color: #7b8a99;
+	}
+}
