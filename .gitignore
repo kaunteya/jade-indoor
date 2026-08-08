@@ -2,3 +2,5 @@ Automator.workflow/
 
 # sheet exports: registrant data, kept local only
 *.csv
+# the draws are the published schedule — names and flats only, no contact details
+!schedule/*.csv
