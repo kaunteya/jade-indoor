@@ -1,0 +1,183 @@
+/* Same palette and page furniture as list/list.css — the two organiser pages should not
+   look like different sites. Matches are cards rather than a table: 'Side A v Side B'
+   holds two full names and wraps badly in a cell at phone width. */
+*, *::before, *::after {
+	box-sizing: border-box;
+}
+[hidden] {
+	display: none !important;
+}
+html {
+	font-size: 16px;
+	background: #0b2c47;
+}
+/* fixed layer rather than background-attachment: fixed — iOS Safari sizes a fixed
+   background against the document, not the viewport (same as the form page) */
+html::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	background: url('../images/background.jpeg') center / cover no-repeat;
+}
+body {
+	font-family: system-ui, sans-serif;
+	max-width: 60rem;
+	margin: 0 auto 3rem;
+	padding: 0 1rem;
+	color: #10314c;
+}
+header {
+	text-align: center;
+	padding: 1rem 0 0.5rem;
+}
+.title {
+	display: block;
+	max-width: min(100%, 22rem);
+	height: auto;
+	margin: 0 auto;
+}
+/* the background art is pale, so page-level text sits dark rather than reversed out */
+h1 {
+	font-size: 1.25rem;
+	color: #10314c;
+	margin: 0.25rem 0 0;
+}
+
+.filters {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	background: #fff;
+	border-radius: 0.75rem;
+	padding: 1rem;
+}
+.filter-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+	font-weight: 600;
+	font-size: 0.9rem;
+}
+.chip-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+.chip {
+	font: inherit;
+	font-weight: 500;
+	color: #10314c;
+	background: #f1f5f9;
+	border: 1px solid #cfdae4;
+	border-radius: 2rem;
+	/* 44px tall: comfortably tappable on a phone */
+	padding: 0.6rem 1rem;
+	cursor: pointer;
+	white-space: nowrap;
+}
+.chip b {
+	font-weight: 700;
+	color: #4a5c6d;
+	margin-left: 0.15rem;
+}
+.chip[aria-pressed="true"] {
+	background: #0b6bcb;
+	border-color: #0b6bcb;
+	color: #fff;
+}
+.chip[aria-pressed="true"] b {
+	color: #cfe3fa;
+}
+
+.status {
+	text-align: center;
+	margin: 1.5rem 0;
+}
+.status.error {
+	color: #a3202a;
+}
+.count {
+	font-weight: 600;
+	margin: 1.25rem 0 0.5rem;
+}
+
+.day h2 {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	margin: 1.25rem 0 0.5rem;
+	padding: 0.5rem 0.75rem;
+	font-size: 0.95rem;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: #fff;
+	background: #10314c;
+	border-radius: 0.5rem;
+}
+.match {
+	display: flex;
+	gap: 0.75rem;
+	background: #fff;
+	border-radius: 0.75rem;
+	padding: 0.75rem;
+	margin-bottom: 0.5rem;
+}
+.when {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	/* fixed so every card's text starts on the same line, however long the time is */
+	flex: 0 0 3.75rem;
+	padding-right: 0.75rem;
+	border-right: 1px solid #e3e9ef;
+	font-variant-numeric: tabular-nums;
+}
+.start {
+	font-weight: 700;
+}
+.end {
+	font-size: 0.8rem;
+	color: #7b8a99;
+}
+.what {
+	min-width: 0;
+	flex: 1;
+}
+.what p {
+	margin: 0;
+}
+.meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: #4a5c6d;
+}
+.court {
+	color: #7b8a99;
+}
+.sides {
+	margin: 0.15rem 0 0.2rem;
+	/* long doubles pairings must wrap inside the card rather than widen the page */
+	overflow-wrap: anywhere;
+}
+.vs {
+	color: #7b8a99;
+	font-size: 0.85rem;
+	margin: 0 0.3rem;
+}
+.category {
+	font-size: 0.8rem;
+	color: #4a5c6d;
+}
+
+.back {
+	margin-top: 2rem;
+	text-align: center;
+}
+.back a {
+	color: #0b6bcb;
+}
