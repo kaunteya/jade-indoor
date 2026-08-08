@@ -4,13 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A single static registration form (Jade Indoor Sports Festival) with no build step and no dependencies. `index.html` + `style.css` + `games.js` + `app.js` run directly in the browser; `app.js` POSTs the form to a Google Apps Script Web App (`apps-script/Code.gs`), which appends a row to a Google Sheet.
+A small static site (Jade Indoor Sports Festival) with no build step and no dependencies — every page runs directly in the browser. `games.js` sits at the root and is the one file shared across pages; each page otherwise owns its own HTML/CSS/JS:
 
-`list/` is a second, read-only page (served at `/list`) for organisers: a row of sport buttons (each with its total entries) driving a category dropdown over the entrant list, with sortable columns, showing each participant's name, flat and age. It GETs the same Web App URL (`doGet`/`listEntrants` in `Code.gs`) and shares `games.js` with the form.
+- **`index.html` + `home.css`** — the landing page, four stacked destination cards (Registration, Participants list, Schedule, Search). Only live cards are links: an inert card is a `<span class="home-card is-disabled">` instead of an `<a href>`, so nothing clickable leads nowhere. Registration is currently inert because entries have closed (the page is still deployed at `/registration`, just unlinked); Schedule and Search because they have no page yet. Re-enable one by turning its `<span>` back into an `<a href>`.
+- **`registration/`** (`index.html` + `style.css` + `app.js`, served at `/registration`) — the registration form. `app.js` POSTs it to a Google Apps Script Web App (`apps-script/Code.gs`), which appends a row to a Google Sheet.
+- **`schedules/`** (served at `/schedules`) — the public schedule, built by fetching every draw in `schedule/` and merging them into one time-ordered list with Day and Sport filter chips. It needs no backend, but it does need a server: `fetch` of a sibling CSV fails under `file://`. A static page can't list a directory, so `SCHEDULE_FILES` in `schedules.js` names each CSV by hand — **adding a draw to `schedule/` means adding its filename there**. Everything else is read out of the files: the `Category` column is `Sport — Category`, which is what the sport chips group on, and day order is parsed from `Day` (`Fri 14 Aug`) rather than hardcoded.
+- **`list/`** (served at `/list`) — a read-only page for organisers: a row of sport buttons (each with its total entries) driving a category dropdown over the entrant list, with sortable columns, showing each participant's name, flat and age. It GETs the same Web App URL (`doGet`/`listEntrants` in `Code.gs`).
+
+Pages below the root reach the shared script and assets with `../` (`../games.js`, `../images/…`) — including inside `registration/style.css`, whose `url()`s and CSS masks point at `../images/`.
 
 ## Running / testing
 
-No build tools, package manager, or test suite. Open `index.html` directly in a browser (or serve the directory with any static file server) to work on the frontend.
+No build tools, package manager, or test suite. Serve the repo root with any static file server and open `/` — the pages resolve each other by directory (`/registration`, `/list`), so opening the HTML files straight off the filesystem works too, but only if you enter through the root `index.html`.
 
 To test the submit path end-to-end, `apps-script/Code.gs` must be pasted into a Google Apps Script project bound to a target Sheet and deployed as a Web App (Deploy > New deployment > Web app, Execute as "Me", Access "Anyone with the link"). The deployed `/exec` URL then goes in `SCRIPT_URL` at the top of `games.js`.
 
@@ -67,7 +72,10 @@ The festival runs over three days, and these are the only hours the facilities a
 Draws are written as CSVs in `schedule/`, one file per category, with the columns
 `Day,Start,End,Court,Category,Round,Match,Side A,Side B` — later rounds reference earlier
 ones as `Winner <Match>`, and pool qualifiers as `Winner Group A` / `Runner-up Group B`,
-rather than by name.
+rather than by name. `Category` is `Sport — Category` (`Badminton — Doubles · 14-59 & 60+ ·
+Male`); the `schedules/` page splits on that dash to group by sport, so the prefix has to be
+there. These CSVs are the one exception to the `*.csv` gitignore rule — they are the
+published schedule, so they are tracked.
 
 - No more concurrent matches per sport than it has playing areas (see above), and no match
   scheduled outside the day's open hours.

@@ -17,7 +17,7 @@ html::before {
 	position: fixed;
 	inset: 0;
 	z-index: -1;
-	background: url('images/background.jpeg') center / cover no-repeat;
+	background: url('../images/background.jpeg') center / cover no-repeat;
 }
 body {
 	font-family: system-ui, sans-serif;
@@ -83,8 +83,8 @@ body:not(.past-first-view) form {
 	   margins crop that dead space so the caption sits against the logo */
 	margin: -2.25rem auto -1.5rem;
 	background: #023428;
-	-webkit-mask: url(images/kj-residences.png) center / contain no-repeat;
-	mask: url(images/kj-residences.png) center / contain no-repeat;
+	-webkit-mask: url(../images/kj-residences.png) center / contain no-repeat;
+	mask: url(../images/kj-residences.png) center / contain no-repeat;
 }
 .sponsor-bar {
 	background: #084F85;

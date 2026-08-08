@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Pavilion Sports League</title>
+	<link rel="icon" href="images/logo.png" />
+	<link rel="stylesheet" href="home.css" />
+</head>
+<body>
+	<header>
+		<h1><img src="images/psl-title.png" alt="Pavilion Sports League" /></h1>
+		<img class="subtitle" src="images/psl-subtitle.png" alt="" />
+	</header>
+
+	<!-- Inert cards are plain <span>s, so nothing is clickable that shouldn't be: Registration
+	     because entries have closed (registration/ is still there, just unlinked), Schedule and
+	     Search because they have no page yet. Swap a <span> back to an <a href> to re-enable. -->
+	<nav class="home-nav">
+		<span class="home-card is-disabled" aria-disabled="true">
+			Registration
+			<span class="home-card-note">Registrations closed</span>
+		</span>
+		<a class="home-card" href="list/">
+			Participants list
+			<span class="home-card-note">Who has entered, by sport and category</span>
+		</a>
+		<a class="home-card" href="schedules/">
+			Schedule
+			<span class="home-card-note">Match times, courts and draws</span>
+		</a>
+		<span class="home-card is-disabled" aria-disabled="true">
+			Search
+			<span class="home-card-note">Coming soon</span>
+		</span>
+	</nav>
+
+	<p class="credit">Made by Kaunteya Suryawanshi. C-163</p>
+</body>
+</html>
