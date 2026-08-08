@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A single static registration form (Jade Indoor Sports Festival) with no build step and no dependencies. `index.html` + `style.css` + `games.js` + `app.js` run directly in the browser; `app.js` POSTs the form to a Google Apps Script Web App (`apps-script/Code.gs`), which appends a row to a Google Sheet.
 
-`list/` is a second, read-only page (served at `/list`) for organisers: a row of sport buttons (each with its total entries) driving a category dropdown over the entrant list, with sortable columns, showing each participant's name, phone and age. It GETs the same Web App URL (`doGet`/`listEntrants` in `Code.gs`) and shares `games.js` with the form.
+`list/` is a second, read-only page (served at `/list`) for organisers: a row of sport buttons (each with its total entries) driving a category dropdown over the entrant list, with sortable columns, showing each participant's name, flat and age. It GETs the same Web App URL (`doGet`/`listEntrants` in `Code.gs`) and shares `games.js` with the form.
 
 ## Running / testing
 

@@ -10,11 +10,11 @@ const status = document.getElementById('status');
 const results = document.getElementById('results');
 const tableBody = document.getElementById('table-body');
 const countEl = document.getElementById('count');
-const categoryNameEl = document.getElementById('category-name');
+const levelBreakdownEl = document.getElementById('level-breakdown');
 const table = document.getElementById('table');
 const sortBar = document.getElementById('sort-bar');
 
-let entrants = {}; // game id -> [{ name, phone, age, level, partner }]
+let entrants = {}; // game id -> [{ name, house, age, level, partner }]
 let selectedSport = '';
 let sort = { key: '', direction: 1 }; // key '' keeps the sheet's own order (order of registration)
 
@@ -103,13 +103,17 @@ function renderTable() {
 	const doubles = game.type === 'Doubles';
 	table.classList.toggle('no-partner', !doubles);
 	countEl.textContent = `${rows.length} ${rows.length === 1 ? 'participant' : 'participants'} —`;
-	categoryNameEl.textContent = `${game.game}, ${categoryLabel(game)}`;
+	// The sport buttons and the category dropdown already name the category, so this line
+	// carries the split by level instead of repeating it.
+	levelBreakdownEl.textContent = Object.entries(LEVEL_NAMES)
+		.map(([level, name]) => `${rows.filter(entrant => Number(entrant.level) === Number(level)).length} ${name}`)
+		.join(' · ');
 	markSortControls();
 	tableBody.innerHTML = rows.map((entrant, index) => `
 		<tr>
 			<td class="num" data-label="#">${index + 1}</td>
 			<td data-label="Name" data-num="${index + 1}">${escapeHtml(entrant.name)}</td>
-			<td data-label="Phone"><a href="tel:${escapeHtml(entrant.phone)}">${escapeHtml(entrant.phone)}</a></td>
+			<td data-label="House">${escapeHtml(entrant.house)}</td>
 			<td class="num" data-label="Age">${escapeHtml(entrant.age)}</td>
 			<td data-label="Level">${LEVEL_NAMES[entrant.level] || ''}</td>
 			<td class="partner-col" data-label="Partner">${escapeHtml(entrant.partner)}</td>

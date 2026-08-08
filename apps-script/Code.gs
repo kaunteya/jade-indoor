@@ -94,8 +94,10 @@ function doGet(e) {
 		: ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
 }
 
-// { games: { <game id>: [ { name, phone, age, level, partner } ] } }, keyed by the same
-// ids as GAME_FIELDS / app.js's GAMES array. Games nobody entered come back as [].
+// { games: { <game id>: [ { name, house, age, level, partner } ] } }, keyed by the same
+// ids as GAME_FIELDS / app.js's GAMES array. Games nobody entered come back as []. Phone
+// numbers are deliberately left out: the list page doesn't show them, and anything sent
+// would be readable by anyone with the page open.
 function listEntrants() {
 	const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
 	const values = sheet.getDataRange().getDisplayValues();
@@ -123,7 +125,7 @@ function listEntrants() {
 			const partnerAt = GAME_FIELDS.indexOf(field.split('_')[0] + '_partner');
 			games[field].push({
 				name: name,
-				phone: String(row[at.whatsapp]).trim(),
+				house: String(row[at.tower]).trim() + '-' + String(row[at.house_number]).trim(),
 				age: String(row[at.age]).trim(),
 				level: level,
 				partner: partnerAt === -1 ? '' : String(row[gamesStart + partnerAt]).trim(),
