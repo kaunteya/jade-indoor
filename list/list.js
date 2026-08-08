@@ -48,8 +48,14 @@ function renderSports() {
 // entered is selected outright so picking a sport is enough to see a list, and a sport
 // with a single category (Chess, 8-ball pool) has nothing to choose — its dropdown shows
 // the one category but is disabled.
+// GAMES interleaves singles and doubles by age group; the dropdown lists every singles
+// category first and the doubles after, keeping GAMES' order within each of the two groups.
 function renderCategories() {
-	const games = GAMES.filter(game => game.game === selectedSport);
+	const forSport = GAMES.filter(game => game.game === selectedSport);
+	const games = [
+		...forSport.filter(game => game.type !== 'Doubles'),
+		...forSport.filter(game => game.type === 'Doubles'),
+	];
 	categorySelect.innerHTML = '';
 	games.forEach(game => {
 		const option = document.createElement('option');
