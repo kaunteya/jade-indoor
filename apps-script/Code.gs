@@ -24,7 +24,7 @@ function screenshotFolder() {
 }
 // one checkbox field per game/category entry in app.js's GAMES array, in column order
 const GAME_FIELDS = [
-	'badminton_singles_u14_male', 'badminton_singles_u14_female', 'badminton_doubles_u14_male', 'badminton_doubles_u14_female',
+	'badminton_singles_u14_male', 'badminton_singles_u14_female', 'badminton_doubles_u14',
 	'badminton_singles_14_60_male', 'badminton_singles_14_60_female', 'badminton_doubles_14_60_male', 'badminton_doubles_14_60_female',
 	'badminton_doubles_60plus', 'badminton_partner',
 	'tt_singles_u14_male', 'tt_singles_u14_female', 'tt_doubles_u14',
