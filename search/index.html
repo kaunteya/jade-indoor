@@ -16,7 +16,9 @@
 	<!-- Combobox pattern: the input owns the listbox below it and points at the highlighted
 	     option with aria-activedescendant, so focus never leaves the input while arrowing
 	     through suggestions. -->
-	<div class="search-box">
+	<!-- Hidden until the entrant list has arrived: there is nothing to search against
+	     before then. Revealed and focused together in search.js. -->
+	<div class="search-box" id="search-box" hidden>
 		<!-- Wording matters here: Safari's Contacts AutoFill reads the label and placeholder
 		     as well as the field itself, and the word "name" in either is enough to trigger
 		     it. Keep both free of it. -->
@@ -38,7 +40,6 @@
 				aria-expanded="false"
 				aria-controls="suggestions"
 				aria-autocomplete="list"
-				autofocus
 			/>
 			<button type="button" id="clear" class="clear" aria-label="Clear search" hidden>&times;</button>
 			<ul id="suggestions" class="suggestions" role="listbox" aria-label="Matching participants" hidden></ul>

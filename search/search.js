@@ -11,6 +11,7 @@ const MIN_QUERY = 2;
 // typed straight away — nothing is hidden by holding it.
 const TOUCH_ONLY = window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)');
 
+const searchBox = document.getElementById('search-box');
 const queryInput = document.getElementById('query');
 const clearButton = document.getElementById('clear');
 const suggestionList = document.getElementById('suggestions');
@@ -374,8 +375,10 @@ loadEntrants(SCRIPT_URL + '?list=1' + (key ? '&key=' + encodeURIComponent(key) :
 		if (data.error) throw new Error(data.error === 'unauthorized' ? 'This page needs an access key.' : data.error);
 		people = buildPeople(data.games || {});
 		status.hidden = true;
-		// the field is live and focused from the moment the page renders, so anything
-		// typed while the list was still in flight is searched now rather than ignored
+		// the box is hidden until here, so this is the first moment it can take focus
+		searchBox.hidden = false;
+		queryInput.focus();
+		// a soft reload can restore a value into the field before this runs
 		if (queryInput.value.trim()) refreshSuggestions();
 	})
 	.catch(error => {
