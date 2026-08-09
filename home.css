@@ -59,6 +59,17 @@ h1 img, .subtitle {
 	text-decoration: none;
 	border-radius: 8px;
 }
+/* the emoji is decorative (aria-hidden), so it only has to sit on the title's baseline
+   without pushing the note out of the card's left edge */
+.home-card-title {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+.home-card-icon {
+	font-size: 1.25rem;
+	line-height: 1;
+}
 .home-card-note {
 	font-size: 0.875rem;
 	font-weight: 400;
@@ -71,6 +82,11 @@ h1 img, .subtitle {
 	color: #8a94a0;
 	box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08);
 	cursor: default;
+}
+/* colour emoji ignores the greyed `color`, so mute it the only way that works on a glyph */
+.home-card.is-disabled .home-card-icon {
+	filter: grayscale(1);
+	opacity: 0.6;
 }
 .credit {
 	/* margin-top: auto pins this to the bottom of the filled first screen */
