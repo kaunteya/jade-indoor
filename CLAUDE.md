@@ -87,7 +87,7 @@ published schedule, so they are tracked.
   10 min. The two single-table sports are the binding constraint — round-robin formats
   there only fit at the shorter slot.
 - Categories are single-elimination unless run as round-robin pools: badminton doubles
-  8-13 (2×3), carrom doubles (2×4), TT doubles (2×5), TT singles 60+ (4+3) and 8-ball pool
-  (6/6/5/5). Pools feed a knockout through the top two of each, cross-paired so a pool's
+  Under 14 (2×3), carrom doubles (2×4), TT doubles (2×5), TT singles 60+ (4+3) and 8-ball
+  pool (6/6/5/5). Pools feed a knockout through the top two of each, cross-paired so a pool's
   winner and runner-up cannot meet again before the final.
 - Finals are placed first and as late as possible, so they land in a Sunday evening block.

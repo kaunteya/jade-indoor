@@ -3,18 +3,18 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwXq4SDLwFQ47Ik5G7En
 
 // gender: 'Male' | 'Female' | 'any' (open to both)
 const GAMES = [
-	{ id: 'badminton_singles_u14_male', game: 'Badminton', type: 'Singles', ageGroup: '8-13', min: 8, max: 13, gender: 'Male', price: 400 },
-	{ id: 'badminton_singles_u14_female', game: 'Badminton', type: 'Singles', ageGroup: '8-13', min: 8, max: 13, gender: 'Female', price: 400 },
-	{ id: 'badminton_doubles_u14', game: 'Badminton', type: 'Doubles', ageGroup: '8-13', min: 8, max: 13, gender: 'any', price: 600 },
+	{ id: 'badminton_singles_u14_male', game: 'Badminton', type: 'Singles', ageGroup: 'Under 14', min: 8, max: 13, gender: 'Male', price: 400 },
+	{ id: 'badminton_singles_u14_female', game: 'Badminton', type: 'Singles', ageGroup: 'Under 14', min: 8, max: 13, gender: 'Female', price: 400 },
+	{ id: 'badminton_doubles_u14', game: 'Badminton', type: 'Doubles', ageGroup: 'Under 14', min: 8, max: 13, gender: 'any', price: 600 },
 	{ id: 'badminton_singles_14_60_male', game: 'Badminton', type: 'Singles', ageGroup: '14-59', min: 14, max: 59, gender: 'Male', price: 400 },
 	{ id: 'badminton_singles_14_60_female', game: 'Badminton', type: 'Singles', ageGroup: '14-59', min: 14, max: 59, gender: 'Female', price: 400 },
 	{ id: 'badminton_doubles_14_60_male', game: 'Badminton', type: 'Doubles', ageGroup: '14-59', min: 14, max: 59, gender: 'Male', price: 600 },
 	{ id: 'badminton_doubles_14_60_female', game: 'Badminton', type: 'Doubles', ageGroup: '14-59', min: 14, max: 59, gender: 'Female', price: 600 },
 	{ id: 'badminton_doubles_60plus', game: 'Badminton', type: 'Doubles', ageGroup: '60+ (flexible)', min: 60, max: Infinity, gender: 'any', price: 600 },
 
-	{ id: 'tt_singles_u14_male', game: 'Table Tennis', type: 'Singles', ageGroup: '8-13', min: 8, max: 13, gender: 'Male', price: 200 },
-	{ id: 'tt_singles_u14_female', game: 'Table Tennis', type: 'Singles', ageGroup: '8-13', min: 8, max: 13, gender: 'Female', price: 200 },
-	{ id: 'tt_doubles_u14', game: 'Table Tennis', type: 'Doubles', ageGroup: '8-13 (flexible)', min: 8, max: 13, gender: 'any', price: 300 },
+	{ id: 'tt_singles_u14_male', game: 'Table Tennis', type: 'Singles', ageGroup: 'Under 14', min: 8, max: 13, gender: 'Male', price: 200 },
+	{ id: 'tt_singles_u14_female', game: 'Table Tennis', type: 'Singles', ageGroup: 'Under 14', min: 8, max: 13, gender: 'Female', price: 200 },
+	{ id: 'tt_doubles_u14', game: 'Table Tennis', type: 'Doubles', ageGroup: 'Under 14 (flexible)', min: 8, max: 13, gender: 'any', price: 300 },
 	{ id: 'tt_singles_14_60_male', game: 'Table Tennis', type: 'Singles', ageGroup: '14-59', min: 14, max: 59, gender: 'Male', price: 200 },
 	{ id: 'tt_singles_14_60_female', game: 'Table Tennis', type: 'Singles', ageGroup: '14-59', min: 14, max: 59, gender: 'Female', price: 200 },
 	{ id: 'tt_doubles_14_60', game: 'Table Tennis', type: 'Doubles', ageGroup: '14-59 (flexible)', min: 14, max: 59, gender: 'any', price: 300 },
@@ -29,7 +29,7 @@ const GAMES = [
 ];
 
 
-// Human-readable name for one game entry, e.g. 'Singles · 8-13 · Male'. A category open to
+// Human-readable name for one game entry, e.g. 'Singles · Under 14 · Male'. A category open to
 // both genders simply carries no gender, rather than being spelled out. Chess has neither a
 // type nor an age split worth naming, so it comes back empty and callers fall back to the
 // sport name on its own.
