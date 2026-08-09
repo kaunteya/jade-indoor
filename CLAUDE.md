@@ -90,4 +90,8 @@ published schedule, so they are tracked.
   Under 14 (2×3), carrom doubles (2×4), TT doubles (2×5), TT singles 60+ (4+3) and 8-ball
   pool (6/6/5/5). Pools feed a knockout through the top two of each, cross-paired so a pool's
   winner and runner-up cannot meet again before the final.
+- Badminton doubles 14-59 Female is the one category with no knockout at all: four pairs in a
+  single all-play-all group (6 matches, `Round robin`), won on the table. It was a 4-pair
+  bracket, which meant every pair entered at the semi-final having played nothing; doubling
+  its match count left no court time for a separate final.
 - Finals are placed first and as late as possible, so they land in a Sunday evening block.
