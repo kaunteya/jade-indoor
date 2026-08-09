@@ -373,6 +373,43 @@ h1 {
 	margin-right: 0.4rem;
 	color: #c2ccd6;
 }
+/* a bye reads as a note rather than a card: there is no time or court to show, and it
+   should not be mistaken for a slot somebody has to turn up for */
+.byes {
+	margin-top: 0.6rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+}
+.bye {
+	display: flex;
+	align-items: baseline;
+	gap: 0.5rem;
+	margin: 0;
+	padding: 0.5rem 0.7rem;
+	border-radius: 0.5rem;
+	background: #f6f8fa;
+	border: 1px dashed #d3dde6;
+}
+.bye-badge {
+	flex: 0 0 auto;
+	font-size: 0.6875rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #8a5a00;
+	background: #fff3d6;
+	padding: 0.2rem 0.5rem;
+	border-radius: 0.25rem;
+}
+.bye-text {
+	font-size: 0.85rem;
+	line-height: 1.35;
+	color: #4a5c6d;
+}
+.bye-text b {
+	color: #10314c;
+}
 
 .back {
 	margin-top: 2rem;

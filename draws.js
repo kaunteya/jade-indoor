@@ -23,6 +23,43 @@ const SCHEDULE_FILES = [
 	'pool-singles.csv',
 ];
 
+// Which draw a games.js category is played out in, needed by search/ to tell a bye from a
+// category nobody has drawn yet. It cannot be worked out from categoryLabel(): several
+// entries share one draw (the two TT doubles ages run as one 'Table Tennis — Doubles', and
+// 60+ badminton doubles folds into the 14-59 male draw), and the draws drop the age from a
+// category the sport only has one of. So, like SCHEDULE_FILES, it is written out by hand.
+const DRAW_CATEGORY = {
+	badminton_singles_u14_male: 'Badminton — Singles · Under 14 · Male',
+	badminton_singles_u14_female: 'Badminton — Singles · Under 14 · Female',
+	badminton_doubles_u14: 'Badminton — Doubles · Under 14',
+	badminton_singles_14_60_male: 'Badminton — Singles · 14-59 · Male',
+	badminton_singles_14_60_female: 'Badminton — Singles · 14-59 · Female',
+	badminton_doubles_14_60_male: 'Badminton — Doubles · 14-59 & 60+ · Male',
+	badminton_doubles_14_60_female: 'Badminton — Doubles · 14-59 · Female',
+	badminton_doubles_60plus: 'Badminton — Doubles · 14-59 & 60+ · Male',
+	tt_singles_u14_male: 'Table Tennis — Singles · Under 14 · Male',
+	tt_doubles_u14: 'Table Tennis — Doubles',
+	tt_singles_14_60_male: 'Table Tennis — Singles · 14-59 · Male',
+	tt_singles_14_60_female: 'Table Tennis — Singles · 14-59 · Female',
+	tt_doubles_14_60: 'Table Tennis — Doubles',
+	tt_singles_60plus: 'Table Tennis — Singles · 60+',
+	carrom_singles: 'Carrom — Singles · 10+',
+	carrom_doubles: 'Carrom — Doubles · 10+',
+	chess: 'Chess',
+	pool_singles: '8-ball pool — Singles',
+	// tt_singles_u14_female drew no entries, so it has no draw at all.
+};
+
+// The round a bye carries somebody into: the one after the opening round.
+function roundAfter(round) {
+	if (round === 'Quarter-final') return 'Semi-final';
+	if (round === 'Semi-final') return 'Final';
+	const size = /^Round of (\d+)$/.exec(round || '');
+	if (!size) return '';
+	const half = Number(size[1]) / 2;
+	return { 8: 'Quarter-final', 4: 'Semi-final', 2: 'Final' }[half] || 'Round of ' + half;
+}
+
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 // Minimal RFC4180 reader: match rows are plain, but a name with a comma in it would

@@ -182,6 +182,42 @@ function fixturesFor(person) {
 		.sort((a, b) => dayKey(a.Day) - dayKey(b.Day) || timeKey(a.Start) - timeKey(b.Start));
 }
 
+// Categories whose opening round is drawn but does not name this person: they were seeded
+// high enough to sit it out. Saying so matters — 40 of the 176 entrants hold a bye, and an
+// empty fixture list otherwise reads as the page having lost them.
+function byesFor(person) {
+	if (!draws) return [];
+	const label = playerLabel(person);
+	return person.entries.map(entry => {
+		const drawn = draws.filter(match => match.Category === DRAW_CATEGORY[entry.game.id]);
+		if (!drawn.length) return null;  // nothing drawn for the category at all
+		if (drawn.some(match => sideHas(match['Side A'], label) || sideHas(match['Side B'], label))) return null;
+		const rounds = [...new Set(drawn.map(match => match.Round))];
+		// A group stage seats everybody, so somebody missing from one is not on a bye —
+		// far more likely their partner entered the team under a name we could not match.
+		if (rounds.some(round => /^Group\b/.test(round))) return null;
+		return { game: entry.game, round: roundAfter(rounds[0]) };
+	}).filter(Boolean);
+}
+
+function renderByes(byes) {
+	if (!byes.length) return '';
+	return `
+		<div class="byes">
+			${byes.map(bye => `
+				<p class="bye">
+					<span class="bye-badge">Bye</span>
+					<span class="bye-text">
+						<b>${escapeHtml(bye.game.game)}</b>${categoryLabel(bye.game)
+							? ' ' + escapeHtml(categoryLabel(bye.game)) : ''}
+						— straight through to the ${escapeHtml(bye.round || 'next round')}, which is not drawn yet.
+					</span>
+				</p>
+			`).join('')}
+		</div>
+	`;
+}
+
 function renderFixtures(person) {
 	const host = document.getElementById('fixtures');
 	if (!host) return;
@@ -190,8 +226,10 @@ function renderFixtures(person) {
 		return;
 	}
 	const fixtures = fixturesFor(person);
+	const byes = renderByes(byesFor(person));
 	if (!fixtures.length) {
-		host.innerHTML = '<h3 class="sport-name">Match schedule</h3><p class="empty">No slots assigned yet.</p>';
+		host.innerHTML = '<h3 class="sport-name">Match schedule</h3>'
+			+ (byes || '<p class="empty">No slots assigned yet.</p>');
 		return;
 	}
 	const days = [...new Set(fixtures.map(fixture => fixture.Day))];
@@ -227,6 +265,7 @@ function renderFixtures(person) {
 				}).join('')}
 			</div>
 		`).join('')}
+		${byes}
 	`;
 }
 
