@@ -56,7 +56,7 @@ allocation work:
 | Badminton | 2 courts |
 | Table Tennis | 1 table |
 | Carrom | 3 boards |
-| Chess | 4 boards |
+| Chess | 6 boards |
 | 8-ball pool | 1 table |
 
 The festival runs over three days, and these are the only hours the facilities are open —
@@ -78,20 +78,33 @@ Male`); the `schedules/` page splits on that dash to group by sport, so the pref
 there. These CSVs are the one exception to the `*.csv` gitignore rule — they are the
 published schedule, so they are tracked.
 
+- `schedule/` currently holds the **opening round only** — one round per category, no later
+  rounds drawn yet. It fills Fri and Sat and leaves Sunday clear for the rest.
 - No more concurrent matches per sport than it has playing areas (see above), and no match
   scheduled outside the day's open hours.
+- Consecutive matches on the same court/table/board are 5 minutes apart, and so are any two
+  matches the same player is in — nobody walks straight off one match onto the next.
+- Under 14 categories finish by 8:00 pm, whichever day they land on.
 - A player is never booked into two matches at once. This holds for everyone who could
   still reach a match, not just confirmed entrants, so the draw stays valid whoever wins.
   Doubles partner names are resolved back to registrants so cross-sport clashes are caught.
-- Slot lengths: badminton 25 min, carrom and chess 30 min, table tennis and 8-ball pool
-  10 min. The two single-table sports are the binding constraint — round-robin formats
-  there only fit at the shorter slot.
-- Categories are single-elimination unless run as round-robin pools: badminton doubles
-  Under 14 (2×3), carrom doubles (2×4), TT doubles (2×5), TT singles 60+ (4+3) and 8-ball
-  pool (6/6/5/5). Pools feed a knockout through the top two of each, cross-paired so a pool's
-  winner and runner-up cannot meet again before the final.
-- Badminton doubles 14-59 Female is the one category with no knockout at all: four pairs in a
-  single all-play-all group (6 matches, `Round robin`), won on the table. It was a 4-pair
-  bracket, which meant every pair entered at the semi-final having played nothing; doubling
-  its match count left no court time for a separate final.
+- Slot lengths, one per sport — every match of a sport occupies exactly this much of a
+  playing area:
+
+  | Sport | Slot |
+  | --- | --- |
+  | Badminton | 30 min |
+  | Table Tennis | 15 min |
+  | Chess | 50 min |
+  | Carrom | 50 min |
+  | 8-ball pool | 30 min |
+
+- **Every category is single elimination.** There are no pools or round-robin groups any
+  more: at the slot lengths above they no longer fit, most sharply 8-ball pool, whose
+  4-group stage would have been 50 matches × 30 min = the whole festival on one table.
+- The opening round of a category is the play-in that leaves a **power-of-two field**, so
+  every round after it is 16/8/4/2/1 matches. With N entrants and L the largest power of two
+  ≤ N, the opening round is N − L matches and 2L − N entrants get a bye; when N is already a
+  power of two there is no play-in and the opening round is the full N/2. Byes go to the top
+  of the draw order, and the rest are paired highest against lowest.
 - Finals are placed first and as late as possible, so they land in a Sunday evening block.
