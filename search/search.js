@@ -6,6 +6,10 @@
 const LEVEL_NAMES = { 1: 'Beginner', 2: 'Intermediate', 3: 'Advanced' };
 const MAX_SUGGESTIONS = 8;
 const MIN_QUERY = 2;
+// A phone's on-screen keyboard covers most of the result once a name is picked, so the
+// field gives up focus there. On a pointer device it keeps focus, so a new query can be
+// typed straight away — nothing is hidden by holding it.
+const TOUCH_ONLY = window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)');
 
 const queryInput = document.getElementById('query');
 const clearButton = document.getElementById('clear');
@@ -148,6 +152,7 @@ function selectPerson(person) {
 	queryInput.value = person.name;
 	clearButton.hidden = false;
 	closeSuggestions();
+	if (TOUCH_ONLY && TOUCH_ONLY.matches) queryInput.blur();
 	shownPerson = person;
 	renderPerson(person);
 }
