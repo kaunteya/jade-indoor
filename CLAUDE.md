@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A small static site (Jade Indoor Sports Festival) with no build step and no dependencies — every page runs directly in the browser. Two files at the root are shared: `games.js` (the category list, loaded by every page) and `draws.js` (the `schedule/` file list and CSV reader, loaded by `schedules/` and `search/`). Each page otherwise owns its own HTML/CSS/JS:
+A small static site (Jade Indoor Sports Festival) with no build step and no dependencies — every page runs directly in the browser. Two files at the root are shared: `games.js` (the category list, loaded by every page) and `draws.js` (the `schedules/data/` file list and CSV reader, loaded by `schedules/` and `search/`). Each page otherwise owns its own HTML/CSS/JS:
 
 - **`index.html` + `home.css`** — the landing page, four stacked destination cards (Registration, Participants list, Schedule, Search). Only live cards are links: an inert card is a `<span class="home-card is-disabled">` instead of an `<a href>`, so nothing clickable leads nowhere. Registration is currently inert because entries have closed (the page is still deployed at `/registration`, just unlinked); Schedule and Search because they have no page yet. Re-enable one by turning its `<span>` back into an `<a href>`.
 - **`registration/`** (`index.html` + `style.css` + `app.js`, served at `/registration`) — the registration form. `app.js` POSTs it to a Google Apps Script Web App (`apps-script/Code.gs`), which appends a row to a Google Sheet.
-- **`schedules/`** (served at `/schedules`) — the public schedule, built by fetching every draw in `schedule/` and merging them into one time-ordered list with Day and Sport filter chips. It needs no backend, but it does need a server: `fetch` of a sibling CSV fails under `file://`. A static page can't list a directory, so `SCHEDULE_FILES` in `../draws.js` names each CSV by hand — **adding a draw to `schedule/` means adding its filename there**. Everything else is read out of the files: the `Category` column is `Sport — Category`, which is what the sport chips group on, and day order is parsed from `Day` (`Fri 14 Aug`) rather than hardcoded.
+- **`schedules/`** (served at `/schedules`) — the public schedule, built by fetching every draw in `schedules/data/` and merging them into one time-ordered list with Day and Sport filter chips. It needs no backend, but it does need a server: `fetch` of a sibling CSV fails under `file://`. A static page can't list a directory, so `SCHEDULE_FILES` in `../draws.js` names each CSV by hand — **adding a draw to `schedules/data/` means adding its filename there**. Everything else is read out of the files: the `Category` column is `Sport — Category`, which is what the sport chips group on, and day order is parsed from `Day` (`Fri 14 Aug`) rather than hardcoded.
 - **`search/`** (served at `/search`) — find one participant by name and see everything they entered, plus the slots they have been given. It reads the same `doGet` payload as `list/` but inverts it: `listEntrants` is keyed by game category, so `buildPeople()` regroups it into one record per person, keyed by name + flat (which also folds together anyone who submitted the form twice). The input is an ARIA combobox — suggestions are a `role="listbox"` the input owns via `aria-controls`/`aria-activedescendant`, so focus stays in the field while arrowing through them. Fixtures come from `../draws.js`: the draws name a player as `First Last (T-nnn)`, which is exactly the label the entrant list yields, so `fixturesFor()` claims a slot by splitting each side on `/` and comparing labels outright. Only slots a person is *named* in count — later knockout rounds read `Winner BSJM04` or `Winner Group A` and belong to nobody yet.
 - **`list/`** (served at `/list`) — a read-only page for organisers: a row of sport buttons (each with its total entries) driving a category dropdown over the entrant list, with sortable columns, showing each participant's name, flat and age. It GETs the same Web App URL (`doGet`/`listEntrants` in `Code.gs`).
 
@@ -70,7 +70,7 @@ The festival runs over three days, and these are the only hours the facilities a
 
 ## Scheduling rules
 
-Draws are written as CSVs in `schedule/`, one file per category, with the columns
+Draws are written as CSVs in `schedules/data/`, one file per category, with the columns
 `Day,Start,End,Court,Category,Round,Match,Side A,Side B` — later rounds reference earlier
 ones as `Winner <Match>`, and pool qualifiers as `Winner Group A` / `Runner-up Group B`,
 rather than by name. `Category` is `Sport — Category` (`Badminton — Doubles · 14-59 & 60+ ·
@@ -78,8 +78,14 @@ Male`); the `schedules/` page splits on that dash to group by sport, so the pref
 there. These CSVs are the one exception to the `*.csv` gitignore rule — they are the
 published schedule, so they are tracked.
 
-- `schedule/` currently holds the **opening round only** — one round per category, no later
-  rounds drawn yet. It fills Fri and Sat and leaves Sunday clear for the rest.
+- `schedules/data/` holds the **opening round** of every category — one round each, no later
+  rounds drawn yet — plus 8-ball pool's knockout tail, the one category drawn all the way to
+  its final. The opening rounds fill Fri and Sat; Sunday is left clear for the rest.
+  (`schedule/`, the superseded full draws, is gone from the working tree but still in git.)
+- The opening round is generated, not written by hand: `scripts/draw.py` reads the sheet
+  export `psl.csv`, builds the field for every category, and lays the matches out. Re-run it
+  after a re-export rather than editing the CSVs, then `scripts/check_draw.py` to re-assert
+  every rule below against what was written. Both are plain Python 3, no dependencies.
 - No more concurrent matches per sport than it has playing areas (see above), and no match
   scheduled outside the day's open hours.
 - Consecutive matches on the same court/table/board are 5 minutes apart, and so are any two
@@ -97,14 +103,34 @@ published schedule, so they are tracked.
   | Table Tennis | 15 min |
   | Chess | 50 min |
   | Carrom | 50 min |
-  | 8-ball pool | 30 min |
+  | 8-ball pool | 15 min |
 
-- **Every category is single elimination.** There are no pools or round-robin groups any
-  more: at the slot lengths above they no longer fit, most sharply 8-ball pool, whose
-  4-group stage would have been 50 matches × 30 min = the whole festival on one table.
+  8-ball pool runs short because it has one table and the most group matches to fit on it:
+  33, needing 660 of the 780 minutes Fri and Sat hold. 20 minutes would need 825 and no
+  longer fit.
+
+- Most categories are **single elimination**. Four are **round robin**, because they are
+  small enough to be worth a group stage: 8-ball pool, Carrom doubles, TT singles 60+, and
+  TT doubles. Their opening "round" is the whole group stage.
+- Group sizes default to four, the remainder split into threes rather than left as a rump
+  group. 8-ball pool overrides that with `POOL_GROUPS = [6, 6, 6, 4]` in `scripts/draw.py`,
+  chosen so all 22 entrants play **exactly three** group matches and four groups still feed
+  an eight-player quarter-final.
+- Three each is what a group of four plays anyway. A group of six would be five, so it plays
+  a **partial** round robin instead (`group_fixtures`): the six split into two trios by seed
+  — 1st/3rd/5th against 2nd/4th/6th — and everybody plays all three of the other trio. A
+  trio therefore faces identical opposition, which keeps their records comparable when the
+  top two are taken; the cost is that trio-mates never meet head to head.
+- 8-ball pool is also the only category with its later rounds drawn: the top two of each
+  group go into a quarter-final (A1 v B2, B1 v A2, C1 v D2, D1 v C2 — group winners kept
+  apart until the semis), then semis, then the final. Those seven ties name nobody yet, so
+  the clash check resolves each back to every player who could still reach it.
 - The opening round of a category is the play-in that leaves a **power-of-two field**, so
   every round after it is 16/8/4/2/1 matches. With N entrants and L the largest power of two
   ≤ N, the opening round is N − L matches and 2L − N entrants get a bye; when N is already a
   power of two there is no play-in and the opening round is the full N/2. Byes go to the top
   of the draw order, and the rest are paired highest against lowest.
+- Draw order is the declared skill level (expert, then intermediate, then beginner, ties
+  alphabetical), so the byes fall to the strongest entrants. Round-robin groups are seeded
+  the same way, snaked across the groups so each gets a spread.
 - Finals are placed first and as late as possible, so they land in a Sunday evening block.
