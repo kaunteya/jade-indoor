@@ -85,10 +85,6 @@ h1 {
 	outline-offset: 1px;
 	border-color: #0b6bcb;
 }
-#query:disabled {
-	background: #f1f4f7;
-	color: #7b8a99;
-}
 .clear {
 	position: absolute;
 	top: 0;

@@ -293,13 +293,15 @@ function escapeHtml(value) {
 		({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
 }
 
-queryInput.addEventListener('input', () => {
+function refreshSuggestions() {
 	clearButton.hidden = !queryInput.value;
 	personPanel.hidden = true;
 	matches = search(queryInput.value);
 	activeIndex = matches.length ? 0 : -1;
 	renderSuggestions();
-});
+}
+
+queryInput.addEventListener('input', refreshSuggestions);
 
 queryInput.addEventListener('keydown', event => {
 	if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -366,9 +368,10 @@ loadEntrants(SCRIPT_URL + '?list=1' + (key ? '&key=' + encodeURIComponent(key) :
 	.then(data => {
 		if (data.error) throw new Error(data.error === 'unauthorized' ? 'This page needs an access key.' : data.error);
 		people = buildPeople(data.games || {});
-		queryInput.disabled = false;
 		status.hidden = true;
-		queryInput.focus();
+		// the field is live and focused from the moment the page renders, so anything
+		// typed while the list was still in flight is searched now rather than ignored
+		if (queryInput.value.trim()) refreshSuggestions();
 	})
 	.catch(error => {
 		status.textContent = `Could not load the participant list. ${error.message}`;
