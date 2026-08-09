@@ -60,7 +60,8 @@ function renderCategories() {
 	games.forEach(game => {
 		const option = document.createElement('option');
 		option.value = game.id;
-		option.textContent = `${categoryLabel(game)} (${(entrants[game.id] || []).length})`;
+		// Chess has no category of its own, so its one option is named for the sport
+		option.textContent = `${categoryLabel(game) || game.game} (${(entrants[game.id] || []).length})`;
 		option.disabled = !(entrants[game.id] || []).length;
 		categorySelect.appendChild(option);
 	});

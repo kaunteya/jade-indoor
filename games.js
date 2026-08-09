@@ -29,10 +29,13 @@ const GAMES = [
 ];
 
 
-// Human-readable name for one game entry, e.g. 'Singles · 8-13 · Male'.
-// Chess carries no type, and 'any' gender reads as Open.
+// Human-readable name for one game entry, e.g. 'Singles · 8-13 · Male'. A category open to
+// both genders simply carries no gender, rather than being spelled out. Chess has neither a
+// type nor an age split worth naming, so it comes back empty and callers fall back to the
+// sport name on its own.
 function categoryLabel(game) {
-	return [game.type, game.ageGroup, game.gender === 'any' ? 'Open' : game.gender].filter(Boolean).join(' · ');
+	if (game.game === 'Chess') return '';
+	return [game.type, game.ageGroup, game.gender === 'any' ? '' : game.gender].filter(Boolean).join(' · ');
 }
 
 // Sport names in GAMES order, deduplicated.
