@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Pavilion Sports League - Search</title>
+	<link rel="icon" href="../images/logo.png" />
+	<link rel="stylesheet" href="search.css" />
+</head>
+<body>
+	<header>
+		<img class="title" src="../images/psl-title.png" alt="Pavilion Sports League" />
+		<h1>Search participants</h1>
+	</header>
+
+	<!-- Combobox pattern: the input owns the listbox below it and points at the highlighted
+	     option with aria-activedescendant, so focus never leaves the input while arrowing
+	     through suggestions. -->
+	<div class="search-box">
+		<label class="search-label" for="query">Participant name</label>
+		<div class="search-field">
+			<input
+				id="query"
+				type="text"
+				role="combobox"
+				autocomplete="off"
+				autocapitalize="words"
+				spellcheck="false"
+				placeholder="Start typing a name…"
+				aria-expanded="false"
+				aria-controls="suggestions"
+				aria-autocomplete="list"
+				disabled
+			/>
+			<button type="button" id="clear" class="clear" aria-label="Clear search" hidden>&times;</button>
+			<ul id="suggestions" class="suggestions" role="listbox" aria-label="Matching participants" hidden></ul>
+		</div>
+	</div>
+
+	<p id="status" class="status">Loading participants…</p>
+
+	<section id="person" class="person" hidden aria-live="polite"></section>
+
+	<p class="back"><a href="../">← Home</a></p>
+
+	<script src="../games.js"></script>
+	<script src="../draws.js"></script>
+	<script src="search.js"></script>
+</body>
+</html>
