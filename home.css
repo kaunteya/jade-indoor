@@ -19,14 +19,47 @@ html::before {
 }
 body {
 	font-family: system-ui, sans-serif;
+	/* the sponsor bar's 50vw full-bleed overshoots by the scrollbar width */
+	overflow-x: clip;
 	max-width: 480px;
 	/* fill the first screen so the credit line sits at the bottom on a phone */
 	min-height: 100vh;
 	margin: 0 auto;
-	padding: 1.5rem 1rem 2rem;
+	/* no top padding: the sponsor bar is the first child and must touch the top edge */
+	padding: 0 1rem 2rem;
 	display: flex;
 	flex-direction: column;
 	gap: 2rem;
+}
+/* full-bleed band across the top, as on the registration page */
+.sponsor-bar {
+	background: #084F85;
+	/* full-bleed out of the 480px body: pull each edge back to the viewport */
+	margin: 0 calc(50% - 50vw);
+	padding: 0.75rem 1rem;
+}
+.sponsor-bar a {
+	display: block;
+}
+.sponsor-bar img {
+	display: block;
+	max-width: min(29%, 138px);
+	margin: 0 auto;
+	height: auto;
+}
+.sponsor-tagline {
+	margin: 0.4rem 0 0;
+	text-align: center;
+	font-size: 1rem;
+	letter-spacing: 0.04em;
+	color: #cfe3f2;
+}
+.presents {
+	margin: 0 0 0.75rem;
+	text-align: center;
+	font-size: 1.2rem;
+	letter-spacing: 0.08em;
+	color: #5f6368;
 }
 h1 {
 	margin: 0;
