@@ -11,6 +11,7 @@ const daysEl = document.getElementById('days');
 const countEl = document.getElementById('count');
 
 let matches = [];
+let byes = [];
 // null is 'no filter' — the page opens with neither row selected, showing the whole
 // schedule, and tapping the selected chip again clears back to that.
 let selectedDay = null;
@@ -101,8 +102,41 @@ function renderMatches() {
 				}).join('')}
 			</section>
 		`;
-	}).join('');
+	}).join('') + renderByes();
 	results.hidden = false;
+}
+
+// A bye belongs to a category, not to a day, so it hangs off the sport chip alone and sits
+// after the day sections. Without it the schedule quietly omits everybody who was seeded
+// past the opening round — on the day the draw is read out, that is most of the chess entry.
+function renderByes() {
+	const shown = byes.filter(bye => bye.sport === selectedSport);
+	if (!shown.length) return '';
+	const categories = [...new Set(shown.map(bye => bye.Category))];
+	return `
+		<section class="day byes">
+			<h2>Byes <small>not playing the opening round</small></h2>
+			${categories.map(category => {
+				const players = shown.filter(bye => bye.Category === category);
+				const format = splitCategory(players[0].category);
+				return `
+					<article class="bye-group">
+						<div class="head">
+							<span class="round">${escapeHtml(players[0].Round)}</span>
+							<span class="tag">
+								<span class="sport-badge">${escapeHtml(players[0].sport)}</span>
+								${format.type ? `<span class="type">${escapeHtml(format.type)}</span>` : ''}
+							</span>
+						</div>
+						${format.rest ? `<p class="foot"><span class="category">${escapeHtml(format.rest)}</span></p>` : ''}
+						<ul class="bye-list">
+							${players.map(bye => `<li>${formatSide(bye.Player)}</li>`).join('')}
+						</ul>
+					</article>
+				`;
+			}).join('')}
+		</section>
+	`;
 }
 
 function render() {
@@ -150,6 +184,11 @@ function escapeHtml(value) {
 		select(button.dataset.value);
 		render();
 	}));
+
+loadByes('data/').then(loaded => {
+	byes = loaded;
+	if (matches.length) render();  // draws may already be on screen
+});
 
 loadDraws('data/').then(({ matches: loaded, failed }) => {
 	matches = loaded;

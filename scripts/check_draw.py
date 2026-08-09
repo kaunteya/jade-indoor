@@ -17,8 +17,12 @@ UNAVAILABLE = {
 	],
 }
 
+BYES = os.path.join(DATA, 'byes.csv')  # not a draw: no day, no time, no court
+
 rows = []
 for path in sorted(glob.glob(os.path.join(DATA, '*.csv'))):
+	if os.path.samefile(path, BYES) if os.path.exists(BYES) else False:
+		continue
 	with open(path) as handle:
 		for row in csv.DictReader(handle):
 			row['file'] = os.path.basename(path)
@@ -123,7 +127,37 @@ for r in rows:
 					% (r['Match'], person, shut // 60, shut % 60,
 						open_again // 60, open_again % 60, when))
 
-print('%d matches across %d files' % (len(rows), len(set(r['file'] for r in rows))))
+# byes.csv: everyone who entered a knockout category but is not in its opening round, and
+# nobody else. Checked against the sheet, not against the generator's own working.
+byes = list(csv.DictReader(open(BYES))) if os.path.exists(BYES) else []
+named = {}
+for r in rows:
+	if r['Round'].startswith('Group'):
+		continue
+	# 'Winner Group A' names nobody, so pool's knockout tail contributes no entrants —
+	# only rounds drawn from the actual field can be counted against the byes.
+	named.setdefault(r['Category'], set()).update(
+		side.strip() for side in (r['Side A'], r['Side B'])
+		if side.strip() and not re.match(r'(Winner|Runner-up|Loser)\b', side.strip()))
+for b in byes:
+	if b['Category'] not in named:
+		bad.append('bye for %r, a category with no knockout round' % b['Category'])
+	elif b['Player'] in named[b['Category']]:
+		bad.append('%s has a bye in %s but also plays the opening round' % (b['Player'], b['Category']))
+	elif not b['Round']:
+		bad.append('%s has a bye in %s into no named round' % (b['Player'], b['Category']))
+# the field a bye leaves behind has to be a power of two
+for category, players in named.items():
+	if not players:
+		continue  # a placeholder-only tail, e.g. pool's quarter-finals
+	sat_out = [b for b in byes if b['Category'] == category]
+	field = len(players) + len(sat_out)
+	survivors = len(players) // 2 + len(sat_out)
+	if survivors & (survivors - 1):
+		bad.append('%s: %d entrants, %d byes -> %d into the next round, not a power of two'
+			% (category, field, len(sat_out), survivors))
+
+print('%d matches across %d files, %d byes' % (len(rows), len(set(r['file'] for r in rows)), len(byes)))
 for day in HOURS:
 	n = [r for r in rows if r['Day'] == day]
 	if n:

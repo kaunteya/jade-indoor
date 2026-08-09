@@ -110,6 +110,14 @@ def seeded(field):
 ROUND_NAME = {2: 'Final', 4: 'Semi-final', 8: 'Quarter-final'}
 
 
+def round_after(round_name):
+	"""The round a bye carries somebody into: the one the opening round feeds."""
+	if round_name in ('Quarter-final', 'Semi-final'):
+		return 'Semi-final' if round_name == 'Quarter-final' else 'Final'
+	size = re.match(r'Round of (\d+)$', round_name or '')
+	return ROUND_NAME.get(int(size.group(1)) // 2, 'Round of %d' % (int(size.group(1)) // 2)) if size else ''
+
+
 def knockout(field):
 	"""The opening round: the play-in that leaves a power-of-two field."""
 	field = seeded(field)
@@ -244,6 +252,8 @@ CATEGORIES = [
 
 POOL_GROUPS = [6, 6, 6, 4]
 
+BYES_FILE = 'byes.csv'
+
 VENUES = {
 	'Badminton': ['Court 1', 'Court 2'],
 	'Table Tennis': ['Table 1'],
@@ -258,6 +268,7 @@ SLOT = {'Badminton': 30, 'Table Tennis': 15, 'Chess': 50, 'Carrom': 50, '8-ball 
 GAP = 5
 
 matches = []
+byes = []
 report = []
 for file, prefix, columns, partner_column, category, sport, form in CATEGORIES:
 	field = pairs(columns, partner_column) if partner_column else entrants(columns)
@@ -298,8 +309,11 @@ for file, prefix, columns, partner_column, category, sport, form in CATEGORIES:
 		for i, (a, b) in enumerate(games, 1):
 			add(round_name, '%s%02d' % (prefix, i), a['label'], b['label'],
 				a['people'] | b['people'], (a['age'], b['age']))
-		byes = len(field) - 2 * len(games)
-		summary = round_name + (', %d byes' % byes if byes else '')
+		playing = {id(side) for pair in games for side in pair}
+		sat_out = [e for e in field if id(e) not in playing]
+		for entry in sat_out:
+			byes.append((category, round_after(round_name), entry['label']))
+		summary = round_name + (', %d byes' % len(sat_out) if sat_out else '')
 	report.append('%-32s %2d entries -> %2d matches (%s)'
 		% (file, len(field), len([m for m in matches if m['file'] == file]), summary))
 
@@ -432,7 +446,16 @@ for file, _, _, _, _, _, _ in CATEGORIES:
 			writer.writerow([m['day'], hhmm(m['start']), hhmm(m['end']), m['venue'],
 				m['category'], m['round'], m['id'], m['a'], m['b']])
 
+# Byes are not matches — no time, no court — so they get their own file rather than rows
+# the schedule would have to filter out of every listing.
+with open(os.path.join(OUT, BYES_FILE), 'w', newline='') as handle:
+	writer = csv.writer(handle)
+	writer.writerow(['Category', 'Round', 'Player'])
+	for row in sorted(byes, key=lambda b: (b[0], b[2].lower())):
+		writer.writerow(row)
+
 print('\n'.join(report))
+print('%d byes' % len(byes))
 print('\n%d matches' % len(matches))
 for day, _, _ in DAYS:
 	count = len([m for m in matches if m['day'] == day])

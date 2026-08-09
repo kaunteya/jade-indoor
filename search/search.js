@@ -21,6 +21,7 @@ const personPanel = document.getElementById('person');
 let people = [];      // [{ name, house, age, gender, sortKey, haystack, entries: [...] }]
 let matches = [];     // whatever the current query narrowed people down to
 let activeIndex = -1; // highlighted suggestion, -1 when nothing is highlighted
+let byes = [];       // byes.csv: who sits out the opening round, and into which round
 let draws = null;     // every row of schedules/data/*.csv, or null while they are still loading
 let shownPerson = null;
 
@@ -182,35 +183,24 @@ function fixturesFor(person) {
 		.sort((a, b) => dayKey(a.Day) - dayKey(b.Day) || timeKey(a.Start) - timeKey(b.Start));
 }
 
-// Categories whose opening round is drawn but does not name this person: they were seeded
-// high enough to sit it out. Saying so matters — 40 of the 176 entrants hold a bye, and an
-// empty fixture list otherwise reads as the page having lost them.
+// The byes this person holds, straight out of byes.csv — the same rows the schedule page
+// lists, so the two cannot disagree. Saying so matters: 40 of the 176 entrants sit out the
+// opening round, and an empty fixture list otherwise reads as the page having lost them.
 function byesFor(person) {
-	if (!draws) return [];
 	const label = playerLabel(person);
-	return person.entries.map(entry => {
-		const drawn = draws.filter(match => match.Category === DRAW_CATEGORY[entry.game.id]);
-		if (!drawn.length) return null;  // nothing drawn for the category at all
-		if (drawn.some(match => sideHas(match['Side A'], label) || sideHas(match['Side B'], label))) return null;
-		const rounds = [...new Set(drawn.map(match => match.Round))];
-		// A group stage seats everybody, so somebody missing from one is not on a bye —
-		// far more likely their partner entered the team under a name we could not match.
-		if (rounds.some(round => /^Group\b/.test(round))) return null;
-		return { game: entry.game, round: roundAfter(rounds[0]) };
-	}).filter(Boolean);
+	return byes.filter(bye => sideHas(bye.Player, label));
 }
 
-function renderByes(byes) {
-	if (!byes.length) return '';
+function renderByes(held) {
+	if (!held.length) return '';
 	return `
 		<div class="byes">
-			${byes.map(bye => `
+			${held.map(bye => `
 				<p class="bye">
 					<span class="bye-badge">Bye</span>
 					<span class="bye-text">
-						<b>${escapeHtml(bye.game.game)}</b>${categoryLabel(bye.game)
-							? ' ' + escapeHtml(categoryLabel(bye.game)) : ''}
-						— straight through to the ${escapeHtml(bye.round || 'next round')}, which is not drawn yet.
+						<b>${escapeHtml(bye.sport)}</b>${bye.category ? ' ' + escapeHtml(bye.category) : ''}
+						— straight through to the ${escapeHtml(bye.Round || 'next round')}, which is not drawn yet.
 					</span>
 				</p>
 			`).join('')}
@@ -226,10 +216,10 @@ function renderFixtures(person) {
 		return;
 	}
 	const fixtures = fixturesFor(person);
-	const byes = renderByes(byesFor(person));
+	const byesHtml = renderByes(byesFor(person));
 	if (!fixtures.length) {
 		host.innerHTML = '<h3 class="sport-name">Match schedule</h3>'
-			+ (byes || '<p class="empty">No slots assigned yet.</p>');
+			+ (byesHtml || '<p class="empty">No slots assigned yet.</p>');
 		return;
 	}
 	const days = [...new Set(fixtures.map(fixture => fixture.Day))];
@@ -265,7 +255,7 @@ function renderFixtures(person) {
 				}).join('')}
 			</div>
 		`).join('')}
-		${byes}
+		${byesHtml}
 	`;
 }
 
@@ -402,10 +392,10 @@ clearButton.addEventListener('click', () => {
 
 // The draws are static files, so they load in parallel with the entrant list rather than
 // waiting for a selection. If someone is already on screen when they arrive, repaint.
-loadDraws('../schedules/data/')
-	.then(({ matches: loaded }) => { draws = loaded; })
-	.catch(() => { draws = []; })
-	.then(() => { if (shownPerson) renderFixtures(shownPerson); });
+Promise.all([
+	loadDraws('../schedules/data/').then(({ matches: loaded }) => { draws = loaded; }, () => { draws = []; }),
+	loadByes('../schedules/data/').then(loaded => { byes = loaded; }),
+]).then(() => { if (shownPerson) renderFixtures(shownPerson); });
 
 // ?key= on this page is passed through to doGet, for when LIST_KEY is set in Code.gs.
 const key = new URLSearchParams(location.search).get('key');
