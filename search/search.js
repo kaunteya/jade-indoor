@@ -199,6 +199,9 @@ function renderFixtures(person) {
 					// same shape as a card on the schedule page: round on the left, sport and
 					// format stacked on the right, then who they play, then court and category
 					const { type, rest } = splitCategory(fixture.category);
+					// pool prints neither: one table, and its category is just 'Singles'
+					const court = solo.has(fixture.sport) ? '' : `<span class="court">${escapeHtml(fixture.Court)}</span>`;
+					const category = rest ? `<span class="category">${escapeHtml(rest)}</span>` : '';
 					return `
 					<div class="fixture">
 						<span class="fixture-time">${escapeHtml(fixture.Start)}<small>${escapeHtml(fixture.End)}</small></span>
@@ -211,10 +214,7 @@ function renderFixtures(person) {
 								</span>
 							</div>
 							<p class="fixture-versus">v ${escapeHtml(fixture.opponent)}</p>
-							<p class="fixture-foot">
-								${solo.has(fixture.sport) ? '' : `<span class="court">${escapeHtml(fixture.Court)}</span>`}
-								${rest ? `<span class="category">${escapeHtml(rest)}</span>` : ''}
-							</p>
+							${court || category ? `<p class="fixture-foot">${court}${category}</p>` : ''}
 						</div>
 					</div>
 				`;

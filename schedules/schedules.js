@@ -64,6 +64,9 @@ function renderMatches() {
 				<h2>${escapeHtml(day)}</h2>
 				${rows.map(match => {
 					const format = splitCategory(match.category);
+					// pool prints neither: one table, and its category is just 'Singles'
+					const court = solo.has(match.sport) ? '' : `<span class="court">${escapeHtml(match.Court)}</span>`;
+					const category = format.rest ? `<span class="category">${escapeHtml(format.rest)}</span>` : '';
 					return `
 						<article class="match">
 							<div class="when">
@@ -83,10 +86,7 @@ function renderMatches() {
 									<span class="vs">v</span>
 									<span class="side">${formatSide(match['Side B'])}</span>
 								</p>
-								<p class="foot">
-									${solo.has(match.sport) ? '' : `<span class="court">${escapeHtml(match.Court)}</span>`}
-									${format.rest ? `<span class="category">${escapeHtml(format.rest)}</span>` : ''}
-								</p>
+								${court || category ? `<p class="foot">${court}${category}</p>` : ''}
 							</div>
 						</article>
 					`;
