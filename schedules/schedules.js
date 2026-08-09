@@ -27,10 +27,18 @@ function chip(value, label, count, selected) {
 	return `<button type="button" class="chip" data-value="${escapeHtml(value)}" aria-pressed="${value === selected}">${escapeHtml(label)} <b>(${count})</b></button>`;
 }
 
+// 'Fri 14 Aug' -> '14 Aug'. The chip is short and sits next to a count, so the weekday is
+// noise there; the day headings below still carry it. Anything not in that shape is left
+// alone, since the chip has to keep matching the Day value it filters on.
+function chipDay(day) {
+	const parts = /^[A-Za-z]{3,}\s+(\d{1,2}\s+[A-Za-z]{3,}.*)$/.exec(day || '');
+	return parts ? parts[1] : day;
+}
+
 function renderChips() {
 	const days = [...new Set(matches.map(match => match.Day))].sort((a, b) => dayKey(a) - dayKey(b));
 	dayList.innerHTML = days
-		.map(day => chip(day, day, matchesFor(day, selectedSport).length, selectedDay)).join('');
+		.map(day => chip(day, chipDay(day), matchesFor(day, selectedSport).length, selectedDay)).join('');
 
 	// GAMES order first, then anything a CSV names that GAMES doesn't
 	const present = [...new Set(matches.map(match => match.sport).filter(Boolean))];
