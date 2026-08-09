@@ -4,3 +4,4 @@ Automator.workflow/
 *.csv
 # the draws are the published schedule — names and flats only, no contact details
 !schedule/*.csv
+!schedules/data/*.csv

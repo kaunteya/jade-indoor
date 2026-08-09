@@ -1,4 +1,4 @@
-// Renders the draws in ../schedule/*.csv as one time-ordered schedule, filterable by day
+// Renders the draws in data/*.csv as one time-ordered schedule, filterable by day
 // and sport. Everything on screen comes out of the CSVs themselves — the Category column
 // carries 'Sport — Category', so the sport chips need no separate mapping. games.js is
 // loaded only to order the sport chips the way the rest of the site orders them; the file
@@ -151,7 +151,7 @@ function escapeHtml(value) {
 		render();
 	}));
 
-loadDraws('../schedule/').then(({ matches: loaded, failed }) => {
+loadDraws('data/').then(({ matches: loaded, failed }) => {
 	matches = loaded;
 	if (!matches.length) {
 		status.textContent = 'No matches scheduled yet.';

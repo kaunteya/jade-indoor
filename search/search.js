@@ -21,7 +21,7 @@ const personPanel = document.getElementById('person');
 let people = [];      // [{ name, house, age, gender, sortKey, haystack, entries: [...] }]
 let matches = [];     // whatever the current query narrowed people down to
 let activeIndex = -1; // highlighted suggestion, -1 when nothing is highlighted
-let draws = null;     // every row of schedule/*.csv, or null while they are still loading
+let draws = null;     // every row of schedules/data/*.csv, or null while they are still loading
 let shownPerson = null;
 
 // Mirrors list/list.js: Apps Script answers a GET with a redirect that doesn't always keep
@@ -363,7 +363,7 @@ clearButton.addEventListener('click', () => {
 
 // The draws are static files, so they load in parallel with the entrant list rather than
 // waiting for a selection. If someone is already on screen when they arrive, repaint.
-loadDraws('../schedule/')
+loadDraws('../schedules/data/')
 	.then(({ matches: loaded }) => { draws = loaded; })
 	.catch(() => { draws = []; })
 	.then(() => { if (shownPerson) renderFixtures(shownPerson); });

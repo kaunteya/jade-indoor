@@ -1,8 +1,8 @@
-// The draws in schedule/*.csv, shared by schedules/ (the whole timetable) and search/ (one
+// The draws in schedules/data/*.csv, shared by schedules/ (the whole timetable) and search/ (one
 // participant's own slots). Not loaded by the registration form, which has no use for it.
 //
 // A static page can't list a directory, so the files are named here. Adding a draw to
-// schedule/ means adding its filename to this array — the same hand-sync the sheet columns
+// schedules/data/ means adding its filename to this array — the same hand-sync the sheet columns
 // in Code.gs need.
 const SCHEDULE_FILES = [
 	'badminton-singles-u14-male.csv',
