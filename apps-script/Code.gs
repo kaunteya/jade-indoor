@@ -22,9 +22,14 @@ function screenshotFolder() {
 	const it = DriveApp.getFoldersByName(SCREENSHOT_FOLDER);
 	return it.hasNext() ? it.next() : DriveApp.createFolder(SCREENSHOT_FOLDER);
 }
-// one checkbox field per game/category entry in app.js's GAMES array, in column order
+// One column per game/category entry, in the sheet's own column order — this list has to
+// match the sheet, not games.js. The sheet predates the merge of the two U14 badminton
+// doubles categories into one open category and still carries a column per gender, so
+// GAME_ID_FOR folds that pair onto the single id games.js now uses. Collapse the two
+// columns in the sheet and both entries here can become one.
 const GAME_FIELDS = [
-	'badminton_singles_u14_male', 'badminton_singles_u14_female', 'badminton_doubles_u14',
+	'badminton_singles_u14_male', 'badminton_singles_u14_female',
+	'badminton_doubles_u14_male', 'badminton_doubles_u14_female',
 	'badminton_singles_14_60_male', 'badminton_singles_14_60_female', 'badminton_doubles_14_60_male', 'badminton_doubles_14_60_female',
 	'badminton_doubles_60plus', 'badminton_partner',
 	'tt_singles_u14_male', 'tt_singles_u14_female', 'tt_doubles_u14',
@@ -33,6 +38,16 @@ const GAME_FIELDS = [
 	'chess',
 	'pool_singles',
 ];
+
+// sheet column -> the games.js id it belongs to; anything absent maps to itself
+const GAME_ID_FOR = {
+	badminton_doubles_u14_male: 'badminton_doubles_u14',
+	badminton_doubles_u14_female: 'badminton_doubles_u14',
+};
+
+function gameId(field) {
+	return GAME_ID_FOR[field] || field;
+}
 
 function doPost(e) {
 	const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
@@ -44,7 +59,12 @@ function doPost(e) {
 	// doubles partner's name (app.js keys the input by sport prefix); a person only enters one doubles
 	// category per sport, so one column per sport suffices.
 	GAME_FIELDS.forEach(field => {
-		row.push(field.endsWith('_partner') ? (e.parameter[field] || '') : Number(e.parameter[field] || 0));
+		if (field.endsWith('_partner')) { row.push(e.parameter[field] || ''); return; }
+		const id = gameId(field);
+		// where two sheet columns share one form checkbox (U14 doubles), the entry lands in
+		// the column matching the entrant's gender and the other stays 0
+		const split = id !== field && !field.endsWith('_' + String(e.parameter.gender || '').toLowerCase());
+		row.push(split ? 0 : Number(e.parameter[id] || 0));
 	});
 	row.push(Number(e.parameter.total_amount || 0)); // total ₹ paid, summed client-side (app.js)
 	const col = row.length + 1; // 1-based; the next pushed cell is the screenshot link column
@@ -94,10 +114,12 @@ function doGet(e) {
 		: ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
 }
 
-// { games: { <game id>: [ { name, house, age, level, partner } ] } }, keyed by the same
-// ids as GAME_FIELDS / app.js's GAMES array. Games nobody entered come back as []. Phone
-// numbers are deliberately left out: the list page doesn't show them, and anything sent
-// would be readable by anyone with the page open.
+// { games: { <game id>: [ { name, house, age, gender, level, partner } ] } }, keyed by the
+// same ids as GAME_FIELDS / app.js's GAMES array. Games nobody entered come back as [].
+// Phone numbers and dates of birth are deliberately left out: no page shows them, and
+// anything sent would be readable by anyone with the page open. gender is included for
+// search/, which shows a participant's own details back to them; search/ treats it as
+// optional, so an older deployment of this file leaves that one row out rather than break.
 function listEntrants() {
 	const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
 	const values = sheet.getDataRange().getDisplayValues();
@@ -112,7 +134,7 @@ function listEntrants() {
 	const gamesStart = FIELDS.length + 1; // + 1 for the registration-date column doPost pushes
 
 	const games = {};
-	GAME_FIELDS.forEach(field => { if (!field.endsWith('_partner')) games[field] = []; });
+	GAME_FIELDS.forEach(field => { if (!field.endsWith('_partner')) games[gameId(field)] = []; });
 
 	for (let r = firstDataRow; r < values.length; r++) {
 		const row = values[r];
@@ -123,10 +145,11 @@ function listEntrants() {
 			if (field.endsWith('_partner') || !level) return;
 			// One partner column per sport (see the doPost note), keyed by the id's sport prefix.
 			const partnerAt = GAME_FIELDS.indexOf(field.split('_')[0] + '_partner');
-			games[field].push({
+			games[gameId(field)].push({
 				name: name,
 				house: String(row[at.tower]).trim() + '-' + String(row[at.house_number]).trim(),
 				age: String(row[at.age]).trim(),
+				gender: String(row[at.gender]).trim(),
 				level: level,
 				partner: partnerAt === -1 ? '' : String(row[gamesStart + partnerAt]).trim(),
 			});
