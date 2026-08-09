@@ -68,6 +68,17 @@ h1 {
 	border-radius: 0.5rem;
 	background: #fff;
 	color: #10314c;
+	/* it's type="search", so WebKit would otherwise draw its own rounded field */
+	-webkit-appearance: none;
+	appearance: none;
+}
+/* and its own clear button and results chrome — this page has a clear button of its own */
+#query::-webkit-search-decoration,
+#query::-webkit-search-cancel-button,
+#query::-webkit-search-results-button,
+#query::-webkit-search-results-decoration {
+	-webkit-appearance: none;
+	display: none;
 }
 #query:focus-visible {
 	outline: 2px solid #0b6bcb;

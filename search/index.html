@@ -17,16 +17,24 @@
 	     option with aria-activedescendant, so focus never leaves the input while arrowing
 	     through suggestions. -->
 	<div class="search-box">
-		<label class="search-label" for="query">Participant name</label>
+		<!-- Wording matters here: Safari's Contacts AutoFill reads the label and placeholder
+		     as well as the field itself, and the word "name" in either is enough to trigger
+		     it. Keep both free of it. -->
+		<label class="search-label" for="query">Find a participant</label>
 		<div class="search-field">
+			<!-- type="search" and name="q" — the canonical search-box shape — so Safari
+			     doesn't classify this as a person-name field and offer AutoFill from
+			     Contacts; it ignores autocomplete="off" for those. Suggestions are ours. -->
 			<input
 				id="query"
-				type="text"
+				name="q"
+				type="search"
 				role="combobox"
 				autocomplete="off"
-				autocapitalize="words"
+				autocorrect="off"
+				autocapitalize="none"
 				spellcheck="false"
-				placeholder="Start typing a name…"
+				placeholder="Start typing…"
 				aria-expanded="false"
 				aria-controls="suggestions"
 				aria-autocomplete="list"
