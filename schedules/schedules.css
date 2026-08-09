@@ -101,6 +101,12 @@ h1 {
 	font-weight: 600;
 	margin: 1.25rem 0 0.5rem;
 }
+/* stands in for the match list until both chips are set */
+.prompt {
+	margin: 1.5rem 0;
+	text-align: center;
+	color: #4a5c6d;
+}
 
 .day h2 {
 	position: sticky;
@@ -115,30 +121,38 @@ h1 {
 	background: #10314c;
 	border-radius: 0.5rem;
 }
+/* One card is read in a fixed order: when, who, then the small print. Each of those three
+   sits at a different weight and colour so the eye can stop after the part it came for —
+   the two names are the only near-black text on the card. */
 .match {
 	display: flex;
-	gap: 0.75rem;
+	gap: 0.875rem;
 	background: #fff;
 	border-radius: 0.75rem;
-	padding: 0.75rem;
+	padding: 0.875rem;
 	margin-bottom: 0.5rem;
+	box-shadow: 0 1px 2px rgb(16 49 76 / 0.06);
 }
 .when {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	justify-content: center;
 	/* fixed so every card's text starts on the same line, however long the time is */
-	flex: 0 0 3.75rem;
-	padding-right: 0.75rem;
-	border-right: 1px solid #e3e9ef;
+	flex: 0 0 3.5rem;
+	padding-right: 0.875rem;
+	border-right: 1px solid #e8edf2;
 	font-variant-numeric: tabular-nums;
+	line-height: 1.2;
 }
 .start {
+	font-size: 1.0625rem;
 	font-weight: 700;
+	color: #10314c;
 }
 .end {
-	font-size: 0.8rem;
-	color: #7b8a99;
+	font-size: 0.75rem;
+	color: #93a1ae;
 }
 .what {
 	min-width: 0;
@@ -147,31 +161,135 @@ h1 {
 .what p {
 	margin: 0;
 }
-.meta {
+
+/* round on the left, sport pinned to the top right */
+.head {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 0.5rem;
+}
+.round {
+	font-size: 0.6875rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #6b7c8c;
+	padding: 0.15rem 0;
+}
+/* the closing rounds carry their own tint, so a Final is findable while scrolling */
+.round.is-final,
+.round.is-semi,
+.round.is-quarter {
+	padding: 0.15rem 0.4rem;
+	border-radius: 0.25rem;
+}
+.round.is-final {
+	color: #8a5a00;
+	background: #fdf0cf;
+}
+.round.is-semi {
+	color: #2b4c9b;
+	background: #e4ebfb;
+}
+.round.is-quarter {
+	color: #4a5c6d;
+	background: #eef2f6;
+}
+/* sport and its format stack in the top-right corner, right-aligned against the card edge */
+.tag {
+	display: flex;
+	flex: 0 0 auto;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 0.2rem;
+}
+.type {
+	font-size: 0.6875rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #6b7c8c;
+}
+.sport-badge {
+	flex: 0 0 auto;
+	font-size: 0.6875rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #fff;
+	background: #10314c;
+	padding: 0.2rem 0.5rem;
+	border-radius: 0.25rem;
+	white-space: nowrap;
+}
+
+/* the two sides stack rather than run inline: at phone width a pair of doubles names
+   wrapped around a mid-line 'v' was impossible to tell apart */
+.sides {
+	display: grid;
+	gap: 0.15rem;
+	margin: 0.4rem 0 0.45rem;
+	/* long doubles pairings must wrap inside the card rather than widen the page */
+	overflow-wrap: anywhere;
+}
+.side {
+	font-weight: 600;
+	color: #10314c;
+	line-height: 1.35;
+}
+/* 'v' as a hairline rule, so the split between the sides is visible without reading.
+   Capped, or on a wide screen the rule runs the width of the card and stops reading as
+   part of the pairing above it. */
+.vs {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	max-width: 26rem;
+	font-size: 0.6875rem;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: #a7b3bf;
+}
+.vs::before,
+.vs::after {
+	content: '';
+	flex: 1;
+	height: 1px;
+	background: #eef2f6;
+}
+/* the flat and the partner slash are punctuation around the names, not part of them */
+.flat {
+	font-weight: 500;
+	color: #7b8a99;
+}
+.sep {
+	color: #c2ccd6;
+}
+/* 'Winner BDAM03' is a slot nobody has filled yet — it should not read like a name */
+.pending {
+	font-weight: 500;
+	font-style: italic;
+	color: #8a97a4;
+}
+
+.foot {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.4rem;
 	font-size: 0.75rem;
-	text-transform: uppercase;
-	letter-spacing: 0.03em;
-	color: #4a5c6d;
+	color: #7b8a99;
 }
 .court {
-	color: #7b8a99;
-}
-.sides {
-	margin: 0.15rem 0 0.2rem;
-	/* long doubles pairings must wrap inside the card rather than widen the page */
-	overflow-wrap: anywhere;
-}
-.vs {
-	color: #7b8a99;
-	font-size: 0.85rem;
-	margin: 0 0.3rem;
-}
-.category {
-	font-size: 0.8rem;
+	font-weight: 600;
 	color: #4a5c6d;
+}
+/* only a dot *between* the two, so a card missing either one has no dangling separator
+   (Chess carries no category, and a one-venue sport prints no court) */
+.court + .category::before {
+	content: '·';
+	margin-right: 0.4rem;
+	color: #c2ccd6;
 }
 
 .back {
