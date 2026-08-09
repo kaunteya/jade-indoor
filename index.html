@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>Pavilion Sports League</title>
 	<link rel="icon" href="images/logo.png" />
-	<link rel="stylesheet" href="home.css" />
+	<link rel="stylesheet" href="home.css?v=2" />
 </head>
 <body>
 	<header>
@@ -13,14 +13,7 @@
 		<img class="subtitle" src="images/psl-subtitle.png" alt="" />
 	</header>
 
-	<!-- Inert cards are plain <span>s, so nothing is clickable that shouldn't be: Registration
-	     because entries have closed (registration/ is still there, just unlinked). Swap a
-	     <span> back to an <a href> to re-enable one. -->
 	<nav class="home-nav">
-		<span class="home-card is-disabled" aria-disabled="true">
-			<span class="home-card-title"><span class="home-card-icon" aria-hidden="true">📝</span>Registration</span>
-			<span class="home-card-note">Registrations closed</span>
-		</span>
 		<a class="home-card" href="list/">
 			<span class="home-card-title"><span class="home-card-icon" aria-hidden="true">👥</span>Participants list</span>
 			<span class="home-card-note">Who has entered, by sport and category</span>
@@ -35,6 +28,7 @@
 		</a>
 	</nav>
 
-	<p class="credit">Made by Kaunteya Suryawanshi. C-163</p>
+	<!-- registration/ is still deployed, just unlinked — entries have closed -->
+	<p class="closed-note">Registrations closed</p>
 </body>
 </html>
