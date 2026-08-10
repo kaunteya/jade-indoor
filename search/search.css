@@ -314,6 +314,35 @@ h1 {
 	justify-content: space-between;
 	gap: 0.5rem;
 }
+/* The match code, ahead of the round and in the same chip the schedule page uses, so a
+   fixture reading 'v Winner BSAM17' can be traced to the BSAM17 card over there. */
+.which {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	flex-wrap: wrap;
+	min-width: 0;
+}
+.code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: 0.6875rem;
+	font-weight: 700;
+	color: #4a5c6d;
+	background: #eef2f6;
+	padding: 0.15rem 0.35rem;
+	border-radius: 0.25rem;
+	white-space: nowrap;
+}
+.pending {
+	font-weight: 500;
+	font-style: italic;
+	color: #8a97a4;
+}
+.pending .code {
+	font-style: normal;
+	color: #5b6b7a;
+	background: #f1f4f7;
+}
 .round {
 	font-size: 0.6875rem;
 	font-weight: 700;

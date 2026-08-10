@@ -83,7 +83,10 @@ function renderMatches() {
 							</div>
 							<div class="what">
 								<div class="head">
-									<span class="${roundClass(match.Round)}">${escapeHtml(match.Round)}</span>
+									<span class="which">
+										<span class="code">${escapeHtml(match.Match)}</span>
+										<span class="${roundClass(match.Round)}">${escapeHtml(match.Round)}</span>
+									</span>
 									<span class="tag">
 										<span class="sport-badge">${escapeHtml(match.sport)}</span>
 										${format.type ? `<span class="type">${escapeHtml(format.type)}</span>` : ''}
@@ -130,8 +133,13 @@ function roundClass(round) {
 // placeholder for whoever gets there ('Winner BDAM03'). Escape first, then decorate the
 // escaped string — the flat, the partner slash and the placeholder each step back from the
 // names, which are the only part worth reading at a glance.
+//
+// What a placeholder points at gets the same chip the match cards wear, so 'Winner BDAM03'
+// and the BDAM03 card read as the same thing and can be paired up by eye while scrolling.
 function formatSide(value) {
 	const text = escapeHtml(value);
+	const pending = /^(winner|runner-up|loser)\s+(.+)$/i.exec(text);
+	if (pending) return `<span class="pending">${pending[1]} <span class="code">${pending[2]}</span></span>`;
 	if (/^(winner|runner-up|loser)\b/i.test(text)) return `<span class="pending">${text}</span>`;
 	return text
 		.replace(/\(([^()]*)\)/g, '<span class="flat">($1)</span>')

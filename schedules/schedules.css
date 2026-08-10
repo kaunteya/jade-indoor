@@ -196,6 +196,33 @@ h1 {
 	color: #4a5c6d;
 	background: #eef2f6;
 }
+/* The match code sits ahead of the round, down the left edge of every card, because that is
+   the column you scan when a later tie says 'Winner BSAM17' and you want to know what BSAM17
+   is. Monospace so the codes line up as a column rather than a ragged run of words. */
+.which {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	flex-wrap: wrap;
+	min-width: 0;
+}
+.code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: 0.6875rem;
+	font-weight: 700;
+	color: #4a5c6d;
+	background: #eef2f6;
+	padding: 0.15rem 0.35rem;
+	border-radius: 0.25rem;
+	white-space: nowrap;
+}
+/* the same chip inside a placeholder, which is otherwise set in grey italic */
+.pending .code {
+	font-style: normal;
+	color: #5b6b7a;
+	background: #f1f4f7;
+}
+
 /* sport and its format stack in the top-right corner, right-aligned against the card edge */
 .tag {
 	display: flex;

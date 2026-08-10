@@ -223,6 +223,17 @@ function renderByes(held, fixtures) {
 	`;
 }
 
+// An opponent is either a real name or a placeholder for whoever gets there — 'Winner
+// BSAM17'. The match it points at gets the same chip every fixture card wears, so it can be
+// looked up against the schedule page rather than read as an opaque string.
+function formatOpponent(value) {
+	const text = escapeHtml(value);
+	const pending = /^(winner|runner-up|loser)\s+(.+)$/i.exec(text);
+	return pending
+		? `<span class="pending">${pending[1]} <span class="code">${pending[2]}</span></span>`
+		: text;
+}
+
 function renderFixtures(person) {
 	const host = document.getElementById('fixtures');
 	if (!host) return;
@@ -256,13 +267,16 @@ function renderFixtures(person) {
 						<span class="fixture-time">${escapeHtml(fixture.Start)}<small>${escapeHtml(fixture.End)}</small></span>
 						<div class="fixture-body">
 							<div class="fixture-head">
-								<span class="round">${escapeHtml(fixture.Round)}</span>
+								<span class="which">
+									<span class="code">${escapeHtml(fixture.Match)}</span>
+									<span class="round">${escapeHtml(fixture.Round)}</span>
+								</span>
 								<span class="tag">
 									<span class="sport-badge">${escapeHtml(fixture.sport)}</span>
 									${type ? `<span class="type">${escapeHtml(type)}</span>` : ''}
 								</span>
 							</div>
-							<p class="fixture-versus">v ${escapeHtml(fixture.opponent)}</p>
+							<p class="fixture-versus">v ${formatOpponent(fixture.opponent)}</p>
 							${court || category ? `<p class="fixture-foot">${court}${category}</p>` : ''}
 						</div>
 					</div>
