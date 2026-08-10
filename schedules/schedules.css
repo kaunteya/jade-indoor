@@ -308,6 +308,7 @@ h1 {
 .foot {
 	display: flex;
 	flex-wrap: wrap;
+	align-items: center;
 	gap: 0.4rem;
 	font-size: 0.75rem;
 	color: #7b8a99;
@@ -316,10 +317,14 @@ h1 {
 	font-weight: 600;
 	color: #4a5c6d;
 }
-/* only a dot *between* the two, so a card missing either one has no dangling separator
-   (Chess carries no category, and a one-venue sport prints no court) */
-.court + .category::before {
-	content: '·';
-	margin-right: 0.4rem;
-	color: #c2ccd6;
+/* The age band and gender ('Under 14 · Female') is what tells two otherwise identical cards
+   apart, so it is a chip rather than a grey tail to the court — the one thing in the foot
+   worth spotting without reading. Its own tint, so it isn't mistaken for the match code. */
+.category {
+	font-weight: 700;
+	color: #1c4a72;
+	background: #e6eff7;
+	border: 1px solid #d2e2ef;
+	padding: 0.15rem 0.45rem;
+	border-radius: 0.25rem;
 }
