@@ -1,0 +1,41 @@
+{
+	"permissions": {
+		"allow": [
+			"Bash(awk *)",
+			"Bash(basename *)",
+			"Bash(cat *)",
+			"Bash(cp *)",
+			"Bash(cut *)",
+			"Bash(date *)",
+			"Bash(diff *)",
+			"Bash(dirname *)",
+			"Bash(echo *)",
+			"Bash(file *)",
+			"Bash(grep *)",
+			"Bash(head *)",
+			"Bash(jq *)",
+			"Bash(ls *)",
+			"Bash(lsof *)",
+			"Bash(mkdir *)",
+			"Bash(mv *)",
+			"Bash(node *)",
+			"Bash(open *)",
+			"Bash(ps *)",
+			"Bash(python3 *)",
+			"Bash(rg *)",
+			"Bash(sed *)",
+			"Bash(sort *)",
+			"Bash(stat *)",
+			"Bash(tail *)",
+			"Bash(touch *)",
+			"Bash(tr *)",
+			"Bash(uniq *)",
+			"Bash(wc *)",
+			"Bash(which *)",
+			"Bash(shasum *)",
+			"Bash(ipconfig getifaddr *)",
+			"Bash(curl -s http://127.0.0.1:*)",
+			"Bash(curl -s http://localhost:*)"
+		]
+	}
+}
