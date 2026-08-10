@@ -379,10 +379,11 @@ for file, prefix, columns, partner_column, category, sport, form in CATEGORIES:
 
 # --------------------------------------------------------------- the calendar
 DAYS = [
-	('Fri 14 Aug', 19 * 60, 22 * 60),
-	('Sat 15 Aug', 12 * 60, 22 * 60),
-	('Sun 16 Aug', 9 * 60, 21 * 60),  # kept clear for the later rounds
+	('Fri 14 Aug', 19 * 60, 23 * 60),
+	('Sat 15 Aug', 12 * 60, 23 * 60),
+	('Sun 16 Aug', 9 * 60, 21 * 60),  # everything has to be over by 9pm
 ]
+DAY_ORDER = {name: i for i, (name, _, _) in enumerate(DAYS)}
 U14_CUTOFF = 20 * 60
 
 # Entrants who have told us they cannot make part of a day. Unlike the turnaround between
@@ -430,17 +431,18 @@ def feeders(match):
 	return out
 
 
-def not_before(match):
-	"""The earliest this match could start: every feeder over, with a turnaround.
+def ready_on(match, day):
+	"""The earliest this match could start on `day`: every feeder over, with a turnaround.
 
-	None if a feeder has no slot at all — a round that did not fit cannot be waited on, so
-	everything behind it is out too rather than being drawn against a match that never runs.
+	None if the day is too early for it — a feeder still to be played that day or later, or one
+	with no slot at all, since a round that did not fit cannot be waited on and everything
+	behind it is out too rather than being drawn against a match that never runs.
 	"""
 	when = 0
 	for feeder in feeders(match):
-		if 'end' not in feeder:
+		if 'day' not in feeder or DAY_ORDER[feeder['day']] > DAY_ORDER[day]:
 			return None
-		if feeder['day'] == SUNDAY:
+		if feeder['day'] == day:
 			when = max(when, feeder['end'] + max(match['gap'], feeder['gap']))
 	return when
 
@@ -487,18 +489,18 @@ def fits(match, day, start):
 	return None
 
 
-def step(match):
+def step(match, day):
 	"""How finely a match may be slid along the day.
 
-	Five minutes reads better on a timetable and is what Fri and Sat are laid out on. Sunday
-	holds every round after the first, and there the rounding is not affordable: on one table
-	it strands a couple of minutes per match, which by the evening is a whole tie's worth.
+	Five minutes reads better on a timetable and is what Fri and Sat are laid out on — they
+	have room to spare. Sunday does not: on one table the rounding strands a couple of minutes
+	per match, which by the evening is a whole tie's worth.
 	"""
-	return 5 if not match['depth'] else 1
+	return 1 if day == SUNDAY and match['depth'] else 5
 
 
-def window(match, open_at, close_at):
-	ready = not_before(match)
+def window(match, day, open_at, close_at):
+	ready = ready_on(match, day)
 	if ready is None:
 		return None
 	return max(open_at, ready), min(close_at, U14_CUTOFF) if match['u14'] else close_at
@@ -506,13 +508,11 @@ def window(match, open_at, close_at):
 
 def place(match, days):
 	for day, open_at, close_at in days:
-		span = window(match, open_at, close_at)
+		span = window(match, day, open_at, close_at)
 		if span is None:
-			return False
+			continue  # a feeder is still to be played that day; try a later one
 		first, latest = span
-		# Fri and Sat sit on a 5-minute grid; Sunday cannot afford the rounding, which on
-		# one table costs more than the matches it would have to drop. See `step`.
-		for start in range(first, latest - match['minutes'] + 1, step(match)):
+		for start in range(first, latest - match['minutes'] + 1, step(match, day)):
 			venue = fits(match, day, start)
 			if venue:
 				take(match, day, start, venue)
@@ -523,11 +523,11 @@ def place(match, days):
 def place_late(match, day, deadline):
 	"""As late as it will go, but finished by `deadline`. Finals want the evening."""
 	open_at, close_at = next((o, c) for name, o, c in DAYS if name == day)
-	span = window(match, open_at, min(close_at, deadline))
+	span = window(match, day, open_at, min(close_at, deadline))
 	if span is None:
 		return False
 	first, latest = span
-	for start in range(latest - match['minutes'], first - 1, -step(match)):
+	for start in range(latest - match['minutes'], first - 1, -step(match, day)):
 		venue = fits(match, day, start)
 		if venue:
 			take(match, day, start, venue)
@@ -536,16 +536,34 @@ def place_late(match, day, deadline):
 
 
 # Tightest sport first: the one-table sports have no slack, so they choose their slots
-# before badminton and chess fill the shared players' evenings. Only what Fri and Sat have
-# to hold counts — the later rounds are Sunday's problem and would otherwise reorder the
-# days they are not played on.
+# before badminton and chess fill the shared players' evenings. Only the opening round counts,
+# the one thing that has to be on Fri or Sat; weighing the later rounds in here would reorder
+# the sports over a day none of it is played on. The window is the same for every sport, so
+# only the numerator decides the order.
 def pressure(sport):
 	total = sum(m['minutes'] + m['gap'] for m in matches if m['sport'] == sport and not m['depth'])
-	return total / (len(VENUES[sport]) * (3 * 60 + 10 * 60))
+	return total / len(VENUES[sport])
 
 
 SUNDAY = DAYS[2][0]
 order = sorted(set(m['sport'] for m in matches), key=pressure, reverse=True)
+
+
+# How much of Sunday a sport's later rounds would fill if they all went there.
+def sunday_load(sport):
+	later = [m for m in matches if m['sport'] == sport and m['depth']]
+	return (sum(m['minutes'] + m['gap'] for m in later)
+		/ (len(VENUES[sport]) * (DAYS[2][2] - DAYS[2][1])))
+
+
+# A sport that would fill more than this much of Sunday spreads its later rounds back over
+# Fri and Sat, which the extended hours leave room in — badminton's courts had been idle from
+# 19:30 on Sat, chess's boards from 15:30. It works out at badminton (82% of Sunday) and table
+# tennis (88%); chess, carrom and pool are at 39%, 46% and 19% and stay put, because moving
+# them only empties the day the finals are on. Deriving it rather than naming the two sports
+# means a different entry list moves whichever sports the crowding has moved to.
+CROWDED = 0.6
+spread = {sport for sport in order if sunday_load(sport) > CROWDED}
 
 # The opening round and the group stages fill Fri and Sat.
 unplaced = []
@@ -558,19 +576,22 @@ for match in unplaced:  # Fri + Sat are full for this sport; spill onto Sunday
 	if not place(match, DAYS):
 		sys.exit('could not place ' + match['id'])
 
-# Everything after them goes on Sunday, a round at a time so that no match is placed before
-# the one it is waiting on, and from the front of the day so the rounds behind it still fit.
-# Finals are held back to the end and placed as late as they will go, which is what puts them
-# in the evening rather than wherever the first gap happened to be. Under 14 finals are not:
-# they have to be over by 8pm, so an evening slot is one they cannot take, and holding them
-# back only costs them the afternoon their semi-finals left them.
+# Everything after them, a round at a time so no match is placed before the one it is waiting
+# on. A crowded sport takes the earliest day its round can legally land on, which pulls it back
+# onto the Fri and Sat evenings; the rest stay on Sunday, where they have room.
+#
+# Finals are the exception whatever the sport: held back to the end and placed as late as they
+# will go on Sunday, so the festival closes with them rather than scattering them over three
+# evenings. Under 14 finals cannot take an evening slot at all — they have to be over by 8pm —
+# so they are placed in sequence with the rest, but still on Sunday.
 finals = [m for m in matches if m['round'] == 'Final' and m['depth'] and not m['u14']]
 short = []
 for depth in sorted({m['depth'] for m in matches if m['depth']}):
 	for sport in order:
 		mine = [m for m in matches if m['depth'] == depth and m['sport'] == sport and m not in finals]
 		for match in sorted(mine, key=lambda m: not m['u14']):  # the 8pm cap goes first
-			if not place(match, DAYS[2:]):
+			everywhere = match['sport'] in spread and match['round'] != 'Final'
+			if not place(match, DAYS if everywhere else DAYS[2:]):
 				short.append(match)
 
 for match in sorted(finals, key=lambda m: -m['minutes']):
@@ -613,7 +634,6 @@ if short:
 
 # ------------------------------------------------------------------ the files
 os.makedirs(OUT, exist_ok=True)
-DAY_ORDER = {name: i for i, (name, _, _) in enumerate(DAYS)}
 for file, _, _, _, _, _, _ in CATEGORIES:
 	mine = [m for m in matches if m['file'] == file]
 	if not mine:

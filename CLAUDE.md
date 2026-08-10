@@ -60,13 +60,16 @@ allocation work:
 | 8-ball pool | 1 table |
 
 The festival runs over three days, and these are the only hours the facilities are open —
-25 playable hours in total:
+27 playable hours in total:
 
 | Date | Slot |
 | --- | --- |
-| Fri 14 Aug 2026 | 7:00 pm – 10:00 pm (3h) |
-| Sat 15 Aug 2026 | 12:00 pm – 10:00 pm (10h) |
+| Fri 14 Aug 2026 | 7:00 pm – 11:00 pm (4h) |
+| Sat 15 Aug 2026 | 12:00 pm – 11:00 pm (11h) |
 | Sun 16 Aug 2026 | 9:00 am – 9:00 pm (12h) |
+
+Fri and Sat were 10:00 pm; they were stretched an hour each to take load off Sunday. Sunday's
+9:00 pm is hard — everything has to be over by then.
 
 ## Scheduling rules
 
@@ -78,10 +81,11 @@ Male`); the `schedules/` page splits on that dash to group by sport, so the pref
 there. These CSVs are the one exception to the `*.csv` gitignore rule — they are the
 published schedule, so they are tracked.
 
-- `schedules/data/` holds **every category drawn out to its final** — 300 matches. The
-  opening rounds and group stages fill Fri and Sat; every round after them is on Sunday,
-  which runs to 21:00 with the finals in the evening. (`schedule/`, the superseded full
-  draws, is gone from the working tree but still in git.)
+- `schedules/data/` holds **every category drawn out to its final** — 300 matches, 55 on Fri,
+  128 on Sat and 117 on Sun. The opening rounds and group stages fill Fri and Sat; the later
+  rounds are mostly Sunday, except in the sports crowded enough to spread back over the Fri
+  and Sat evenings (see the `CROWDED` rule below). Every final is on Sunday.
+  (`schedule/`, the superseded full draws, is gone from the working tree but still in git.)
 - The draw is generated, not written by hand: `scripts/draw.py` reads the sheet export
   `psl.csv`, builds the field for every category, and lays the matches out. Re-run it after a
   re-export rather than editing the CSVs, then `scripts/check_draw.py` to re-assert every
@@ -101,7 +105,7 @@ published schedule, so they are tracked.
   > *reach* a match, so the draw stayed valid whoever won. Drawing every round to the final
   > made that unachievable: a final carries its whole category as possible entrants, so two
   > finals whose fields overlap could never be concurrent, and with 16 finals in one evening
-  > the tournament does not schedule at all. Under the current draw **196 pairs of
+  > the tournament does not schedule at all. Under the current draw **187 pairs of
   > overlapping Sunday slots could want the same person**, across 76 people, if results fall
   > that way — most often two semi-finals, and Reyansh Agrawal (G-112) is in 33 of them.
   > Whoever runs the day should expect to reorder a handful of ties on the spot.
@@ -121,8 +125,9 @@ published schedule, so they are tracked.
   Badminton's 59 remaining matches want 1027 minutes of court time against the 720 two courts
   hold, and table tennis's 49 want 975 — 43% and 35% over. At the shorter lengths they need
   585 and 634. Chess and carrom have slack on six and three areas, so they keep their length
-  throughout. Table tennis is the critical path either way: 634 of Sunday's 720 minutes on one
-  table, so it starts at 10:12 and runs to 21:00 with about 14 minutes of float all day.
+  throughout. Table tennis was the critical path — all 49 of its later rounds on Sunday came to
+  634 of the day's 720 minutes on one table, about 14 minutes of float — until spreading it
+  back over Fri and Sat left 28 on Sunday and real slack.
 
   8-ball pool runs short because it has one table and the most group matches to fit on it:
   33, needing 660 of the 780 minutes Fri and Sat hold. 20 minutes would need 825 and no
@@ -160,9 +165,19 @@ published schedule, so they are tracked.
 - Draw order is the declared skill level (expert, then intermediate, then beginner, ties
   alphabetical), so the byes fall to the strongest entrants. Round-robin groups are seeded
   the same way, snaked across the groups so each gets a spread.
-- Sunday is placed a round at a time, shallowest first, so nothing is drawn before the match
-  it waits on. Fri and Sat sit on a **5-minute grid**; Sunday is placed to the minute, because
-  on one table the rounding strands more than a whole tie's worth of the day.
+- The later rounds are placed a round at a time, shallowest first, so nothing is drawn before
+  the match it waits on. Fri and Sat sit on a **5-minute grid**; Sunday is placed to the
+  minute, because on one table the rounding strands more than a whole tie's worth of the day.
+- A sport whose later rounds would fill more than `CROWDED` (60%) of Sunday **spreads them
+  back over the Fri and Sat evenings**, taking the earliest day each round can legally land
+  on; the rest stay on Sunday. It works out at badminton (82% of Sunday) and table tennis
+  (88%); chess, carrom and pool sit at 39%, 46% and 19% and stay put. Badminton's Sunday count
+  goes 59 → 33 and table tennis's 49 → 28. The threshold is derived rather than a list of
+  sport names, so a different entry list moves whichever sports the crowding has moved to.
+
+  Letting *every* sport take the earliest day instead drained Sunday to 69 matches, empty
+  until 15:25, against a Saturday running to 23:00 — the same imbalance the other way up. The
+  point is to relieve the crowded sports, not to empty the day the finals are on.
 - **Finals go as late as they will go**, which lands all 16 in the Sunday evening — except
   Under 14 finals, which have to be over by 8pm and so are placed in sequence with everything
   else. A match that ends more than `DRIFT` (2 hours) before the round it feeds is then pushed

@@ -4,7 +4,7 @@ import collections, csv, glob, os, re, sys
 from itertools import combinations
 
 DATA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'schedules', 'data')
-HOURS = {'Fri 14 Aug': (19 * 60, 22 * 60), 'Sat 15 Aug': (12 * 60, 22 * 60), 'Sun 16 Aug': (9 * 60, 21 * 60)}
+HOURS = {'Fri 14 Aug': (19 * 60, 23 * 60), 'Sat 15 Aug': (12 * 60, 23 * 60), 'Sun 16 Aug': (9 * 60, 21 * 60)}
 AREAS = {'Badminton': 2, 'Table Tennis': 1, 'Carrom': 3, 'Chess': 6, '8-ball pool': 1}
 SLOT = {'Badminton': 30, 'Table Tennis': 15, 'Chess': 50, 'Carrom': 50, '8-ball pool': 15}
 # Every round after the first is shorter in the two sports that could not otherwise finish
