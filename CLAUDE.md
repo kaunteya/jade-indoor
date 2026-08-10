@@ -78,32 +78,51 @@ Male`); the `schedules/` page splits on that dash to group by sport, so the pref
 there. These CSVs are the one exception to the `*.csv` gitignore rule — they are the
 published schedule, so they are tracked.
 
-- `schedules/data/` holds the **opening round** of every category — one round each, no later
-  rounds drawn yet — plus 8-ball pool's knockout tail, the one category drawn all the way to
-  its final. The opening rounds fill Fri and Sat; Sunday is left clear for the rest.
-  (`schedule/`, the superseded full draws, is gone from the working tree but still in git.)
-- The opening round is generated, not written by hand: `scripts/draw.py` reads the sheet
-  export `psl.csv`, builds the field for every category, and lays the matches out. Re-run it
-  after a re-export rather than editing the CSVs, then `scripts/check_draw.py` to re-assert
-  every rule below against what was written. Both are plain Python 3, no dependencies.
+- `schedules/data/` holds **every category drawn out to its final** — 300 matches. The
+  opening rounds and group stages fill Fri and Sat; every round after them is on Sunday,
+  which runs to 21:00 with the finals in the evening. (`schedule/`, the superseded full
+  draws, is gone from the working tree but still in git.)
+- The draw is generated, not written by hand: `scripts/draw.py` reads the sheet export
+  `psl.csv`, builds the field for every category, and lays the matches out. Re-run it after a
+  re-export rather than editing the CSVs, then `scripts/check_draw.py` to re-assert every
+  rule below against what was written. Both are plain Python 3, no dependencies. `draw.py`
+  writes nothing at all if any match will not fit, and prints what it could not place.
 - No more concurrent matches per sport than it has playing areas (see above), and no match
   scheduled outside the day's open hours.
-- Consecutive matches on the same court/table/board are 5 minutes apart, and so are any two
-  matches the same player is in — nobody walks straight off one match onto the next.
+- Consecutive matches on the same court/table/board are a turnaround apart — 5 minutes, or
+  the 3 that Sunday's table tennis runs on — and so are any two matches the same player is
+  in. Nobody walks straight off one match onto the next.
 - Under 14 categories finish by 8:00 pm, whichever day they land on.
-- A player is never booked into two matches at once. This holds for everyone who could
-  still reach a match, not just confirmed entrants, so the draw stays valid whoever wins.
-  Doubles partner names are resolved back to registrants so cross-sport clashes are caught.
-- Slot lengths, one per sport — every match of a sport occupies exactly this much of a
-  playing area:
+- A player is never booked into two matches at once **where the draw names them**. Doubles
+  partner names are resolved back to registrants, so cross-sport clashes between named
+  players are caught.
 
-  | Sport | Slot |
-  | --- | --- |
-  | Badminton | 30 min |
-  | Table Tennis | 15 min |
-  | Chess | 50 min |
-  | Carrom | 50 min |
-  | 8-ball pool | 15 min |
+  > **NOTE — this guarantee used to be stronger.** It once held for everyone who could still
+  > *reach* a match, so the draw stayed valid whoever won. Drawing every round to the final
+  > made that unachievable: a final carries its whole category as possible entrants, so two
+  > finals whose fields overlap could never be concurrent, and with 16 finals in one evening
+  > the tournament does not schedule at all. Under the current draw **196 pairs of
+  > overlapping Sunday slots could want the same person**, across 76 people, if results fall
+  > that way — most often two semi-finals, and Reyansh Agrawal (G-112) is in 33 of them.
+  > Whoever runs the day should expect to reorder a handful of ties on the spot.
+  > `check_draw.py` asserts the named-player rule only; it cannot assert the old one.
+
+- Slot lengths, one per sport. **Every round after the first is shorter** in badminton and
+  table tennis, which is the only reason the closing rounds fit into Sunday at all:
+
+  | Sport | Opening round | Every round after |
+  | --- | --- | --- |
+  | Badminton | 30 min | 15 min |
+  | Table Tennis | 15 min | 10 min (3-min turnaround) |
+  | Chess | 50 min | 50 min |
+  | Carrom | 50 min | 50 min |
+  | 8-ball pool | 15 min | 15 min |
+
+  Badminton's 59 remaining matches want 1027 minutes of court time against the 720 two courts
+  hold, and table tennis's 49 want 975 — 43% and 35% over. At the shorter lengths they need
+  585 and 634. Chess and carrom have slack on six and three areas, so they keep their length
+  throughout. Table tennis is the critical path either way: 634 of Sunday's 720 minutes on one
+  table, so it starts at 10:12 and runs to 21:00 with about 14 minutes of float all day.
 
   8-ball pool runs short because it has one table and the most group matches to fit on it:
   33, needing 660 of the 780 minutes Fri and Sat hold. 20 minutes would need 825 and no
@@ -113,24 +132,40 @@ published schedule, so they are tracked.
   small enough to be worth a group stage: 8-ball pool, Carrom doubles, TT singles 60+, and
   TT doubles. Their opening "round" is the whole group stage.
 - Group sizes default to four, the remainder split into threes rather than left as a rump
-  group. 8-ball pool overrides that with `POOL_GROUPS = [6, 6, 6, 4]` in `scripts/draw.py`,
-  chosen so all 22 entrants play **exactly three** group matches and four groups still feed
-  an eight-player quarter-final.
+  group. 8-ball pool overrides that with `GROUP_SIZES['pool-singles'] = [6, 6, 6, 4]` in
+  `scripts/draw.py`, chosen so all 22 entrants play **exactly three** group matches and four
+  groups still feed an eight-player quarter-final.
 - Three each is what a group of four plays anyway. A group of six would be five, so it plays
   a **partial** round robin instead (`group_fixtures`): the six split into two trios by seed
   — 1st/3rd/5th against 2nd/4th/6th — and everybody plays all three of the other trio. A
   trio therefore faces identical opposition, which keeps their records comparable when the
   top two are taken; the cost is that trio-mates never meet head to head.
-- 8-ball pool is also the only category with its later rounds drawn: the top two of each
-  group go into a quarter-final (A1 v B2, B1 v A2, C1 v D2, D1 v C2 — group winners kept
-  apart until the semis), then semis, then the final. Those seven ties name nobody yet, so
-  the clash check resolves each back to every player who could still reach it.
+- Every round-robin category carries a knockout tail: the **top two of each group** go into
+  it (`qualifiers`). With an even number of groups they pair off group against group — A1 v
+  B2, B1 v A2, group winners kept apart until the semis. An odd number leaves a group with
+  nobody to pair with, so the qualifiers are seeded instead — winners in group order, then
+  runners-up in reverse — which is what stops a group's own two meeting before the semi-final.
+  TT doubles is the only odd one: three groups, six qualifiers, so it plays a play-in first.
 - The opening round of a category is the play-in that leaves a **power-of-two field**, so
   every round after it is 16/8/4/2/1 matches. With N entrants and L the largest power of two
   ≤ N, the opening round is N − L matches and 2L − N entrants get a bye; when N is already a
   power of two there is no play-in and the opening round is the full N/2. Byes go to the top
   of the draw order, and the rest are paired highest against lowest.
+- Every round after that is **mirror-paired** (`rounds_from`): seed p meets seed L+1-p, and
+  the two halves that produces meet the same way in the round after. That is the recursive
+  seeding a bracket is — the top two seeds cannot meet before the final — and it is one rule
+  for knockouts and group tails alike. It is also what puts each bye in exactly one tie of the
+  round it enters, against a `Winner <Match>` or against another bye. `byes.csv` still lists
+  the byes; it is the reason their first match is a round in, not a substitute for it.
 - Draw order is the declared skill level (expert, then intermediate, then beginner, ties
   alphabetical), so the byes fall to the strongest entrants. Round-robin groups are seeded
   the same way, snaked across the groups so each gets a spread.
-- Finals are placed first and as late as possible, so they land in a Sunday evening block.
+- Sunday is placed a round at a time, shallowest first, so nothing is drawn before the match
+  it waits on. Fri and Sat sit on a **5-minute grid**; Sunday is placed to the minute, because
+  on one table the rounding strands more than a whole tie's worth of the day.
+- **Finals go as late as they will go**, which lands all 16 in the Sunday evening — except
+  Under 14 finals, which have to be over by 8pm and so are placed in sequence with everything
+  else. A match that ends more than `DRIFT` (2 hours) before the round it feeds is then pushed
+  up against it, deepest first. Only that far: pushing everything as late as it would go spent
+  all the slack before the first match rather than after the last, which is the wrong end of a
+  day where an overrun eats into what follows.

@@ -1,2 +1,33 @@
 Day,Start,End,Court,Category,Round,Match,Side A,Side B
 Fri 14 Aug,20:10,20:25,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 64,TSAM01,Rehet Kalsi (B-14),Sunny Jaisinghani (H-143)
+Sun 16 Aug,11:30,11:40,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 32,TSAM02,Pryank Agrawal (G-112),Winner TSAM01
+Sun 16 Aug,11:43,11:53,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 32,TSAM03,Reyansh Agrawal (G-112),Ketan Parikh (G-51)
+Sun 16 Aug,11:56,12:06,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 32,TSAM04,Ajay Wagle (E-61),Aryan Dua (H-193)
+Sun 16 Aug,12:09,12:19,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 32,TSAM05,Amul Shah (D-72),Ankur Khatuwala (H-52)
+Sun 16 Aug,12:22,12:32,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 32,TSAM06,Arpit Purohit (B-191),Aditya Shah (A-72)
+Sun 16 Aug,12:35,12:45,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 32,TSAM07,Avinash Gupta (H-182),Varun Kulkarni (B-203)
+Sun 16 Aug,12:48,12:58,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 32,TSAM08,Ayush Jain (F-53),Utkarsh Kankariya (D-191)
+Sun 16 Aug,13:01,13:11,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 32,TSAM09,Gajanan Jadhao (E-91),Umesh Ukani (A-11)
+Sun 16 Aug,13:14,13:24,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 32,TSAM10,Gaurav Kad (A-53),Soumya Bhuyan (A-112)
+Sun 16 Aug,13:27,13:37,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 32,TSAM11,Gurbirsingh Sethi (C-3),Setu Gupta (G-93)
+Sun 16 Aug,13:40,13:50,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 32,TSAM17,Pramod Achuthan (E-42),Rajat Dua (H-193)
+Sun 16 Aug,13:53,14:03,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 32,TSAM12,Kaunteya Suryawanshi (C-163),Sandeep Jain (E-101)
+Sun 16 Aug,14:06,14:16,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 32,TSAM13,Kaushik Sarda (A-193),Sajag Makhija (A-121)
+Sun 16 Aug,14:19,14:29,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 32,TSAM14,Manas Patil (G-102),Sachin Rajgire (G-202)
+Sun 16 Aug,14:32,14:42,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 32,TSAM15,Mohit Aggrawal (B-94),Ronak Shah (A-72)
+Sun 16 Aug,14:45,14:55,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 32,TSAM16,Mrigank Tanirwar (G-133),Ravindra Kondekar (F-172)
+Sun 16 Aug,15:37,15:47,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 16,TSAM18,Winner TSAM02,Winner TSAM17
+Sun 16 Aug,15:50,16:00,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 16,TSAM19,Winner TSAM03,Winner TSAM16
+Sun 16 Aug,16:03,16:13,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 16,TSAM20,Winner TSAM04,Winner TSAM15
+Sun 16 Aug,16:16,16:26,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 16,TSAM21,Winner TSAM05,Winner TSAM14
+Sun 16 Aug,16:29,16:39,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 16,TSAM22,Winner TSAM06,Winner TSAM13
+Sun 16 Aug,16:42,16:52,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 16,TSAM23,Winner TSAM07,Winner TSAM12
+Sun 16 Aug,16:55,17:05,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 16,TSAM24,Winner TSAM08,Winner TSAM11
+Sun 16 Aug,17:08,17:18,Table 1,Table Tennis — Singles · 14-59 · Male,Round of 16,TSAM25,Winner TSAM09,Winner TSAM10
+Sun 16 Aug,17:47,17:57,Table 1,Table Tennis — Singles · 14-59 · Male,Quarter-final,TSAM26,Winner TSAM18,Winner TSAM25
+Sun 16 Aug,18:00,18:10,Table 1,Table Tennis — Singles · 14-59 · Male,Quarter-final,TSAM27,Winner TSAM19,Winner TSAM24
+Sun 16 Aug,18:13,18:23,Table 1,Table Tennis — Singles · 14-59 · Male,Quarter-final,TSAM28,Winner TSAM20,Winner TSAM23
+Sun 16 Aug,18:26,18:36,Table 1,Table Tennis — Singles · 14-59 · Male,Quarter-final,TSAM29,Winner TSAM21,Winner TSAM22
+Sun 16 Aug,18:39,18:49,Table 1,Table Tennis — Singles · 14-59 · Male,Semi-final,TSAM30,Winner TSAM26,Winner TSAM29
+Sun 16 Aug,18:52,19:02,Table 1,Table Tennis — Singles · 14-59 · Male,Semi-final,TSAM31,Winner TSAM27,Winner TSAM28
+Sun 16 Aug,20:50,21:00,Table 1,Table Tennis — Singles · 14-59 · Male,Final,TSAM32,Winner TSAM30,Winner TSAM31
