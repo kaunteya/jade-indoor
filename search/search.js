@@ -183,27 +183,42 @@ function fixturesFor(person) {
 		.sort((a, b) => dayKey(a.Day) - dayKey(b.Day) || timeKey(a.Start) - timeKey(b.Start));
 }
 
-// The byes this person holds, straight out of byes.csv — the same rows the schedule page
-// lists, so the two cannot disagree. Saying so matters: 40 of the 176 entrants sit out the
-// opening round, and an empty fixture list otherwise reads as the page having lost them.
+// The byes this person holds, straight out of byes.csv. This page is the only one that
+// says anything about them: the timetable lists their tie like any other, so the bye is
+// only worth a word to the person whose own fixture list would otherwise start a round in
+// for no reason it gives.
 function byesFor(person) {
 	const label = playerLabel(person);
 	return byes.filter(bye => sideHas(bye.Player, label));
 }
 
-function renderByes(held) {
+// The round a bye carries somebody into is drawn as far as the ties a bye plays in, so the
+// slot above usually is their first match. Where it is, the note explains the gap in front
+// of it rather than standing in for it — and where a category's round is not drawn yet, it
+// still says so.
+function byeIsDrawn(bye, fixtures) {
+	return fixtures.some(fixture =>
+		fixture.Category === bye.Category && fixture.Round === bye.Round);
+}
+
+function renderByes(held, fixtures) {
 	if (!held.length) return '';
 	return `
 		<div class="byes">
-			${held.map(bye => `
+			${held.map(bye => {
+				const round = escapeHtml(bye.Round || 'next round');
+				return `
 				<p class="bye">
 					<span class="bye-badge">Bye</span>
 					<span class="bye-text">
 						<b>${escapeHtml(bye.sport)}</b>${bye.category ? ' ' + escapeHtml(bye.category) : ''}
-						— straight through to the ${escapeHtml(bye.Round || 'next round')}, which is not drawn yet.
+						— ${byeIsDrawn(bye, fixtures)
+							? `no opening-round match, so the ${round} above is the first one.`
+							: `straight through to the ${round}, which is not drawn yet.`}
 					</span>
 				</p>
-			`).join('')}
+			`;
+			}).join('')}
 		</div>
 	`;
 }
@@ -216,7 +231,7 @@ function renderFixtures(person) {
 		return;
 	}
 	const fixtures = fixturesFor(person);
-	const byesHtml = renderByes(byesFor(person));
+	const byesHtml = renderByes(byesFor(person), fixtures);
 	if (!fixtures.length) {
 		host.innerHTML = '<h3 class="sport-name">Match schedule</h3>'
 			+ (byesHtml || '<p class="empty">No slots assigned yet.</p>');

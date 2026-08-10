@@ -11,7 +11,6 @@ const daysEl = document.getElementById('days');
 const countEl = document.getElementById('count');
 
 let matches = [];
-let byes = [];
 // null is 'no filter' — the page opens with neither row selected, showing the whole
 // schedule, and tapping the selected chip again clears back to that.
 let selectedDay = null;
@@ -49,7 +48,7 @@ function renderChips() {
 		.map(sport => chip(sport, sport, matchesFor(selectedDay, sport).length, selectedSport)).join('');
 }
 
-// Both chips have to be set before any match is listed: 328 matches is too many to be worth
+// Both chips have to be set before any match is listed: 300 matches is too many to be worth
 // showing unfiltered, so the page asks for the missing half instead.
 function renderMatches() {
 	results.hidden = false;
@@ -102,37 +101,15 @@ function renderMatches() {
 				}).join('')}
 			</section>
 		`;
-	}).join('') + renderByes();
+	}).join('');
 	results.hidden = false;
 }
 
-// A bye belongs to a category, not to a day, so it hangs off the sport chip alone and sits
-// after the day sections. Just the names: there is no time and no court to print, and the
-// round they carry into is the same for everyone in a category, so it goes in the heading
-// rather than beside each name.
-function renderByes() {
-	const shown = byes.filter(bye => bye.sport === selectedSport);
-	if (!shown.length) return '';
-	const categories = [...new Set(shown.map(bye => bye.Category))];
-	return `
-		<section class="day byes">
-			<h2>Byes <small>not playing the opening round</small></h2>
-			<div class="bye-panel">
-			${categories.map(category => {
-				const players = shown.filter(bye => bye.Category === category);
-				// Chess carries no category of its own, so its list needs no label above it.
-				const label = [players[0].category, players[0].Round].filter(Boolean).join(' · ');
-				return `
-					${label ? `<h3 class="bye-heading">${escapeHtml(label)}</h3>` : ''}
-					<ul class="bye-list">
-						${players.map(bye => `<li>${formatSide(bye.Player)}</li>`).join('')}
-					</ul>
-				`;
-			}).join('')}
-			</div>
-		</section>
-	`;
-}
+// No bye list here. A bye used to mean a player the schedule had nothing to say about, so
+// naming them was the only way they appeared at all; now the round a bye carries them into
+// is drawn, so their first match is a card above like everybody else's and the list would
+// only say the same thing twice. search/ still tells a searcher why theirs starts a round
+// in, which is the one thing the card leaves out.
 
 function render() {
 	renderChips();
@@ -179,11 +156,6 @@ function escapeHtml(value) {
 		select(button.dataset.value);
 		render();
 	}));
-
-loadByes('data/').then(loaded => {
-	byes = loaded;
-	if (matches.length) render();  // draws may already be on screen
-});
 
 loadDraws('data/').then(({ matches: loaded, failed }) => {
 	matches = loaded;

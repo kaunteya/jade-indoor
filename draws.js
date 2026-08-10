@@ -25,7 +25,9 @@ const SCHEDULE_FILES = [
 
 // Byes sit beside the draws rather than in them: a bye has no time and no court, so as a
 // match row it would be something every listing had to filter back out. Columns are
-// Category,Round,Player — the round being the one the bye carries the player into.
+// Category,Round,Player — the round being the one the bye carries the player into, where
+// the player does have a drawn match. Only search/ reads this: the timetable has their tie
+// like any other, so the bye is worth saying only to the one person it explains.
 const BYES_FILE = 'byes.csv';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
