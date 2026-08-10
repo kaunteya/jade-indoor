@@ -45,6 +45,12 @@ h1 {
 	margin: -1.75rem calc(50% - 50vw) 0;
 	padding: 0.75rem 1rem;
 }
+/* the link is sized to the title art, so the tap target is the image, not the whole band */
+h1 .title-link {
+	display: block;
+	max-width: min(100%, 448px);
+	margin: 0 auto;
+}
 h1 img, .psl-subtitle {
 	display: block;
 	/* 448px = the 480px body minus its 1rem side padding, so the full-bleed band

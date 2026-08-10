@@ -30,11 +30,16 @@ header {
 	text-align: center;
 	padding: 1rem 0 0.5rem;
 }
-.title {
+/* the link is sized to the title art, so the tap target is the image and nothing more */
+.title-link {
 	display: block;
 	max-width: min(100%, 22rem);
-	height: auto;
 	margin: 0 auto;
+}
+.title {
+	display: block;
+	width: 100%;
+	height: auto;
 }
 h1 {
 	font-size: 1.25rem;
