@@ -11,8 +11,10 @@ const daysEl = document.getElementById('days');
 const countEl = document.getElementById('count');
 
 let matches = [];
-// null is 'no filter' — the page opens with neither row selected, showing the whole
-// schedule, and tapping the selected chip again clears back to that.
+// Three states, not two: null is 'nothing picked yet' (the page opens there and asks), ALL
+// is the 'All' chip — a real choice that filters on nothing — and anything else is the value
+// to filter on. matchesFor() treats ALL and null alike; only the prompt tells them apart.
+const ALL = '';
 let selectedDay = null;
 let selectedSport = null;
 
@@ -37,26 +39,29 @@ function chipDay(day) {
 
 function renderChips() {
 	const days = [...new Set(matches.map(match => match.Day))].sort((a, b) => dayKey(a) - dayKey(b));
-	dayList.innerHTML = days
-		.map(day => chip(day, chipDay(day), matchesFor(day, selectedSport).length, selectedDay)).join('');
+	dayList.innerHTML = [chip(ALL, 'All', matchesFor(ALL, selectedSport).length, selectedDay)]
+		.concat(days.map(day => chip(day, chipDay(day), matchesFor(day, selectedSport).length, selectedDay)))
+		.join('');
 
 	// GAMES order first, then anything a CSV names that GAMES doesn't
 	const present = [...new Set(matches.map(match => match.sport).filter(Boolean))];
 	const known = sportNames().filter(sport => present.includes(sport));
 	const sports = [...known, ...present.filter(sport => !known.includes(sport))];
-	sportList.innerHTML = sports
-		.map(sport => chip(sport, sport, matchesFor(selectedDay, sport).length, selectedSport)).join('');
+	sportList.innerHTML = [chip(ALL, 'All', matchesFor(selectedDay, ALL).length, selectedSport)]
+		.concat(sports.map(sport => chip(sport, sport, matchesFor(selectedDay, sport).length, selectedSport)))
+		.join('');
 }
 
-// Both chips have to be set before any match is listed: 300 matches is too many to be worth
-// showing unfiltered, so the page asks for the missing half instead.
+// Both rows have to be answered before any match is listed: 300 matches is too many to
+// show by default, so the page asks for the missing half instead. 'All' is an answer —
+// picking it on both rows is how you ask for the whole schedule on purpose.
 function renderMatches() {
 	results.hidden = false;
-	if (!selectedDay || !selectedSport) {
+	if (selectedDay === null || selectedSport === null) {
 		countEl.textContent = '';
 		daysEl.innerHTML = `<p class="prompt">${
-			!selectedDay && !selectedSport ? 'Pick a day and a sport to see the matches.'
-				: !selectedSport ? 'Now pick a sport.' : 'Now pick a day.'
+			selectedDay === null && selectedSport === null ? 'Pick a day and a sport to see the matches.'
+				: selectedSport === null ? 'Now pick a sport.' : 'Now pick a day.'
 		}</p>`;
 		return;
 	}
@@ -152,8 +157,8 @@ function escapeHtml(value) {
 		({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
 }
 
-// Tapping the chip that's already on turns it off — with no 'All' chip, that toggle is the
-// only way back to the unfiltered schedule.
+// Tapping the chip that's already on turns it off, back to nothing picked — including 'All',
+// which drops the row to the prompt rather than leaving a selection that means the same thing.
 [
 	[dayList, value => { selectedDay = value === selectedDay ? null : value; }],
 	[sportList, value => { selectedSport = value === selectedSport ? null : value; }],
