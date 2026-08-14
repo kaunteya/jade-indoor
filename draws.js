@@ -30,6 +30,15 @@ const SCHEDULE_FILES = [
 // like any other, so the bye is worth saying only to the one person it explains.
 const BYES_FILE = 'byes.csv';
 
+// Results sit beside the draws for the same reason the byes do, and one more: the draws are
+// written by scripts/draw.py, so anything recorded inside them is lost the next time it runs.
+// A result belongs to a match rather than to a draw, so the columns are Match,Winner — the
+// winner being the winning side's own label, spelled exactly as the draw spells it. Matching
+// on the label rather than on 'A'/'B' keeps the file readable on its own, and means a winner
+// that names neither side tags nobody instead of tagging the wrong person; check_draw.py
+// catches that case so a typo doesn't just quietly show nothing.
+const RESULTS_FILE = 'results.csv';
+
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 // Minimal RFC4180 reader: match rows are plain, but a name with a comma in it would
@@ -114,6 +123,38 @@ function loadByes(base) {
 		.then(response => response.ok ? response.text() : '')
 		.then(readDraw)
 		.catch(() => []);
+}
+
+// 'Winner TSAM01' stops being a placeholder the moment TSAM01 has a result — it is a name,
+// just written somewhere else — so swap it for the name. That cascades on its own: the tie
+// TSAM02 feeds resolves as soon as TSAM02 is recorded, and a bracket fills in round by round
+// as the day is played. Shared because both pages show the same sides and must agree.
+//
+// Only a match id resolves. 'Winner Group A' waits on a whole group's standings, which nothing
+// here works out: a group can finish level, as Group A of the pool did, and naming a qualifier
+// the organisers have not settled would be worse than leaving the placeholder showing.
+//
+// scripts/check_draw.py resolves results the same way when it validates them. Those two are
+// separate implementations of one rule and have to be kept in step by hand.
+function resolveSide(value, wins) {
+	const pending = /^winner\s+(\S+)$/i.exec(String(value || '').trim());
+	return (pending && wins && wins.get(pending[1])) || value;
+}
+
+// Match id -> winning side label. Resolves to no results rather than failing when the file
+// isn't there: until the first match is played there is nothing to read, and a schedule with
+// no results yet is the normal state rather than an error.
+function loadResults(base) {
+	// Unlike the draws, this file changes all through the festival, so it is the one fetch
+	// that must never come out of a cache — a stale copy shows the wrong winner with nothing
+	// to say it is old. The draws get a hand-bumped ?v= in the script tags; results get a
+	// timestamp, because bumping a version after every match is not a thing anyone will do.
+	return fetch(`${base + RESULTS_FILE}?t=${Date.now()}`, { cache: 'no-store' })
+		.then(response => response.ok ? response.text() : '')
+		.then(text => new Map(parseCsv(text).slice(1)
+			.map(cells => [(cells[0] || '').trim(), (cells[1] || '').trim()])
+			.filter(([match, winner]) => match && winner)))
+		.catch(() => new Map());
 }
 
 // allSettled, not all: one missing or renamed CSV shouldn't blank the whole page.
