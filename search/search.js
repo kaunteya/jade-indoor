@@ -23,6 +23,7 @@ let matches = [];     // whatever the current query narrowed people down to
 let activeIndex = -1; // highlighted suggestion, -1 when nothing is highlighted
 let byes = [];       // byes.csv: who sits out the opening round, and into which round
 let draws = null;     // every row of schedules/data/*.csv, or null while they are still loading
+let wins = new Map(); // results.csv: match id -> winning side, which is what resolves a placeholder
 let shownPerson = null;
 
 // Mirrors list/list.js: Apps Script answers a GET with a redirect that doesn't always keep
@@ -170,15 +171,30 @@ function sideHas(side, label) {
 	return String(side || '').split('/').some(part => normalise(part) === label);
 }
 
-// Only slots the person is actually named in. Later knockout rounds read 'Winner BSJM04'
-// or 'Winner Group A', so they belong to nobody yet and are deliberately left out.
+// Slots the person is named in — either outright, or through a placeholder a result has since
+// turned into their name. 'Winner BSJM04' belongs to nobody until BSJM04 is played; once it is,
+// it is the winner's slot as surely as if the draw had spelt it out, and the person searching
+// is usually asking exactly that: am I through, and who do I play next.
+//
+// Sides are resolved before they are compared, so this claims the tie a win carried them into
+// and names the opponent it carried in from the other half. What stays unresolved stays
+// unclaimed: 'Winner Group A' waits on standings nothing here works out.
 function fixturesFor(person) {
 	if (!draws) return [];
 	const label = playerLabel(person);
 	return draws
+		.map(match => Object.assign({}, match, {
+			'Side A': resolveSide(match['Side A'], wins),
+			'Side B': resolveSide(match['Side B'], wins),
+		}))
 		.filter(match => sideHas(match['Side A'], label) || sideHas(match['Side B'], label))
 		.map(match => Object.assign({}, match, {
 			opponent: sideHas(match['Side A'], label) ? match['Side B'] : match['Side A'],
+			// '' while the match is still to be played. A recorded winner is itself the proof
+			// it has been: there is no separate 'played' flag to fall out of step with.
+			// sideHas splits the winning side, so a doubles win counts for both partners.
+			outcome: wins.has(match.Match)
+				? (sideHas(wins.get(match.Match), label) ? 'won' : 'lost') : '',
 		}))
 		.sort((a, b) => dayKey(a.Day) - dayKey(b.Day) || timeKey(a.Start) - timeKey(b.Start));
 }
@@ -262,8 +278,15 @@ function renderFixtures(person) {
 					// pool prints neither: one table, and its category is just 'Singles'
 					const court = solo.has(fixture.sport) ? '' : `<span class="court">${escapeHtml(fixture.Court)}</span>`;
 					const category = rest ? `<span class="category">${escapeHtml(rest)}</span>` : '';
+						// A played match is styled down and says how it went: a time on a card is a
+						// 'be there' cue, and once it is spent the outcome is the part still worth
+						// reading. Won/Lost rather than a neutral 'Completed' — it can only be known
+						// for a match that is over, so one word carries both facts.
+						const outcome = fixture.outcome
+							? `<span class="outcome is-${fixture.outcome}">${fixture.outcome === 'won' ? 'Won' : 'Lost'}</span>`
+							: '';
 					return `
-					<div class="fixture">
+					<div class="fixture${fixture.outcome ? ' is-done' : ''}">
 						<span class="fixture-time">${escapeHtml(fixture.Start)}<small>${escapeHtml(fixture.End)}</small></span>
 						<div class="fixture-body">
 							<div class="fixture-head">
@@ -276,7 +299,7 @@ function renderFixtures(person) {
 									${type ? `<span class="type">${escapeHtml(type)}</span>` : ''}
 								</span>
 							</div>
-							<p class="fixture-versus">v ${formatOpponent(fixture.opponent)}</p>
+							<p class="fixture-versus">v ${formatOpponent(fixture.opponent)}${outcome}</p>
 							${court || category ? `<p class="fixture-foot">${court}${category}</p>` : ''}
 						</div>
 					</div>
@@ -424,6 +447,7 @@ clearButton.addEventListener('click', () => {
 Promise.all([
 	loadDraws('../schedules/data/').then(({ matches: loaded }) => { draws = loaded; }, () => { draws = []; }),
 	loadByes('../schedules/data/').then(loaded => { byes = loaded; }),
+	loadResults('../schedules/data/').then(loaded => { wins = loaded; }),
 ]).then(() => { if (shownPerson) renderFixtures(shownPerson); });
 
 // ?key= on this page is passed through to doGet, for when LIST_KEY is set in Code.gs.
