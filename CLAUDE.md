@@ -9,10 +9,12 @@ A small static site (Jade Indoor Sports Festival) with no build step and no depe
 - **`index.html` + `home.css`** — the landing page, three stacked destination cards (Participants list, Schedule, Search) above a plain "Registrations closed" line. There is no Registration card: entries have closed, so it was removed rather than shown inert — the page is still deployed at `/registration`, just unlinked. Re-enable it by adding an `<a class="home-card" href="registration/">` back to `.home-nav` and dropping the `.closed-note`.
 - **`registration/`** (`index.html` + `style.css` + `app.js`, served at `/registration`) — the registration form. `app.js` POSTs it to a Google Apps Script Web App (`apps-script/Code.gs`), which appends a row to a Google Sheet.
 - **`schedules/`** (served at `/schedules`) — the public schedule, built by fetching every draw in `schedules/data/` and merging them into one time-ordered list with Day and Sport filter chips. It needs no backend, but it does need a server: `fetch` of a sibling CSV fails under `file://`. A static page can't list a directory, so `SCHEDULE_FILES` in `../draws.js` names each CSV by hand — **adding a draw to `schedules/data/` means adding its filename there**. Everything else is read out of the files: the `Category` column is `Sport — Category`, which is what the sport chips group on, and day order is parsed from `Day` (`Fri 14 Aug`) rather than hardcoded.
-- **`search/`** (served at `/search`) — find one participant by name and see everything they entered, plus the slots they have been given. It reads the same `doGet` payload as `list/` but inverts it: `listEntrants` is keyed by game category, so `buildPeople()` regroups it into one record per person, keyed by name + flat (which also folds together anyone who submitted the form twice). The input is an ARIA combobox — suggestions are a `role="listbox"` the input owns via `aria-controls`/`aria-activedescendant`, so focus stays in the field while arrowing through them. Fixtures come from `../draws.js`: the draws name a player as `First Last (T-nnn)`, which is exactly the label the entrant list yields, so `fixturesFor()` claims a slot by splitting each side on `/` and comparing labels outright. Only slots a person is *named* in count — later knockout rounds read `Winner BSJM04` or `Winner Group A` and belong to nobody yet.
+- **`search/`** (served at `/search`) — find one participant by name and see everything they entered, plus the slots they have been given. It reads the same `doGet` payload as `list/` but inverts it: `listEntrants` is keyed by game category, so `buildPeople()` regroups it into one record per person, keyed by name + flat (which also folds together anyone who submitted the form twice). The input is an ARIA combobox — suggestions are a `role="listbox"` the input owns via `aria-controls`/`aria-activedescendant`, so focus stays in the field while arrowing through them. Fixtures come from `../draws.js`: the draws name a player as `First Last (T-nnn)`, which is exactly the label the entrant list yields, so `fixturesFor()` claims a slot by splitting each side on `/` and comparing labels outright. A slot counts when the person is named in it — either outright, or through a placeholder that `results.csv` has since resolved to their name, so a win carries them into the tie it feeds and names the opponent coming in from the other half. `Winner Group A` still belongs to nobody: it waits on standings nothing here works out. A fixture whose match has a recorded winner is styled down (`.fixture.is-done`) and carries a **Won**/**Lost** chip — the recorded winner is itself the proof the match was played, so there is no separate 'completed' flag to fall out of step with it.
 - **`list/`** (served at `/list`) — a read-only page for organisers: a row of sport buttons (each with its total entries) driving a category dropdown over the entrant list, with sortable columns, showing each participant's name, flat and age. It GETs the same Web App URL (`doGet`/`listEntrants` in `Code.gs`).
 
 Pages below the root reach the shared script and assets with `../` (`../games.js`, `../images/…`) — including inside `registration/style.css`, whose `url()`s and CSS masks point at `../images/`.
+
+Script and stylesheet references carry a `?v=` query (`../draws.js?v=1`, `home.css?v=3`) and **the number must be bumped whenever the file it names changes**. Without it a browser will happily serve a cached `draws.js` alongside a fresh `schedules.js`, and since the page calls into the shared file the mismatch is not a degraded page but a dead one — that is precisely how the schedule got stuck on "Loading schedule…" once. `schedules/` now catches a thrown error and says so on the status line rather than sitting on the loading message, which makes the next such mismatch visible instead of silent.
 
 ## Running / testing
 
@@ -81,16 +83,49 @@ Male`); the `schedules/` page splits on that dash to group by sport, so the pref
 there. These CSVs are the one exception to the `*.csv` gitignore rule — they are the
 published schedule, so they are tracked.
 
-- `schedules/data/` holds **every category drawn out to its final** — 301 matches, 56 on Fri,
-  128 on Sat and 117 on Sun. The opening rounds and group stages fill Fri and Sat; the later
+- `schedules/data/` holds **every category drawn out to its final** — 302 matches, 56 on Fri,
+  129 on Sat and 117 on Sun. The opening rounds and group stages fill Fri and Sat; the later
   rounds are mostly Sunday, except in the sports crowded enough to spread back over the Fri
   and Sat evenings (see the `CROWDED` rule below). Every final is on Sunday.
   (`schedule/`, the superseded full draws, is gone from the working tree but still in git.)
+- **Results live in `schedules/data/results.csv`, not in the draws** — `Match,Winner`, the
+  winner being the winning side's own label spelled exactly as the draw spells it
+  (`PL01,Saahil Sikri (F-132)`). Kept separate for the same reason `byes.csv` is: the draws
+  are rewritten wholesale by `draw.py`, and a result recorded inside one would not survive it.
+  `schedules/` tags that side **Winner** on the card; a winner matching neither side tags
+  nobody, and `check_draw.py` fails on it so a typo can't pass as an unplayed match. It is not
+  a draw, so both scripts skip it. Add a row per match as it is played.
+
+  A recorded result also **resolves the placeholders that point at it**: `Winner TSAM01`
+  renders as the name of whoever won TSAM01, so the bracket fills in round by round as the day
+  is recorded, and the tie it feeds can then take a result of its own. `resolveSide()` lives in
+  `draws.js` because `schedules/` and `search/` must agree on who is playing; `resolved()` in
+  `check_draw.py` is a second implementation of that one rule — **keep the two in step by hand.**
+
+  Only a match id resolves. `Winner Group A` and `Runner-up Group B` wait on a whole group's
+  standings, which nothing here works out: a group can finish level (Group A of the pool did,
+  which is why `PL41` exists), so naming a qualifier the organisers have not settled would be
+  worse than leaving the placeholder showing.
 - The draw is generated, not written by hand: `scripts/draw.py` reads the sheet export
   `psl.csv`, builds the field for every category, and lays the matches out. Re-run it after a
   re-export rather than editing the CSVs, then `scripts/check_draw.py` to re-assert every
   rule below against what was written. Both are plain Python 3, no dependencies. `draw.py`
   writes nothing at all if any match will not fit, and prints what it could not place.
+- **`PL41` is the one hand-added match**, and the one deliberate exception to the two rules
+  below. Group A of the pool left Anshul Goel and Sanjay Karmarkar tied on 2-1 for the
+  runner-up spot that feeds `PL35`; being trio-mates in the partial round robin they never
+  met, so there was no head-to-head to separate them and a decider was added at the
+  organisers' request. It depends on results, so `draw.py` cannot produce it — **regenerating
+  the draw from `psl.csv` will drop it, and it has to be re-added by hand.** It was placed at
+  Sat 11:45–12:00, which is 15 minutes before the venue opens and leaves no turnaround before
+  `PL13` at 12:00. `check_draw.py` therefore reports exactly two failures, and these two are
+  expected rather than a regression:
+
+  ```
+  PL41: Sat 15 Aug 11:45-12:00 outside opening hours
+  PL41/PL13 share Table 1 with <5 min between
+  ```
+
 - No more concurrent matches per sport than it has playing areas (see above), and no match
   scheduled outside the day's open hours.
 - Consecutive matches on the same court/table/board are a turnaround apart — 5 minutes, or
