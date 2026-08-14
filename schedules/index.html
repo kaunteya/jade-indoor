@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>Pavilion Sports League - Schedule</title>
 	<link rel="icon" href="../images/logo.png" />
-	<link rel="stylesheet" href="schedules.css" />
+	<link rel="stylesheet" href="schedules.css?v=1" />
 </head>
 <body>
 	<header>
@@ -33,8 +33,11 @@
 
 	<p class="back"><a href="../">← Home</a></p>
 
-	<script src="../games.js"></script>
-	<script src="../draws.js"></script>
-	<script src="schedules.js"></script>
+	<!-- ?v= on every asset: draws.js and schedules.js have to change together (the page calls
+	     loadResults, which lives in draws.js), and a browser holding a cached copy of one and
+	     a fresh copy of the other breaks the page outright. Bump these when either changes. -->
+	<script src="../games.js?v=1"></script>
+	<script src="../draws.js?v=4"></script>
+	<script src="schedules.js?v=4"></script>
 </body>
 </html>

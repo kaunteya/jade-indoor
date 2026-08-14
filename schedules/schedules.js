@@ -11,6 +11,9 @@ const daysEl = document.getElementById('days');
 const countEl = document.getElementById('count');
 
 let matches = [];
+// Match id -> winning side label, out of data/results.csv. Empty for a match not yet played.
+// Not `results`, which is the section element the matches are rendered into.
+let wins = new Map();
 // Three states, not two: null is 'nothing picked yet' (the page opens there and asks), ALL
 // is the 'All' chip — a real choice that filters on nothing — and anything else is the value
 // to filter on. matchesFor() treats ALL and null alike; only the prompt tells them apart.
@@ -98,9 +101,9 @@ function renderMatches() {
 									</span>
 								</div>
 								<p class="sides">
-									<span class="side">${formatSide(match['Side A'])}</span>
+									<span class="side">${formatSide(resolveSide(match['Side A'], wins), wins.get(match.Match))}</span>
 									<span class="vs">v</span>
-									<span class="side">${formatSide(match['Side B'])}</span>
+									<span class="side">${formatSide(resolveSide(match['Side B'], wins), wins.get(match.Match))}</span>
 								</p>
 								${court || category ? `<p class="foot">${court}${category}</p>` : ''}
 							</div>
@@ -131,6 +134,9 @@ function roundClass(round) {
 	if (name === 'final') return 'round is-final';
 	if (name.startsWith('semi')) return 'round is-semi';
 	if (name.startsWith('quarter')) return 'round is-quarter';
+	// A decider is a tie no group stage settled, played off outside the normal rounds — worth
+	// picking out for the same reason, even though it sits at the shallow end of the draw.
+	if (name === 'decider') return 'round is-decider';
 	return 'round';
 }
 
@@ -141,14 +147,22 @@ function roundClass(round) {
 //
 // What a placeholder points at gets the same chip the match cards wear, so 'Winner BDAM03'
 // and the BDAM03 card read as the same thing and can be paired up by eye while scrolling.
-function formatSide(value) {
+//
+// `won` is the match's winning side label, or undefined while the match is unplayed. It is
+// compared against this side's whole label, so it tags the winner of a doubles pair as one
+// side rather than trying to pick a player out of it. A placeholder never carries the tag:
+// once a knockout tie is played the draw still says 'Winner PL01' here, so there is no name
+// to hang it on until the result is written back into the draw itself.
+function formatSide(value, won) {
 	const text = escapeHtml(value);
 	const pending = /^(winner|runner-up|loser)\s+(.+)$/i.exec(text);
 	if (pending) return `<span class="pending">${pending[1]} <span class="code">${pending[2]}</span></span>`;
 	if (/^(winner|runner-up|loser)\b/i.test(text)) return `<span class="pending">${text}</span>`;
-	return text
+	const name = text
 		.replace(/\(([^()]*)\)/g, '<span class="flat">($1)</span>')
 		.replace(/ \/ /g, '<span class="sep"> / </span>');
+	return String(won || '').trim() === String(value || '').trim()
+		? `${name} <span class="won">Winner</span>` : name;
 }
 
 // Names come from the registration form and land in innerHTML.
@@ -170,16 +184,33 @@ function escapeHtml(value) {
 		render();
 	}));
 
-loadDraws('data/').then(({ matches: loaded, failed }) => {
-	matches = loaded;
-	if (!matches.length) {
-		status.textContent = 'No matches scheduled yet.';
-		return;
-	}
-	render();
-	status.hidden = !failed;
-	if (failed) {
-		status.textContent = `${failed} of ${SCHEDULE_FILES.length} draws could not be loaded.`;
-		status.className = 'status error';
-	}
-});
+// Anything thrown on the way in used to leave the page sitting on 'Loading schedule…' for
+// ever, saying nothing — a browser holding a stale ../draws.js does exactly that, since the
+// call below is then a ReferenceError before a single match is drawn. Say so on the status
+// line instead: a page that admits it is broken is worth more than one that looks slow.
+function reportFailure(error) {
+	status.hidden = false;
+	status.className = 'status error';
+	status.textContent = `The schedule could not be loaded: ${(error && error.message) || error}. Try reloading.`;
+}
+
+// Results are loaded alongside the draws but never gate them: if results.csv is missing or
+// unreadable the schedule still renders, just with nothing marked won.
+try {
+	Promise.all([loadDraws('data/'), loadResults('data/')]).then(([{ matches: loaded, failed }, played]) => {
+		matches = loaded;
+		wins = played;
+		if (!matches.length) {
+			status.textContent = 'No matches scheduled yet.';
+			return;
+		}
+		render();
+		status.hidden = !failed;
+		if (failed) {
+			status.textContent = `${failed} of ${SCHEDULE_FILES.length} draws could not be loaded.`;
+			status.className = 'status error';
+		}
+	}).catch(reportFailure);
+} catch (error) {
+	reportFailure(error);
+}

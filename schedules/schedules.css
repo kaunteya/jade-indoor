@@ -185,7 +185,8 @@ h1 {
 /* the closing rounds carry their own tint, so a Final is findable while scrolling */
 .round.is-final,
 .round.is-semi,
-.round.is-quarter {
+.round.is-quarter,
+.round.is-decider {
 	padding: 0.15rem 0.4rem;
 	border-radius: 0.25rem;
 }
@@ -200,6 +201,10 @@ h1 {
 .round.is-quarter {
 	color: #4a5c6d;
 	background: #eef2f6;
+}
+.round.is-decider {
+	color: #9b3b2b;
+	background: #fbe8e4;
 }
 /* The match code sits ahead of the round, down the left edge of every card, because that is
    the column you scan when a later tie says 'Winner BSAM17' and you want to know what BSAM17
@@ -303,6 +308,20 @@ h1 {
 	font-weight: 500;
 	font-style: italic;
 	color: #8a97a4;
+}
+/* Sits inline after the name so it reads as part of that side, and wraps with it on a narrow
+   screen rather than pushing the card wider. Green is the one colour no round chip uses. */
+.won {
+	display: inline-block;
+	font-size: 0.625rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #17663f;
+	background: #d9f2e3;
+	padding: 0.05rem 0.35rem;
+	border-radius: 0.25rem;
+	vertical-align: 0.05em;
 }
 
 .foot {
