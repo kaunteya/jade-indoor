@@ -23,10 +23,11 @@ UNAVAILABLE = {
 }
 
 BYES = os.path.join(DATA, 'byes.csv')  # not a draw: no day, no time, no court
+RESULTS = os.path.join(DATA, 'results.csv')  # not a draw either: Match,Winner, written as played
 
 rows = []
 for path in sorted(glob.glob(os.path.join(DATA, '*.csv'))):
-	if os.path.samefile(path, BYES) if os.path.exists(BYES) else False:
+	if os.path.basename(path) in ('byes.csv', 'results.csv'):
 		continue
 	with open(path) as handle:
 		for row in csv.DictReader(handle):
@@ -74,6 +75,31 @@ for r in rows:
 		bad.append('%s: empty side' % r['Match'])
 	if r['Side A'].strip() == r['Side B'].strip():
 		bad.append('%s: plays itself' % r['Match'])
+
+# results.csv is joined to the draw on the winning side's own label, which is what keeps it
+# readable on its own — but it also means a typo tags nobody on the page rather than failing
+# loudly. Assert every result names a match that exists and one of that match's two sides.
+if os.path.exists(RESULTS):
+	with open(RESULTS) as handle:
+		played = {r['Match'].strip(): r['Winner'].strip() for r in csv.DictReader(handle)}
+
+	# 'Winner TSAM01' is the name of whoever won TSAM01, so a later round can be validated as
+	# soon as the round it waits on is recorded. Read the whole file before resolving anything,
+	# so the order rows are written in doesn't matter. Keep in step with resolveSide() in
+	# schedules/schedules.js, which does this to decide what the card shows.
+	# 'Winner Group A' has a space and so never resolves — a group's standings are not worked
+	# out here, and a group can finish level.
+	def resolved(side):
+		pending = re.match(r'^Winner\s+(\S+)$', side.strip())
+		return played.get(pending.group(1), side.strip()) if pending else side.strip()
+
+	for match, winner in played.items():
+		if match not in ids:
+			bad.append('result for unknown match %s' % match)
+			continue
+		sides = (resolved(ids[match]['Side A']), resolved(ids[match]['Side B']))
+		if winner not in sides:
+			bad.append('%s: winner %r is neither side (%s v %s)' % ((match, winner) + sides))
 
 # concurrency per sport, and the turnaround on one area — whichever of the two matches wants
 # the longer one, since a short later-round tie can land beside a long opening-round one
