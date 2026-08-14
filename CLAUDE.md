@@ -81,7 +81,7 @@ Male`); the `schedules/` page splits on that dash to group by sport, so the pref
 there. These CSVs are the one exception to the `*.csv` gitignore rule — they are the
 published schedule, so they are tracked.
 
-- `schedules/data/` holds **every category drawn out to its final** — 300 matches, 55 on Fri,
+- `schedules/data/` holds **every category drawn out to its final** — 301 matches, 56 on Fri,
   128 on Sat and 117 on Sun. The opening rounds and group stages fill Fri and Sat; the later
   rounds are mostly Sunday, except in the sports crowded enough to spread back over the Fri
   and Sat evenings (see the `CROWDED` rule below). Every final is on Sunday.
