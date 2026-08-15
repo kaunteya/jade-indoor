@@ -40,6 +40,17 @@ function chipDay(day) {
 	return parts ? parts[1] : day;
 }
 
+// During the festival the day you want is almost always today, so the page opens on it and
+// the day row is answered before you touch it. dayKey is year-blind — no CSV carries a year
+// — which is exactly what lets a Day like 'Fri 14 Aug' be compared against the local clock;
+// the cost is that the same date in another year would match too. Outside the festival
+// nothing matches and selectedDay stays null, so the row asks, as it always did.
+function todayInDraw(days) {
+	const now = new Date();
+	const today = now.getMonth() * 100 + now.getDate();
+	return days.find(day => dayKey(day) === today) || null;
+}
+
 function renderChips() {
 	const days = [...new Set(matches.map(match => match.Day))].sort((a, b) => dayKey(a) - dayKey(b));
 	dayList.innerHTML = [chip(ALL, 'All', matchesFor(ALL, selectedSport).length, selectedDay)]
@@ -204,6 +215,7 @@ try {
 			status.textContent = 'No matches scheduled yet.';
 			return;
 		}
+		selectedDay = todayInDraw([...new Set(matches.map(match => match.Day))]);
 		render();
 		status.hidden = !failed;
 		if (failed) {
