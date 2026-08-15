@@ -320,14 +320,14 @@ h1 {
 	vertical-align: 0.1em;
 }
 /* Colour is the quick read, but the word carries it on its own — nothing here depends on
-   telling green from grey. */
+   telling green from red. */
 .outcome.is-won {
 	color: #17663f;
 	background: #d9f2e3;
 }
 .outcome.is-lost {
-	color: #6b7c8c;
-	background: #e6eaef;
+	color: #a1202b;
+	background: #fadfe1;
 }
 .fixture-time {
 	display: flex;
