@@ -23,10 +23,10 @@ function screenshotFolder() {
 	return it.hasNext() ? it.next() : DriveApp.createFolder(SCREENSHOT_FOLDER);
 }
 // One column per game/category entry, in the sheet's own column order — this list has to
-// match the sheet, not games.js. The sheet predates the merge of the two U14 badminton
-// doubles categories into one open category and still carries a column per gender, so
-// GAME_ID_FOR folds that pair onto the single id games.js now uses. Collapse the two
-// columns in the sheet and both entries here can become one.
+// match the sheet, not games.js. The sheet predates every category merge since and still
+// carries the original column per category, so GAME_ID_FOR folds each merged-away column
+// onto the single id games.js now uses. Collapse the columns in the sheet and the folded
+// entries here can become one apiece.
 const GAME_FIELDS = [
 	'badminton_singles_u14_male', 'badminton_singles_u14_female',
 	'badminton_doubles_u14_male', 'badminton_doubles_u14_female',
@@ -39,10 +39,14 @@ const GAME_FIELDS = [
 	'pool_singles',
 ];
 
-// sheet column -> the games.js id it belongs to; anything absent maps to itself
+// sheet column -> the games.js id it belongs to; anything absent maps to itself. These are
+// the same merges scripts/draw.py makes when it builds the field for a category, so the
+// entrant list and the draws name the same categories.
 const GAME_ID_FOR = {
 	badminton_doubles_u14_male: 'badminton_doubles_u14',
 	badminton_doubles_u14_female: 'badminton_doubles_u14',
+	badminton_doubles_60plus: 'badminton_doubles_14_60_male',
+	tt_doubles_u14: 'tt_doubles_14_60',
 };
 
 function gameId(field) {
@@ -61,8 +65,10 @@ function doPost(e) {
 	GAME_FIELDS.forEach(field => {
 		if (field.endsWith('_partner')) { row.push(e.parameter[field] || ''); return; }
 		const id = gameId(field);
-		// where two sheet columns share one form checkbox (U14 doubles), the entry lands in
-		// the column matching the entrant's gender and the other stays 0
+		// A folded column (GAME_ID_FOR) takes the entry only when it is the half matching the
+		// entrant's gender — that is the U14 doubles pair, where two sheet columns share one
+		// form checkbox. A column folded away outright (60+ badminton doubles, U14 TT doubles)
+		// matches no gender, so it stays 0 and the entry lands in the column it merged into.
 		const split = id !== field && !field.endsWith('_' + String(e.parameter.gender || '').toLowerCase());
 		row.push(split ? 0 : Number(e.parameter[id] || 0));
 	});

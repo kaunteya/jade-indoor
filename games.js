@@ -8,17 +8,18 @@ const GAMES = [
 	{ id: 'badminton_doubles_u14', game: 'Badminton', type: 'Doubles', ageGroup: 'Under 14', min: 8, max: 13, gender: 'any', price: 600 },
 	{ id: 'badminton_singles_14_60_male', game: 'Badminton', type: 'Singles', ageGroup: '14-59', min: 14, max: 59, gender: 'Male', price: 400 },
 	{ id: 'badminton_singles_14_60_female', game: 'Badminton', type: 'Singles', ageGroup: '14-59', min: 14, max: 59, gender: 'Female', price: 400 },
-	{ id: 'badminton_doubles_14_60_male', game: 'Badminton', type: 'Doubles', ageGroup: '14-59', min: 14, max: 59, gender: 'Male', price: 600 },
+	// 60+ was too small to draw on its own, so it plays inside the 14-59 male doubles —
+	// one category here, two columns in the sheet (see GAME_ID_FOR in Code.gs).
+	{ id: 'badminton_doubles_14_60_male', game: 'Badminton', type: 'Doubles', ageGroup: '14-59 & 60+', min: 14, max: Infinity, gender: 'Male', price: 600 },
 	{ id: 'badminton_doubles_14_60_female', game: 'Badminton', type: 'Doubles', ageGroup: '14-59', min: 14, max: 59, gender: 'Female', price: 600 },
-	{ id: 'badminton_doubles_60plus', game: 'Badminton', type: 'Doubles', ageGroup: '60+ (flexible)', min: 60, max: Infinity, gender: 'any', price: 600 },
 
 	{ id: 'tt_singles_u14_male', game: 'Table Tennis', type: 'Singles', ageGroup: 'Under 14', min: 8, max: 13, gender: 'Male', price: 200 },
 	{ id: 'tt_singles_u14_female', game: 'Table Tennis', type: 'Singles', ageGroup: 'Under 14', min: 8, max: 13, gender: 'Female', price: 200 },
-	{ id: 'tt_doubles_u14', game: 'Table Tennis', type: 'Doubles', ageGroup: 'Under 14 (flexible)', min: 8, max: 13, gender: 'any', price: 300 },
 	{ id: 'tt_singles_14_60_male', game: 'Table Tennis', type: 'Singles', ageGroup: '14-59', min: 14, max: 59, gender: 'Male', price: 200 },
 	{ id: 'tt_singles_14_60_female', game: 'Table Tennis', type: 'Singles', ageGroup: '14-59', min: 14, max: 59, gender: 'Female', price: 200 },
-	{ id: 'tt_doubles_14_60', game: 'Table Tennis', type: 'Doubles', ageGroup: '14-59 (flexible)', min: 14, max: 59, gender: 'any', price: 300 },
-	{ id: 'tt_singles_60plus', game: 'Table Tennis', type: 'Singles', ageGroup: '60+ (flexible)', min: 60, max: Infinity, gender: 'any', price: 200 },
+	{ id: 'tt_singles_60plus', game: 'Table Tennis', type: 'Singles', ageGroup: '60+', min: 60, max: Infinity, gender: 'any', price: 200 },
+	// The two doubles age groups draw as one open category, so it carries no age group at all.
+	{ id: 'tt_doubles_14_60', game: 'Table Tennis', type: 'Doubles', ageGroup: '', min: 8, max: Infinity, gender: 'any', price: 300 },
 
 	{ id: 'carrom_singles', game: 'Carrom', type: 'Singles', ageGroup: '10+', min: 10, max: Infinity, gender: 'any', price: 200 },
 	{ id: 'carrom_doubles', game: 'Carrom', type: 'Doubles', ageGroup: '10+', min: 10, max: Infinity, gender: 'any', price: 300 },
