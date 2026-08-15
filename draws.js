@@ -145,10 +145,10 @@ function resolveSide(value, wins) {
 // isn't there: until the first match is played there is nothing to read, and a schedule with
 // no results yet is the normal state rather than an error.
 function loadResults(base) {
-	// Unlike the draws, this file changes all through the festival, so it is the one fetch
-	// that must never come out of a cache — a stale copy shows the wrong winner with nothing
-	// to say it is old. The draws get a hand-bumped ?v= in the script tags; results get a
-	// timestamp, because bumping a version after every match is not a thing anyone will do.
+	// This file changes all through the festival, so it must never come out of a cache — a
+	// stale copy shows the wrong winner with nothing to say it is old. A timestamp rather
+	// than a version, because bumping a version after every match is not a thing anyone
+	// will do. loadDraws() below does the same, for the same reason.
 	return fetch(`${base + RESULTS_FILE}?t=${Date.now()}`, { cache: 'no-store' })
 		.then(response => response.ok ? response.text() : '')
 		.then(text => new Map(parseCsv(text).slice(1)
@@ -160,8 +160,13 @@ function loadResults(base) {
 // allSettled, not all: one missing or renamed CSV shouldn't blank the whole page.
 // Resolves to { matches, failed } so the caller can report a partial load.
 function loadDraws(base) {
+	// Timestamped and uncached like results.csv. The draws were meant to be fixed once
+	// published, so a plain fetch was enough — but times do get moved mid-festival, and a
+	// phone holding yesterday's copy sends someone to a court two hours late with nothing
+	// on the page to say it is stale. The files are small and there are 16 of them.
+	const bust = `?t=${Date.now()}`;
 	return Promise.allSettled(SCHEDULE_FILES.map(file =>
-		fetch(base + file).then(response => {
+		fetch(base + file + bust, { cache: 'no-store' }).then(response => {
 			if (!response.ok) throw new Error(file + ' (' + response.status + ')');
 			return response.text();
 		})
