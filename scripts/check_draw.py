@@ -40,12 +40,29 @@ def mins(t):
 
 bad = []
 
-# A round drawn from another round here — 'Winner CH07', 'Winner Group A' — is a later one,
-# and later rounds are the short ones. A round is judged as a whole: two byes meeting name
-# each other outright, but they are still in the round their category's opening one feeds.
-LATER = {(r['Category'], r['Round']) for r in rows
-	for side in (r['Side A'], r['Side B'])
-	if re.match(r'(Winner|Runner-up)\b', side.strip())}
+# Every round but the category's opening one is a later round, and later rounds are the short
+# ones. A round is judged as a whole: two byes meeting name each other outright, but they are
+# still in the round their category's opening one feeds.
+#
+# This is read off the draw's shape rather than off the placeholders, because placeholders do
+# not survive the weekend: 'Winner BDAM06' becomes a name the moment BDAM06's result is filled
+# in, and a round whose sides had all been filled in used to stop counting as later — which
+# silently swapped its expected slot length and turnaround for the opening round's. That is
+# what put TDAO13/TDAO14 and the TT doubles round shape into this report.
+DAY_ORDER = {'Fri 14 Aug': 0, 'Sat 15 Aug': 1, 'Sun 16 Aug': 2}
+LATER = set()
+for category in {r['Category'] for r in rows}:
+	mine = [r for r in rows if r['Category'] == category]
+	names = {r['Round'] for r in mine}
+	# A group stage is the opening round entire, however many groups it runs; otherwise the
+	# opening round is whichever round starts first. A Decider is a hand-added tiebreak that
+	# sits beside the bracket, so it is never the opening one.
+	if any(n.startswith('Group') for n in names):
+		opening = {n for n in names if n.startswith('Group')}
+	else:
+		opening = {min((n for n in names if n != 'Decider'),
+			key=lambda n: min((DAY_ORDER[r['Day']], mins(r['Start'])) for r in mine if r['Round'] == n))}
+	LATER |= {(category, n) for n in names - opening}
 
 
 def slot_of(r):
@@ -148,7 +165,6 @@ def sides(r):
 	return reachable(r, r['Side A']) | reachable(r, r['Side B'])
 
 # a feeder has to be over, with a turnaround, before the match it feeds starts
-DAY_ORDER = {'Fri 14 Aug': 0, 'Sat 15 Aug': 1, 'Sun 16 Aug': 2}
 for r in rows:
 	for side in (r['Side A'], r['Side B']):
 		hit = re.match(r'(?:Winner|Runner-up)\s+(.+)$', side.strip())
@@ -254,9 +270,12 @@ for category in sorted({r['Category'] for r in rows}):
 	while field > 1:
 		field //= 2
 		want.append(field)
+	# A Decider is a hand-added tiebreak for a group that finished level — it settles who the
+	# group's qualifiers are, so it sits beside the bracket rather than in it and has no place
+	# in the halving. Its count is whatever the tie needed, which is why it is skipped here.
 	when = {}
 	for r in mine:
-		if r['later']:
+		if r['later'] and r['Round'] != 'Decider':
 			when[r['Round']] = min(when.get(r['Round'], (9, 9999)), (DAY_ORDER[r['Day']], r['s']))
 	got = [sum(1 for r in mine if r['Round'] == name) for name in sorted(when, key=when.get)]
 	if got != want:
