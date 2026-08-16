@@ -5,3 +5,8 @@ Automator.workflow/
 # the draws are the published schedule — names and flats only, no contact details
 !schedule/*.csv
 !schedules/data/*.csv
+
+# a zip of the bracket PNGs beside them, made to hand round — the PNGs themselves are tracked
+brackets/*.zip
+# Python bytecode from scripts/
+__pycache__/
