@@ -62,6 +62,16 @@ bad = []
 # silently swapped its expected slot length and turnaround for the opening round's. That is
 # what put TDAO13/TDAO14 and the TT doubles round shape into this report.
 DAY_ORDER = {'Fri 14 Aug': 0, 'Sat 15 Aug': 1, 'Sun 16 Aug': 2}
+
+
+def is_decider(round_name):
+	"""A hand-added tiebreak for a group that finished level. Named 'Decider' on its own, or
+	'Decider — Group B' where the group it settles is worth naming on the card — so the test is
+	the prefix, never the whole string. Keep in step with rank() in bracket.py and roundClass()
+	in schedules/schedules.js, which read the same prefix."""
+	return round_name.startswith('Decider')
+
+
 LATER = set()
 for category in {r['Category'] for r in rows}:
 	mine = [r for r in rows if r['Category'] == category]
@@ -72,7 +82,7 @@ for category in {r['Category'] for r in rows}:
 	if any(n.startswith('Group') for n in names):
 		opening = {n for n in names if n.startswith('Group')}
 	else:
-		opening = {min((n for n in names if n != 'Decider'),
+		opening = {min((n for n in names if not is_decider(n)),
 			key=lambda n: min((DAY_ORDER[r['Day']], mins(r['Start'])) for r in mine if r['Round'] == n))}
 	LATER |= {(category, n) for n in names - opening}
 
@@ -294,7 +304,7 @@ for category in sorted({r['Category'] for r in rows}):
 	# in the halving. Its count is whatever the tie needed, which is why it is skipped here.
 	when = {}
 	for r in mine:
-		if r['later'] and r['Round'] != 'Decider':
+		if r['later'] and not is_decider(r['Round']):
 			when[r['Round']] = min(when.get(r['Round'], (9, 9999)), (DAY_ORDER[r['Day']], r['s']))
 	got = [sum(1 for r in mine if r['Round'] == name) for name in sorted(when, key=when.get)]
 	if got != want:

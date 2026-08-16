@@ -118,6 +118,33 @@ published schedule, so they are tracked.
   re-export rather than editing the CSVs, then `scripts/check_draw.py` to re-assert every
   rule below against what was written. Both are plain Python 3, no dependencies. `draw.py`
   writes nothing at all if any match will not fit, and prints what it could not place.
+- **`brackets/` holds the printable sheets**, one A4 PNG per category (2480x3508, A4 at
+  300dpi), rendered by `scripts/bracket.py` — it lays a draw out as HTML and screenshots it
+  with headless Chrome, so Chrome is the only requirement. The set currently in the
+  repository is **Sunday 16 August only**, the closing day, regenerated with:
+
+  ```
+  for f in schedules/data/*.csv; do b=$(basename "$f" .csv); case "$b" in byes|results) continue;; esac;
+    python3 scripts/bracket.py "$f" "brackets/$b.png" --day "Sun 16 Aug"; done
+  ```
+
+  Without `--day` the same script draws the whole category, first round to final. With it,
+  only that day's matches are drawn and a side coming out of an earlier day is resolved
+  through `results.csv` (`via TSAM01` under the name); one that nothing has settled yet keeps
+  its placeholder, greyed, and a group placeholder whose group is still being played that day
+  says when it will be known. Nothing is hardcoded per category: columns come from each
+  match's round and from what feeds it (pool's chained deciders take two columns of their
+  own), and the type is sized to what the page has room for rather than fixed: names run
+  30pt on a sheet holding one final and never below 18pt on the 32-line chess sheet
+  (`NAME_MIN_PT`/`NAME_MAX_PT`). The match label then takes the band it is left with — the
+  script writes out the ways it could break (id / time / court over three lines, down to
+  one line, dropping the court where the sheet uses a single area and the end time on the
+  tightest sheets, both of which the footer still carries) and renders whichever reads
+  largest, up to `LABEL_MAX_PT`. Widths are estimated at roughly half an em per character,
+  which is measured, not guessed: text is clipped rather than wrapped, so an estimate that
+  runs low loses the end of a label. A day's matches that
+  nothing else on the sheet feeds — carrom doubles still has two Group A matches on Sunday —
+  are drawn as their own small trees below the main one.
 - **`PL41` is the one hand-added match**, and the one deliberate exception to the two rules
   below. Group A of the pool left Anshul Goel and Sanjay Karmarkar tied on 2-1 for the
   runner-up spot that feeds `PL35`; being trio-mates in the partial round robin they never
@@ -132,6 +159,14 @@ published schedule, so they are tracked.
   PL41: Sat 15 Aug 11:45-12:00 outside opening hours
   PL41/PL13 share Table 1 with <5 min between
   ```
+
+  A decider's `Round` is `Decider`, or `Decider — Group B` where naming the group it settles
+  is worth it — Sunday's four (`PL43`/`PL44` for group B, `PL45`/`PL46` for group D) are
+  written that way, `PL41` and `PL42` are not. **The group name goes after the `Decider`
+  prefix, never before it**: `is_decider()` in `check_draw.py`, `rank()` in `bracket.py` and
+  `roundClass()` in `schedules/schedules.js` all match on that prefix, and a round starting
+  `Group` is read as a group stage by both scripts. The three are duplicated by hand, so keep
+  them in step.
 
   **Two failures is the current baseline; anything beyond these two is new.** A third,
   `BDAM06: 15 min, expected 30`, stood here until Sunday's badminton went to a flat 25 minutes

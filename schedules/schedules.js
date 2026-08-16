@@ -146,8 +146,10 @@ function roundClass(round) {
 	if (name.startsWith('semi')) return 'round is-semi';
 	if (name.startsWith('quarter')) return 'round is-quarter';
 	// A decider is a tie no group stage settled, played off outside the normal rounds — worth
-	// picking out for the same reason, even though it sits at the shallow end of the draw.
-	if (name === 'decider') return 'round is-decider';
+	// picking out for the same reason, even though it sits at the shallow end of the draw. It
+	// is 'Decider' on its own, or 'Decider — Group B' where the group it settles is named, so
+	// the prefix is the test. Keep in step with is_decider() in scripts/check_draw.py.
+	if (name.startsWith('decider')) return 'round is-decider';
 	return 'round';
 }
 
