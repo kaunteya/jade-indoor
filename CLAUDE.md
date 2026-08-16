@@ -73,6 +73,12 @@ The festival runs over three days, and these are the only hours the facilities a
 Fri and Sat were 10:00 pm; they were stretched an hour each to take load off Sunday. Sunday's
 9:00 pm is hard — everything has to be over by then.
 
+Sunday also has a **break from 1:00 pm to 1:30 pm** when nothing is played on any area. It is
+a hole in the day rather than a shorter day — a match may finish exactly at 1:00 and the next
+start exactly at 1:30, but nothing runs across it. `BREAKS` in `scripts/draw.py` keeps matches
+out of it and `BREAKS` in `scripts/check_draw.py` asserts it; the two are duplicated on
+purpose, so keep them in step.
+
 ## Scheduling rules
 
 Draws are written as CSVs in `schedules/data/`, one file per category, with the columns
@@ -83,8 +89,9 @@ Male`); the `schedules/` page splits on that dash to group by sport, so the pref
 there. These CSVs are the one exception to the `*.csv` gitignore rule — they are the
 published schedule, so they are tracked.
 
-- `schedules/data/` holds **every category drawn out to its final** — 302 matches, 56 on Fri,
-  129 on Sat and 117 on Sun. The opening rounds and group stages fill Fri and Sat; the later
+- `schedules/data/` holds **every category drawn out to its final** — 307 matches, 55 on Fri,
+  124 on Sat and 128 on Sun (`check_draw.py` prints the split, so read it there rather than
+  trusting this line). The opening rounds and group stages fill Fri and Sat; the later
   rounds are mostly Sunday, except in the sports crowded enough to spread back over the Fri
   and Sat evenings (see the `CROWDED` rule below). Every final is on Sunday.
   (`schedule/`, the superseded full draws, is gone from the working tree but still in git.)
@@ -118,16 +125,21 @@ published schedule, so they are tracked.
   organisers' request. It depends on results, so `draw.py` cannot produce it — **regenerating
   the draw from `psl.csv` will drop it, and it has to be re-added by hand.** It was placed at
   Sat 11:45–12:00, which is 15 minutes before the venue opens and leaves no turnaround before
-  `PL13` at 12:00. `check_draw.py` therefore reports exactly two failures, and these two are
-  expected rather than a regression:
+  `PL13` at 12:00. `check_draw.py` therefore reports these two failures, which are expected
+  rather than a regression:
 
   ```
   PL41: Sat 15 Aug 11:45-12:00 outside opening hours
   PL41/PL13 share Table 1 with <5 min between
   ```
 
+  **Two failures is the current baseline; anything beyond these two is new.** A third,
+  `BDAM06: 15 min, expected 30`, stood here until Sunday's badminton went to a flat 25 minutes
+  (below) — at one length for every round `BDAM06` is no longer the odd one out, and re-laying
+  the day moved it off the 09:20 collision that had made it awkward to fix in place.
+
 - No more concurrent matches per sport than it has playing areas (see above), and no match
-  scheduled outside the day's open hours.
+  scheduled outside the day's open hours, or across one of the day's breaks.
 - Consecutive matches on the same court/table/board are a turnaround apart — 5 minutes, or
   the 3 that Sunday's table tennis runs on — and so are any two matches the same player is
   in. Nobody walks straight off one match onto the next.
@@ -163,6 +175,18 @@ published schedule, so they are tracked.
   throughout. Table tennis was the critical path — all 49 of its later rounds on Sunday came to
   634 of the day's 720 minutes on one table, about 14 minutes of float — until spreading it
   back over Fri and Sat left 28 on Sunday and real slack.
+
+- **Sunday's badminton is the exception to that table: 25 minutes for every round.** The
+  organisers asked for longer ties on the closing day, and all 38 of Sunday's badminton matches
+  are later rounds, so the opening/later split does not describe the day at all — it runs at one
+  length throughout. The stretch costs 380 extra court-minutes, which two courts absorb: the
+  badminton day runs 09:00–19:10 instead of 09:00–17:05, still inside the 21:00 hard stop, with
+  every Under 14 tie done by 18:55.
+
+  Like `PL41`, this is applied to the CSVs by hand and **regenerating the draw will drop it**.
+  `draw.py` has no counterpart because it decides a match's day while placing it, so a slot
+  length that depends on the day is circular there. `check_draw.py` knows it as `DAY_SLOT`,
+  which overrides `SLOT`/`LATER_SLOT` for a given day and sport.
 
   8-ball pool runs short because it has one table and the most group matches to fit on it:
   33, needing 660 of the 780 minutes Fri and Sat hold. 20 minutes would need 825 and no

@@ -386,6 +386,13 @@ DAYS = [
 DAY_ORDER = {name: i for i, (name, _, _) in enumerate(DAYS)}
 U14_CUTOFF = 20 * 60
 
+# Hours in the middle of a day when nothing is played. A hole in the day rather than a
+# shorter day: a match may finish exactly as the break starts and start exactly as it ends,
+# but nothing may run across it. Keep in step with BREAKS in check_draw.py.
+BREAKS = {
+	'Sun 16 Aug': [(13 * 60, 13 * 60 + 30)],
+}
+
 # Entrants who have told us they cannot make part of a day. Unlike the turnaround between
 # two matches, these are hard edges — a match may finish exactly as the window opens.
 UNAVAILABLE = {
@@ -399,6 +406,11 @@ UNAVAILABLE = {
 def available(person, day, start, end):
 	return all(end <= shut or start >= open_again
 		for when, shut, open_again in UNAVAILABLE.get(person, []) if when == day)
+
+
+def playable(day, start, end):
+	"""Clear of the day's breaks. Every area stops together, so this is not per sport."""
+	return all(end <= shut or start >= open_again for shut, open_again in BREAKS.get(day, []))
 
 
 def hhmm(minutes):
@@ -480,6 +492,8 @@ def fits(match, day, start):
 	# between two unplayed ties names nobody, and which of the two fields turns up is not
 	# known until they are played, so only the players a tie actually names are held.
 	if not all(available(p, day, start, end) for p in match['people']):
+		return None
+	if not playable(day, start, end):
 		return None
 	if not all(free(busy_person.get((day, p), []), start, end, match['gap']) for p in match['named']):
 		return None

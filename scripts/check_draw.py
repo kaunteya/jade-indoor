@@ -13,6 +13,18 @@ LATER_SLOT = {'Badminton': 15, 'Table Tennis': 10}
 GAP = 5
 LATER_GAP = {'Table Tennis': 3}
 
+# A day where one sport runs to its own length whatever the round. Sunday's badminton was
+# lengthened to 25 minutes on the organisers' call, so the opening/later split does not apply
+# to it — a flat length, which is why BDAM06 is no longer the odd one out. This has no
+# counterpart in draw.py: that decides a match's day while placing it, so a slot length that
+# depends on the day is circular there. It is applied to the CSVs by hand; see CLAUDE.md.
+DAY_SLOT = {('Sun 16 Aug', 'Badminton'): 25}
+
+# Hours in the middle of a day when nothing is played — a hole in the day, not a shorter day,
+# so a match may finish exactly as one starts and start exactly as it ends. Keep in step with
+# BREAKS in draw.py.
+BREAKS = {'Sun 16 Aug': [(13 * 60, 13 * 60 + 30)]}
+
 # Keep in step with UNAVAILABLE in draw.py — duplicated so this stays an independent
 # check on the written files rather than a re-run of the code that wrote them.
 UNAVAILABLE = {
@@ -66,6 +78,8 @@ for category in {r['Category'] for r in rows}:
 
 
 def slot_of(r):
+	if (r['Day'], r['sport']) in DAY_SLOT:
+		return DAY_SLOT[(r['Day'], r['sport'])]
 	return LATER_SLOT.get(r['sport'], SLOT[r['sport']]) if r['later'] else SLOT[r['sport']]
 
 
@@ -86,6 +100,11 @@ for r in rows:
 	open_at, close_at = HOURS[r['Day']]
 	if r['s'] < open_at or r['e'] > close_at:
 		bad.append('%s: %s %s-%s outside opening hours' % (r['Match'], r['Day'], r['Start'], r['End']))
+	for shut, open_again in BREAKS.get(r['Day'], []):
+		if r['s'] < open_again and r['e'] > shut:
+			bad.append('%s: %s %s-%s runs across the %02d:%02d-%02d:%02d break'
+				% (r['Match'], r['Day'], r['Start'], r['End'],
+					shut // 60, shut % 60, open_again // 60, open_again % 60))
 	if 'Under 14' in r['Category'] and r['e'] > 20 * 60:
 		bad.append('%s: Under 14 running past 20:00' % r['Match'])
 	if not r['Side A'].strip() or not r['Side B'].strip():
