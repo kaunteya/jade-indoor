@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>Pavilion Sports League</title>
 	<link rel="icon" href="images/logo.png" />
-	<link rel="stylesheet" href="home.css?v=3" />
+	<link rel="stylesheet" href="home.css?v=6" />
 </head>
 <body>
 	<div class="sponsor-bar">
@@ -28,7 +28,9 @@
 		</a>
 		<a class="home-card" href="schedules/">
 			<span class="home-card-title"><span class="home-card-icon" aria-hidden="true">📅</span>Schedule</span>
-			<span class="home-card-note">Match times, courts and draws</span>
+			<!-- the card's only note: filled in by home.js from schedules/data/, and left hidden
+			     (so the card is title-only) when nothing dates the files -->
+			<span class="home-card-note" id="schedule-updated" hidden></span>
 		</a>
 		<a class="home-card" href="search/">
 			<span class="home-card-title"><span class="home-card-icon" aria-hidden="true">🔍</span>Search</span>
@@ -38,5 +40,10 @@
 
 	<!-- registration/ is still deployed, just unlinked — entries have closed -->
 	<p class="closed-note">Registrations closed</p>
+
+	<!-- ?v= as everywhere else: home.js calls loadLastUpdated in draws.js, so a cached copy of
+	     one beside a fresh copy of the other is a broken card. Bump both when either changes. -->
+	<script src="draws.js?v=6"></script>
+	<script src="home.js?v=3"></script>
 </body>
 </html>

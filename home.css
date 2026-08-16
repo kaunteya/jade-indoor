@@ -108,6 +108,11 @@ h1 img, .subtitle {
 	font-weight: 400;
 	opacity: 0.85;
 }
+/* the Schedule card's date: the title's weight rather than a full 700, so it stands out of
+   the note without competing with the card's own heading */
+.home-card-note strong {
+	font-weight: 600;
+}
 .closed-note {
 	/* margin-top: auto pins this to the bottom of the filled first screen */
 	margin: auto 0 0;

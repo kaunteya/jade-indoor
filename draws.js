@@ -175,3 +175,28 @@ function loadDraws(base) {
 		failed: settled.filter(result => result.status === 'rejected').length,
 	}));
 }
+
+// When schedules/data/ was last touched — the newest Last-Modified across the draws, the byes
+// and the results — as a Date, or null when nothing answers with one. Nothing writes that date
+// down: a hand-kept "updated on" line is exactly the sort of thing that gets forgotten on the
+// day it matters, and the server already knows the answer. HEAD, because only the header is
+// wanted and the caller (index.html) has no use for the bodies; uncached, because a cached
+// response carries the old copy's Last-Modified with it.
+//
+// A server that sends no Last-Modified, or a file:// page that sends no headers at all, comes
+// back null so the caller can say nothing rather than show a wrong date.
+function loadLastUpdated(base) {
+	const bust = `?t=${Date.now()}`;
+	const files = SCHEDULE_FILES.concat([BYES_FILE, RESULTS_FILE]);
+	return Promise.allSettled(files.map(file =>
+		fetch(base + file + bust, { method: 'HEAD', cache: 'no-store' }).then(response => {
+			const stamp = response.ok ? response.headers.get('Last-Modified') : '';
+			const time = stamp ? new Date(stamp).getTime() : NaN;
+			if (!Number.isFinite(time)) throw new Error(file);
+			return time;
+		})
+	)).then(settled => {
+		const times = settled.filter(result => result.status === 'fulfilled').map(result => result.value);
+		return times.length ? new Date(Math.max(...times)) : null;
+	});
+}
