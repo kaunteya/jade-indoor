@@ -109,10 +109,14 @@ published schedule, so they are tracked.
   `draws.js` because `schedules/` and `search/` must agree on who is playing; `resolved()` in
   `check_draw.py` is a second implementation of that one rule — **keep the two in step by hand.**
 
-  Only a match id resolves. `Winner Group A` and `Runner-up Group B` wait on a whole group's
-  standings, which nothing here works out: a group can finish level (Group A of the pool did,
-  which is why `PL41` exists), so naming a qualifier the organisers have not settled would be
-  worse than leaving the placeholder showing.
+  Only a match id resolves. A `Winner Group A` / `Runner-up Group B` placeholder waits on a whole
+  group's standings, which nothing here works out: a group can finish level (Group A of the pool
+  did, which is why `PL41` exists), so naming a qualifier the organisers have not settled would be
+  worse than leaving the placeholder showing. When they *have* settled one, the way to record it is
+  to **overwrite the placeholder with the name in the draw CSV** — there is no results.csv row that
+  can do it. Two such edits are in the tree, both from Sunday's pool deciders (see `PL34`/`PL36`
+  below); `Winner Group A` / `Runner-up Group A` in carrom doubles is still open, its Group A
+  finishing on Sunday.
 - The draw is generated, not written by hand: `scripts/draw.py` reads the sheet export
   `psl.csv`, builds the field for every category, and lays the matches out. Re-run it after a
   re-export rather than editing the CSVs, then `scripts/check_draw.py` to re-assert every
@@ -167,6 +171,15 @@ published schedule, so they are tracked.
   `roundClass()` in `schedules/schedules.js` all match on that prefix, and a round starting
   `Group` is read as a group stage by both scripts. The three are duplicated by hand, so keep
   them in step.
+
+  A decider chain settles more than the one spot it is named for. Both of Sunday's chains ran
+  a three-way tie on 2-1 down to an order: the odd player out gets the bye and enters at the
+  second match, so **its winner is the group winner and its loser the runner-up**, the first
+  decider's loser placing third. That reading is convention, not something the CSVs state — it
+  is why the runner-up can be filled in at all. Group B went Ruturaj Kurbetti / Sharan Wadhwa /
+  Shraddha Dani, group D Gurbirsingh Sethi / Vivek Vichare / Vivek Pawar, so `PL34`'s
+  `Runner-up Group B` was overwritten with Sharan Wadhwa and `PL36`'s `Runner-up Group D` with
+  Vivek Vichare. Like `PL41`, **regenerating the draw drops both edits.**
 
   **Two failures is the current baseline; anything beyond these two is new.** A third,
   `BDAM06: 15 min, expected 30`, stood here until Sunday's badminton went to a flat 25 minutes
